@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\Microsoft.SqlServer.Types.170.1000.7\build\net472\Microsoft.SqlServer.Types.props" Condition="Exists('..\packages\Microsoft.SqlServer.Types.170.1000.7\build\net472\Microsoft.SqlServer.Types.props')" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{269F43CD-D69E-4F82-8C26-CD89C3420BAC}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>DemoPick</RootNamespace>
+    <AssemblyName>DemoPick</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.Bcl.HashCode, Version=6.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Bcl.HashCode.6.0.0\lib\net462\Microsoft.Bcl.HashCode.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.Common">
+      <HintPath>..\packages\Microsoft.ReportingServices.ReportViewerControl.Winforms.150.1652.0\lib\net40\Microsoft.ReportViewer.Common.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.DataVisualization">
+      <HintPath>..\packages\Microsoft.ReportingServices.ReportViewerControl.Winforms.150.1652.0\lib\net40\Microsoft.ReportViewer.DataVisualization.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.ProcessingObjectModel">
+      <HintPath>..\packages\Microsoft.ReportingServices.ReportViewerControl.Winforms.150.1652.0\lib\net40\Microsoft.ReportViewer.ProcessingObjectModel.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.WinForms">
+      <HintPath>..\packages\Microsoft.ReportingServices.ReportViewerControl.Winforms.150.1652.0\lib\net40\Microsoft.ReportViewer.WinForms.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.SqlServer.Server, Version=1.0.0.0, Culture=neutral, PublicKeyToken=23ec7fc2d6eaa4a5, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.SqlServer.Server.1.0.0\lib\net46\Microsoft.SqlServer.Server.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.SqlServer.Types, Version=17.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.SqlServer.Types.170.1000.7\lib\net472\Microsoft.SqlServer.Types.dll</HintPath>
+    </Reference>
+    <Reference Include="SunnyUI, Version=3.9.4.0, Culture=neutral, PublicKeyToken=3f4ebed4237db5e1, processorArchitecture=MSIL">
+      <HintPath>..\packages\SunnyUI.3.9.4\lib\net472\SunnyUI.dll</HintPath>
+    </Reference>
+    <Reference Include="SunnyUI.Common, Version=3.9.4.0, Culture=neutral, PublicKeyToken=3f4ebed4237db5e1, processorArchitecture=MSIL">
+      <HintPath>..\packages\SunnyUI.Common.3.9.4\lib\net472\SunnyUI.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Buffers, Version=4.0.5.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Buffers.4.6.1\lib\net462\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Collections.Immutable, Version=10.0.0.5, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Collections.Immutable.10.0.5\lib\net462\System.Collections.Immutable.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Design" />
+    <Reference Include="System.Formats.Nrbf, Version=10.0.0.5, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Formats.Nrbf.10.0.5\lib\net462\System.Formats.Nrbf.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Management" />
+    <Reference Include="System.Memory, Version=4.0.5.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Memory.4.6.3\lib\net462\System.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors, Version=4.1.6.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Numerics.Vectors.4.6.1\lib\net462\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reflection.Metadata, Version=10.0.0.5, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Reflection.Metadata.10.0.5\lib\net462\System.Reflection.Metadata.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Resources.Extensions, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Resources.Extensions.10.0.5\lib\net462\System.Resources.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.6.1.2\lib\net462\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ValueTuple" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Windows.Forms.DataVisualization" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Views\FrmLogin.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\FrmLogin.Designer.cs">
+      <DependentUpon>FrmLogin.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\FrmDoiMatKhau.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\FrmDoiMatKhau.Designer.cs">
+      <DependentUpon>FrmDoiMatKhau.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\FrmChinh.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\FrmChinh.Designer.cs">
+      <DependentUpon>FrmChinh.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\FrmDatSan.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\FrmDatSan.Designer.cs">
+      <DependentUpon>FrmDatSan.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\FrmDatSanCoDinh.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\FrmDatSanCoDinh.Designer.cs">
+      <DependentUpon>FrmDatSanCoDinh.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\FrmRegister.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\FrmRegister.Designer.cs">
+      <DependentUpon>FrmRegister.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\FrmUserMenu.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\FrmUserMenu.Designer.cs">
+      <DependentUpon>FrmUserMenu.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\FrmThemSP.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\FrmThemSP.Designer.cs">
+      <DependentUpon>FrmThemSP.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\FrmDoiCaBooking.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\FrmDoiCaBooking.Designer.cs">
+      <DependentUpon>FrmDoiCaBooking.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\UCBanHang.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Services\PriceCalculator.cs" />
+    <Compile Include="Views\UCBanHang.Designer.cs">
+      <DependentUpon>UCBanHang.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\UCThanhToan.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\UCThanhToan.Designer.cs">
+      <DependentUpon>UCThanhToan.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\UCCategoryChip.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\UCCategoryChip.Designer.cs">
+      <DependentUpon>UCCategoryChip.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\UCKhachHang.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\UCKhachHang.Designer.cs">
+      <DependentUpon>UCKhachHang.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\UCKhoHang.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\UCKhoHang.Designer.cs">
+      <DependentUpon>UCKhoHang.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\UCBaoCao.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\UCBaoCao.Designer.cs">
+      <DependentUpon>UCBaoCao.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\UCDatLich.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\UCDatLich.Designer.cs">
+      <DependentUpon>UCDatLich.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\UCTongQuan.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\UCTongQuan.Designer.cs">
+      <DependentUpon>UCTongQuan.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Models\AppModels.cs" />
+    <Compile Include="Services\Db.cs" />
+    <Compile Include="Services\DatabaseHelper.cs" />
+    <Compile Include="Services\DbDiagnostics.cs" />
+    <Compile Include="Services\DesignModeUtil.cs" />
+    <Compile Include="Services\AuthService.cs" />
+    <Compile Include="Services\AppSession.cs" />
+    <Compile Include="Services\SchemaInstaller.cs" />
+    <Compile Include="Services\SqlScriptRunner.cs" />
+    <Compile Include="Services\MigrationsRunner.cs" />
+    <Compile Include="Services\CustomerService.cs" />
+    <Compile Include="Services\InventoryService.cs" />
+    <Compile Include="Services\PosService.cs" />
+    <Compile Include="Services\InvoiceService.cs" />
+    <Compile Include="Services\ReportService.cs" />
+    <Compile Include="Controllers\BookingController.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Views\FrmInvoicePreview.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <EmbeddedResource Include="Reports\Bill.rdlc" />
+    <EmbeddedResource Include="Views\FrmChinh.resx">
+      <DependentUpon>FrmChinh.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\FrmDatSan.resx">
+      <DependentUpon>FrmDatSan.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\FrmDoiCaBooking.resx">
+      <DependentUpon>FrmDoiCaBooking.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <EmbeddedResource Include="Views\FrmLogin.resx">
+      <DependentUpon>FrmLogin.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\FrmRegister.resx">
+      <DependentUpon>FrmRegister.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\FrmThemSP.resx">
+      <DependentUpon>FrmThemSP.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\UCBanHang.resx">
+      <DependentUpon>UCBanHang.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\UCBaoCao.resx">
+      <DependentUpon>UCBaoCao.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\UCDatLich.resx">
+      <DependentUpon>UCDatLich.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\UCKhoHang.resx">
+      <DependentUpon>UCKhoHang.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\UCTongQuan.resx">
+      <DependentUpon>UCTongQuan.cs</DependentUpon>
+    </EmbeddedResource>
+    <None Include="packages.config" />
+    <None Include="Docs\README.md" />
+    <None Include="Docs\CLICK-WIRING-CHECKLIST.md" />
+    <None Include="NuGet.Config" />
+    <EmbeddedResource Include="Database\PickleProDB_Complete.sql" />
+    <EmbeddedResource Include="Database\Migrations\*.sql" />
+    <None Include="Resources\pick.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\pick1.png" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Microsoft.SqlServer.Types.170.1000.7\build\net472\Microsoft.SqlServer.Types.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.SqlServer.Types.170.1000.7\build\net472\Microsoft.SqlServer.Types.props'))" />
+    <Error Condition="!Exists('..\packages\System.ValueTuple.4.6.2\build\net471\System.ValueTuple.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\System.ValueTuple.4.6.2\build\net471\System.ValueTuple.targets'))" />
+  </Target>
+  <Import Project="..\packages\System.ValueTuple.4.6.2\build\net471\System.ValueTuple.targets" Condition="Exists('..\packages\System.ValueTuple.4.6.2\build\net471\System.ValueTuple.targets')" />
+</Project>

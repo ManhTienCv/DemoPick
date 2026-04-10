@@ -351,6 +351,9 @@
     <EmbeddedResource Include="Views\UCDatLich.resx">
       <DependentUpon>UCDatLich.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Views\UCKhachHang.resx">
+      <DependentUpon>UCKhachHang.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Views\UCKhoHang.resx">
       <DependentUpon>UCKhoHang.cs</DependentUpon>
     </EmbeddedResource>

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Text;
 
 namespace DemoPick.Services
 {
@@ -70,7 +71,18 @@ namespace DemoPick.Services
                         bool hasReduceStockTrigger = TriggerExists(conn, tran, "trg_ReduceStock");
                         bool hasUpdateMemberTrigger = TriggerExists(conn, tran, "trg_UpdateMemberTier");
 
-                        int invoiceId = InsertInvoice(conn, tran, memberId, totalAmount, discountAmount, finalAmount, paymentMethod);
+                        int closedBookingId = TryCloseActiveBookingByCourtName(conn, tran, courtNameForLog);
+                        int creditedBookingId = closedBookingId;
+
+                        if (creditedBookingId == 0)
+                        {
+                            // Fallback: if booking already ended (EndTime <= now), still credit the member's hours
+                            // using the most recent booking for this court (typically "khách chơi trễ" scenario).
+                            creditedBookingId = TryMarkMostRecentEndedBookingPaidByCourtName(conn, tran, courtNameForLog);
+                        }
+
+                        int effectiveMemberId = ResolveMemberForCheckout(conn, tran, memberId, creditedBookingId);
+                        int invoiceId = InsertInvoice(conn, tran, effectiveMemberId, totalAmount, discountAmount, finalAmount, paymentMethod);
 
                         // 1) Insert POS product lines only (ProductId > 0)
                         foreach (var line in lines)
@@ -81,16 +93,6 @@ namespace DemoPick.Services
 
                             EnsureStockAndMaybeReduce(conn, tran, line.ProductId, line.Quantity, line.ProductName, hasReduceStockTrigger);
                             InsertInvoiceDetail(conn, tran, invoiceId, productId: line.ProductId, bookingId: null, qty: line.Quantity, unitPrice: line.UnitPrice);
-                        }
-
-                        int closedBookingId = TryCloseActiveBookingByCourtName(conn, tran, courtNameForLog);
-                        int creditedBookingId = closedBookingId;
-
-                        if (creditedBookingId == 0)
-                        {
-                            // Fallback: if booking already ended (EndTime <= now), still credit the member's hours
-                            // using the most recent booking for this court (typically "khách chơi trễ" scenario).
-                            creditedBookingId = TryMarkMostRecentEndedBookingPaidByCourtName(conn, tran, courtNameForLog);
                         }
 
                         // 2) Insert court/service lines after we know which booking got credited.
@@ -109,7 +111,7 @@ namespace DemoPick.Services
                         if (lines.Count == 0 && finalAmount <= 0 && creditedBookingId == 0)
                             throw new InvalidOperationException("Không có dữ liệu thanh toán.");
 
-                        if (memberId > 0)
+                        if (effectiveMemberId > 0)
                         {
                             if (!hasUpdateMemberTrigger)
                             {
@@ -118,7 +120,7 @@ namespace DemoPick.Services
                                     tran,
                                     "UPDATE Members SET TotalSpent = ISNULL(TotalSpent, 0) + @FinalAmount WHERE MemberID = @MemberID",
                                     new SqlParameter("@FinalAmount", finalAmount),
-                                    new SqlParameter("@MemberID", memberId)
+                                    new SqlParameter("@MemberID", effectiveMemberId)
                                 );
                             }
 
@@ -137,14 +139,14 @@ namespace DemoPick.Services
                                         conn, tran,
                                         "UPDATE Members SET TotalHoursPurchased = ISNULL(TotalHoursPurchased, 0) + @Hrs WHERE MemberID = @MemberID",
                                         new SqlParameter("@Hrs", addedHours),
-                                        new SqlParameter("@MemberID", memberId)
+                                        new SqlParameter("@MemberID", effectiveMemberId)
                                     );
 
                                     // Auto-upgrade to Fixed customer if TotalHoursPurchased >= 30
                                     DatabaseHelper.ExecuteNonQuery(
                                         conn, tran,
                                         "UPDATE Members SET IsFixed = 1 WHERE MemberID = @MemberID AND TotalHoursPurchased >= 30 AND IsFixed = 0",
-                                        new SqlParameter("@MemberID", memberId)
+                                        new SqlParameter("@MemberID", effectiveMemberId)
                                     );
                                 }
                             }
@@ -163,13 +165,13 @@ namespace DemoPick.Services
                                         conn, tran,
                                         "UPDATE Members SET TotalHoursPurchased = ISNULL(TotalHoursPurchased, 0) + @Hrs WHERE MemberID = @MemberID",
                                         new SqlParameter("@Hrs", addedHours),
-                                        new SqlParameter("@MemberID", memberId)
+                                        new SqlParameter("@MemberID", effectiveMemberId)
                                     );
 
                                     DatabaseHelper.ExecuteNonQuery(
                                         conn, tran,
                                         "UPDATE Members SET IsFixed = 1 WHERE MemberID = @MemberID AND TotalHoursPurchased >= 30 AND IsFixed = 0",
-                                        new SqlParameter("@MemberID", memberId)
+                                        new SqlParameter("@MemberID", effectiveMemberId)
                                     );
                                 }
                             }
@@ -182,7 +184,7 @@ namespace DemoPick.Services
                             new SqlParameter("@EventDesc", "POS Checkout"),
                             new SqlParameter(
                                 "@SubDesc",
-                                $"InvoiceID={invoiceId}; Court={courtNameForLog}; BookingID={(creditedBookingId > 0 ? creditedBookingId.ToString() : "-")}; Total={finalAmount:N0}đ; Method={paymentMethod}"
+                                $"InvoiceID={invoiceId}; MemberID={(effectiveMemberId > 0 ? effectiveMemberId.ToString() : "-")}; Court={courtNameForLog}; BookingID={(creditedBookingId > 0 ? creditedBookingId.ToString() : "-")}; Total={finalAmount:N0}đ; Method={paymentMethod}"
                             )
                         );
 
@@ -200,6 +202,136 @@ namespace DemoPick.Services
                     }
                 }
             }
+        }
+
+        private static int ResolveMemberForCheckout(SqlConnection conn, SqlTransaction tran, int memberId, int creditedBookingId)
+        {
+            if (memberId > 0) return memberId;
+            if (creditedBookingId <= 0) return 0;
+
+            object existingMemberObj = DatabaseHelper.ExecuteScalar(
+                conn,
+                tran,
+                "SELECT MemberID FROM dbo.Bookings WHERE BookingID = @BookingID",
+                new SqlParameter("@BookingID", creditedBookingId)
+            );
+
+            if (existingMemberObj != null && existingMemberObj != DBNull.Value)
+            {
+                int bookingMemberId = Convert.ToInt32(existingMemberObj);
+                if (bookingMemberId > 0) return bookingMemberId;
+            }
+
+            string guestNameRaw = Convert.ToString(
+                DatabaseHelper.ExecuteScalar(
+                    conn,
+                    tran,
+                    "SELECT GuestName FROM dbo.Bookings WHERE BookingID = @BookingID",
+                    new SqlParameter("@BookingID", creditedBookingId)
+                )
+            ) ?? "";
+
+            ParseGuestInfo(guestNameRaw, out var fullName, out var phone);
+            if (string.IsNullOrWhiteSpace(phone)) return 0;
+
+            object existingByPhoneObj = DatabaseHelper.ExecuteScalar(
+                conn,
+                tran,
+                "SELECT TOP (1) MemberID FROM dbo.Members WITH (UPDLOCK, HOLDLOCK) WHERE Phone = @Phone ORDER BY MemberID DESC",
+                new SqlParameter("@Phone", phone)
+            );
+
+            int resolvedMemberId;
+
+            if (existingByPhoneObj != null && existingByPhoneObj != DBNull.Value)
+            {
+                resolvedMemberId = Convert.ToInt32(existingByPhoneObj);
+
+                if (!string.IsNullOrWhiteSpace(fullName))
+                {
+                    DatabaseHelper.ExecuteNonQuery(
+                        conn,
+                        tran,
+                        "UPDATE dbo.Members SET FullName = @FullName WHERE MemberID = @MemberID AND (FullName IS NULL OR LTRIM(RTRIM(FullName)) = '')",
+                        new SqlParameter("@FullName", fullName),
+                        new SqlParameter("@MemberID", resolvedMemberId)
+                    );
+                }
+            }
+            else
+            {
+                object insertedObj = DatabaseHelper.ExecuteScalar(
+                    conn,
+                    tran,
+                    @"INSERT INTO dbo.Members (FullName, Phone, IsFixed)
+                      VALUES (@FullName, @Phone, 0);
+                      SELECT CAST(SCOPE_IDENTITY() AS INT);",
+                    new SqlParameter("@FullName", string.IsNullOrWhiteSpace(fullName) ? "Khach le" : fullName),
+                    new SqlParameter("@Phone", phone)
+                );
+
+                if (insertedObj == null || insertedObj == DBNull.Value)
+                    return 0;
+
+                resolvedMemberId = Convert.ToInt32(insertedObj);
+            }
+
+            DatabaseHelper.ExecuteNonQuery(
+                conn,
+                tran,
+                "UPDATE dbo.Bookings SET MemberID = @MemberID WHERE BookingID = @BookingID AND (MemberID IS NULL OR MemberID = 0)",
+                new SqlParameter("@MemberID", resolvedMemberId),
+                new SqlParameter("@BookingID", creditedBookingId)
+            );
+
+            return resolvedMemberId;
+        }
+
+        private static void ParseGuestInfo(string guestNameRaw, out string fullName, out string phone)
+        {
+            fullName = "";
+            phone = "";
+
+            string raw = (guestNameRaw ?? "").Trim();
+            if (raw.Length == 0) return;
+
+            int sep = raw.LastIndexOf(" - ", StringComparison.Ordinal);
+            if (sep >= 0)
+            {
+                fullName = raw.Substring(0, sep).Trim();
+                phone = raw.Substring(sep + 3).Trim();
+            }
+            else
+            {
+                int dash = raw.LastIndexOf('-');
+                if (dash > 0 && dash < raw.Length - 1)
+                {
+                    fullName = raw.Substring(0, dash).Trim();
+                    phone = raw.Substring(dash + 1).Trim();
+                }
+                else
+                {
+                    fullName = raw;
+                }
+            }
+
+            phone = NormalizePhone(phone);
+
+            if (string.IsNullOrWhiteSpace(fullName) && !string.IsNullOrWhiteSpace(phone))
+                fullName = "Khach " + phone;
+        }
+
+        private static string NormalizePhone(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input)) return "";
+
+            var sb = new StringBuilder(input.Length);
+            foreach (char c in input)
+            {
+                if (char.IsDigit(c)) sb.Append(c);
+            }
+
+            return sb.ToString();
         }
 
         private static bool TriggerExists(SqlConnection conn, SqlTransaction tran, string triggerName)

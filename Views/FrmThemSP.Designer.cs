@@ -89,13 +89,6 @@ namespace DemoPick
             this.cboLoai.FillColor = System.Drawing.Color.White;
             this.cboLoai.Font = new System.Drawing.Font("Segoe UI", 11F);
             this.cboLoai.ItemHoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(155)))), ((int)(((byte)(200)))), ((int)(((byte)(255)))));
-            this.cboLoai.Items.AddRange(new object[] {
-            "Thức uống",
-            "Thuê Dụng cụ",
-            "Dịch vụ đi kèm",
-            "Đồ ăn nhẹ",
-            "Nước Tăng Lực",
-            "Dịch vụ Khác"});
             this.cboLoai.ItemSelectForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(235)))), ((int)(((byte)(243)))), ((int)(((byte)(255)))));
             this.cboLoai.Location = new System.Drawing.Point(30, 205);
             this.cboLoai.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);

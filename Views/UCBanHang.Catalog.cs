@@ -30,6 +30,45 @@ namespace DemoPick
             }
         }
 
+        private void BtnDeleteProduct_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                using (var f = new FrmXoaSP())
+                {
+                    if (f.ShowDialog(this) == DialogResult.OK)
+                    {
+                        if (!string.IsNullOrWhiteSpace(_selectedCourtName))
+                        {
+                            LoadPendingOrderForCourt(_selectedCourtName);
+                        }
+
+                        LoadCatalog();
+
+                        try
+                        {
+                            var main = FindForm() as FrmChinh;
+                            if (main?.khoHang != null)
+                            {
+                                main.khoHang.RefreshOnActivated();
+                            }
+                        }
+                        catch
+                        {
+                            // Best effort cross-module refresh.
+                        }
+
+                        new UIPage().ShowSuccessTip("Đã cập nhật danh sách hàng hóa.");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                DatabaseHelper.TryLog("POS Delete Product Page Error", ex, "UCBanHang.BtnDeleteProduct_Click");
+                new UIPage().ShowErrorTip("Không thể mở trang xóa sản phẩm: " + ex.Message);
+            }
+        }
+
         private async void LoadCatalog()
         {
             try

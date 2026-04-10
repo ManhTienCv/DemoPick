@@ -182,10 +182,7 @@ namespace DemoPick.Services
                             tran,
                             "INSERT INTO SystemLogs (EventDesc, SubDesc) VALUES (@EventDesc, @SubDesc)",
                             new SqlParameter("@EventDesc", "POS Checkout"),
-                            new SqlParameter(
-                                "@SubDesc",
-                                $"InvoiceID={invoiceId}; MemberID={(effectiveMemberId > 0 ? effectiveMemberId.ToString() : "-")}; Court={courtNameForLog}; BookingID={(creditedBookingId > 0 ? creditedBookingId.ToString() : "-")}; Total={finalAmount:N0}đ; Method={paymentMethod}"
-                            )
+                            new SqlParameter("@SubDesc", BuildPosCheckoutLogSubDesc(invoiceId, courtNameForLog, finalAmount, paymentMethod, lines))
                         );
 
                         tran.Commit();
@@ -202,6 +199,113 @@ namespace DemoPick.Services
                     }
                 }
             }
+        }
+
+        private static string BuildPosCheckoutLogSubDesc(
+            int invoiceId,
+            string courtName,
+            decimal finalAmount,
+            string paymentMethod,
+            IReadOnlyList<CartLine> lines)
+        {
+            var parts = new List<string>();
+            if (invoiceId > 0) parts.Add($"HĐ #{invoiceId}");
+
+            string court = (courtName ?? "").Trim();
+            if (!string.IsNullOrWhiteSpace(court))
+            {
+                parts.Add(court);
+            }
+
+            string items = BuildPosProductSummary(lines);
+            if (!string.IsNullOrWhiteSpace(items))
+            {
+                parts.Add(items);
+            }
+
+            if (finalAmount > 0)
+            {
+                parts.Add(finalAmount.ToString("N0") + "đ");
+            }
+
+            string methodText = ToPaymentMethodDisplay(paymentMethod);
+            if (!string.IsNullOrWhiteSpace(methodText))
+            {
+                parts.Add(methodText);
+            }
+
+            return parts.Count == 0 ? string.Empty : string.Join(" • ", parts);
+        }
+
+        private static string ToPaymentMethodDisplay(string paymentMethod)
+        {
+            string s = (paymentMethod ?? "").Trim();
+            if (s.Length == 0) return string.Empty;
+
+            if (string.Equals(s, "Cash", StringComparison.OrdinalIgnoreCase)) return "Tiền mặt";
+            if (string.Equals(s, "Bank", StringComparison.OrdinalIgnoreCase)) return "Chuyển khoản";
+            if (string.Equals(s, "Transfer", StringComparison.OrdinalIgnoreCase)) return "Chuyển khoản";
+            return s;
+        }
+
+        private static string BuildPosProductSummary(IReadOnlyList<CartLine> lines)
+        {
+            if (lines == null || lines.Count == 0) return string.Empty;
+
+            var byName = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            for (int i = 0; i < lines.Count; i++)
+            {
+                var line = lines[i];
+                if (line == null) continue;
+                if (line.ProductId <= 0) continue; // only stock items
+                if (line.Quantity <= 0) continue;
+
+                string name = (line.ProductName ?? "").Trim();
+                if (string.IsNullOrWhiteSpace(name)) continue;
+
+                if (byName.ContainsKey(name)) byName[name] += line.Quantity;
+                else byName.Add(name, line.Quantity);
+            }
+
+            if (byName.Count == 0) return string.Empty;
+
+            var items = new List<KeyValuePair<string, int>>(byName);
+            items.Sort((a, b) => b.Value.CompareTo(a.Value));
+
+            const int maxItemsToShow = 2;
+            var sb = new StringBuilder();
+            int shown = 0;
+
+            for (int i = 0; i < items.Count && shown < maxItemsToShow; i++)
+            {
+                string name = items[i].Key ?? "";
+                int qty = items[i].Value;
+                if (qty <= 0) continue;
+
+                if (sb.Length > 0) sb.Append(", ");
+                sb.Append(TruncateForUi(name, 18));
+                sb.Append(" x");
+                sb.Append(qty);
+                shown++;
+            }
+
+            int remaining = items.Count - shown;
+            if (remaining > 0)
+            {
+                sb.Append(" +");
+                sb.Append(remaining);
+            }
+
+            return sb.ToString();
+        }
+
+        private static string TruncateForUi(string text, int maxLen)
+        {
+            if (string.IsNullOrEmpty(text)) return string.Empty;
+            if (maxLen <= 0) return string.Empty;
+            if (text.Length <= maxLen) return text;
+            if (maxLen == 1) return "…";
+            return text.Substring(0, maxLen - 1) + "…";
         }
 
         private static int ResolveMemberForCheckout(SqlConnection conn, SqlTransaction tran, int memberId, int creditedBookingId)

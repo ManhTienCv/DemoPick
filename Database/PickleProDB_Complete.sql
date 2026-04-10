@@ -366,35 +366,6 @@ FROM @SeedCourts s
 WHERE NOT EXISTS (SELECT 1 FROM dbo.Courts c WHERE c.Name = s.Name);
 GO
 
-/* 6b) Seed add-on services as products (idempotent) */
-IF NOT EXISTS (SELECT 1 FROM dbo.Products WHERE SKU = N'SVC-RACKET')
-BEGIN
-    INSERT INTO dbo.Products (SKU, Name, Category, Price, StockQuantity, MinThreshold)
-    VALUES (N'SVC-RACKET', N'Thuê vợt', N'Dịch vụ đi kèm', 40000, 999999, 5);
-END
-GO
-
-IF NOT EXISTS (SELECT 1 FROM dbo.Products WHERE SKU = N'SVC-BALL-BASKET')
-BEGIN
-    INSERT INTO dbo.Products (SKU, Name, Category, Price, StockQuantity, MinThreshold)
-    VALUES (N'SVC-BALL-BASKET', N'Bóng tập (rổ)', N'Dịch vụ đi kèm', 40000, 999999, 5);
-END
-GO
-
-IF NOT EXISTS (SELECT 1 FROM dbo.Products WHERE SKU = N'SVC-BALL-MACHINE')
-BEGIN
-    INSERT INTO dbo.Products (SKU, Name, Category, Price, StockQuantity, MinThreshold)
-    VALUES (N'SVC-BALL-MACHINE', N'Máy bắn bóng', N'Dịch vụ đi kèm', 80000, 999999, 5);
-END
-GO
-
-IF NOT EXISTS (SELECT 1 FROM dbo.Products WHERE SKU = N'SVC-BALL-PICK')
-BEGIN
-    INSERT INTO dbo.Products (SKU, Name, Category, Price, StockQuantity, MinThreshold)
-    VALUES (N'SVC-BALL-PICK', N'Nhặt bóng', N'Dịch vụ đi kèm', 40000, 999999, 5);
-END
-GO
-
 PRINT 'Database initialized (schema + base seed)';
 GO
 

@@ -17,6 +17,7 @@ namespace DemoPick
         public UCKhoHang khoHang;
         public UCBaoCao baoCao;
         public UCThanhToan thanhToan;
+        private UserControl _activeModule;
         
         private List<Sunny.UI.UIPanel> menuButtons;
 
@@ -144,23 +145,33 @@ namespace DemoPick
 
         public void SwitchModule(UserControl uc, Sunny.UI.UIPanel activeBtn, string title, string subtitle)
         {
-            pnlContent.Controls.Clear();
+            bool isSameModule = ReferenceEquals(_activeModule, uc);
+            bool shouldRefresh = !isSameModule || (uc is UCBanHang);
 
-            UiTheme.ApplyPageBackground(pnlContent);
-            UiTheme.ApplyModuleTheme(uc);
+            if (!isSameModule)
+            {
+                pnlContent.Controls.Clear();
 
-            pnlContent.Controls.Add(uc);
+                UiTheme.ApplyPageBackground(pnlContent);
+                UiTheme.ApplyModuleTheme(uc);
+
+                pnlContent.Controls.Add(uc);
+                _activeModule = uc;
+            }
 
             // Refresh data-driven modules when navigating between pages.
-            try
+            if (shouldRefresh)
             {
-                if (uc is UCBanHang bh) bh.RefreshOnActivated();
-                else if (uc is UCKhoHang kh) kh.RefreshOnActivated();
-                else if (uc is UCThanhToan tt) tt.RefreshOnActivated();
-            }
-            catch (Exception ex)
-            {
-                try { DemoPick.Services.DatabaseHelper.TryLog("SwitchModule Refresh Error", ex, "FrmChinh.SwitchModule"); } catch { }
+                try
+                {
+                    if (uc is UCBanHang bh) bh.RefreshOnActivated();
+                    else if (uc is UCKhoHang kho) kho.RefreshOnActivated();
+                    else if (uc is UCThanhToan tt) tt.RefreshOnActivated();
+                }
+                catch (Exception ex)
+                {
+                    try { DemoPick.Services.DatabaseHelper.TryLog("SwitchModule Refresh Error", ex, "FrmChinh.SwitchModule"); } catch { }
+                }
             }
             
             lblPageTitle.Text = title;

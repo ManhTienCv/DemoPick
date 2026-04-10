@@ -58,16 +58,28 @@ namespace DemoPick
 
         private void BtnSaveOrder_Click(object sender, EventArgs e)
         {
+            SavePendingOrderFromCart(showSuccessTip: true);
+        }
+
+        private bool SavePendingOrderFromCart(bool showSuccessTip)
+        {
             if (string.IsNullOrWhiteSpace(_selectedCourtName))
             {
-                ShowSelectCourtHintIfNeeded();
-                return;
+                if (showSuccessTip)
+                {
+                    ShowSelectCourtHintIfNeeded();
+                }
+                return false;
             }
+
             if (lstCart.Items.Count == 0)
             {
                 Services.PosService.ClearPendingOrder(_selectedCourtName);
-                new UIPage().ShowSuccessTip("Đã xóa trắng giỏ hàng.");
-                return;
+                if (showSuccessTip)
+                {
+                    new UIPage().ShowSuccessTip("Đã xóa trắng giỏ hàng.");
+                }
+                return true;
             }
 
             try
@@ -85,11 +97,23 @@ namespace DemoPick
                 }
 
                 Services.PosService.SavePendingOrder(_selectedCourtName, lines);
-                new UIPage().ShowSuccessTip($"Đã LƯU order cho {_selectedCourtName} thành công!");
+                if (showSuccessTip)
+                {
+                    new UIPage().ShowSuccessTip($"Đã LƯU order cho {_selectedCourtName} thành công!");
+                }
+                return true;
             }
             catch (Exception ex)
             {
-                new UIPage().ShowErrorTip("Lỗi lưu đơn: " + ex.Message);
+                if (showSuccessTip)
+                {
+                    new UIPage().ShowErrorTip("Lỗi lưu đơn: " + ex.Message);
+                }
+                else
+                {
+                    Services.DatabaseHelper.TryLog("POS Save Pending Error", ex, "UCBanHang.SavePendingOrderFromCart");
+                }
+                return false;
             }
         }
 

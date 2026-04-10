@@ -9,6 +9,12 @@ namespace DemoPick.Services
 {
     public class InventoryService
     {
+        public sealed class ProductDeleteResult
+        {
+            public bool Success { get; set; }
+            public string Message { get; set; }
+        }
+
         public async Task AddProductAsync(string sku, string name, string category, decimal price, int stockQuantity, int minThreshold)
         {
             if (string.IsNullOrWhiteSpace(sku)) throw new ArgumentException("SKU is required.", nameof(sku));
@@ -51,7 +57,13 @@ VALUES (@SKU, @Name, @Category, @Price, @StockQuantity, @MinThreshold)";
             {
                 var list = new List<string>();
                 var dt = DatabaseHelper.ExecuteQuery(
-                    "SELECT DISTINCT Category FROM Products WHERE Category IS NOT NULL AND LTRIM(RTRIM(Category)) <> '' ORDER BY Category");
+                                        @"SELECT DISTINCT Category
+                                            FROM Products
+                                            WHERE Category IS NOT NULL
+                                                AND LTRIM(RTRIM(Category)) <> ''
+                                                AND Category <> N'Dịch vụ đi kèm'
+                                                AND SKU NOT LIKE N'SVC-%'
+                                            ORDER BY Category");
                 foreach (DataRow row in dt.Rows)
                 {
                     string cat = row[0]?.ToString();
@@ -62,12 +74,78 @@ VALUES (@SKU, @Name, @Category, @Price, @StockQuantity, @MinThreshold)";
             });
         }
 
+        public async Task<ProductDeleteResult> DeleteProductAsync(int productId)
+        {
+            if (productId <= 0)
+            {
+                return new ProductDeleteResult { Success = false, Message = "Mã sản phẩm không hợp lệ." };
+            }
+
+            return await Task.Run(() =>
+            {
+                try
+                {
+                    var nameObj = DatabaseHelper.ExecuteScalar(
+                        "SELECT TOP 1 Name FROM Products WHERE ProductID = @ProductID",
+                        new SqlParameter("@ProductID", productId));
+
+                    var productName = (nameObj == null || nameObj == DBNull.Value)
+                        ? string.Empty
+                        : (nameObj.ToString() ?? string.Empty).Trim();
+
+                    if (string.IsNullOrWhiteSpace(productName))
+                    {
+                        return new ProductDeleteResult { Success = false, Message = "Không tìm thấy sản phẩm để xóa." };
+                    }
+
+                    var usedObj = DatabaseHelper.ExecuteScalar(
+                        "SELECT COUNT(1) FROM InvoiceDetails WHERE ProductID = @ProductID",
+                        new SqlParameter("@ProductID", productId));
+                    int usedCount = usedObj == null || usedObj == DBNull.Value ? 0 : Convert.ToInt32(usedObj);
+
+                    if (usedCount > 0)
+                    {
+                        return new ProductDeleteResult
+                        {
+                            Success = false,
+                            Message = "Sản phẩm đã có lịch sử bán hàng nên không thể xóa."
+                        };
+                    }
+
+                    int rows = DatabaseHelper.ExecuteNonQuery(
+                        "DELETE FROM Products WHERE ProductID = @ProductID",
+                        new SqlParameter("@ProductID", productId));
+
+                    if (rows <= 0)
+                    {
+                        return new ProductDeleteResult { Success = false, Message = "Xóa sản phẩm thất bại." };
+                    }
+
+                    DatabaseHelper.TryLog(
+                        "Xóa Sản phẩm Kho",
+                        $"-{productName} (ID: {productId})");
+
+                    return new ProductDeleteResult { Success = true, Message = "Đã xóa sản phẩm thành công." };
+                }
+                catch (Exception ex)
+                {
+                    DatabaseHelper.TryLog("Delete Product Error", ex, "InventoryService.DeleteProductAsync");
+                    return new ProductDeleteResult { Success = false, Message = "Không thể xóa sản phẩm lúc này." };
+                }
+            });
+        }
+
         public async Task<List<ProductCatalogItemModel>> GetProductsAsync()
         {
             return await Task.Run(() =>
             {
                 var list = new List<ProductCatalogItemModel>();
-                var dt = DatabaseHelper.ExecuteQuery("SELECT ProductID, Name, Price, Category FROM Products");
+                                var dt = DatabaseHelper.ExecuteQuery(
+                                        @"SELECT ProductID, Name, Price, Category
+                                            FROM Products
+                                            WHERE Category <> N'Dịch vụ đi kèm'
+                                                AND SKU NOT LIKE N'SVC-%'
+                                            ORDER BY ProductID DESC");
                 foreach (DataRow row in dt.Rows)
                 {
                     int productId = row["ProductID"] == DBNull.Value ? 0 : Convert.ToInt32(row["ProductID"]);
@@ -83,6 +161,33 @@ VALUES (@SKU, @Name, @Category, @Price, @StockQuantity, @MinThreshold)";
                         Category = category
                     });
                 }
+                return list;
+            });
+        }
+
+        public async Task<List<ProductDeleteListItemModel>> GetProductsForDeletionAsync()
+        {
+            return await Task.Run(() =>
+            {
+                var list = new List<ProductDeleteListItemModel>();
+                var dt = DatabaseHelper.ExecuteQuery(
+                    @"SELECT ProductID, SKU, Name, Category, Price, StockQuantity
+                      FROM Products
+                      ORDER BY ProductID DESC");
+
+                foreach (DataRow row in dt.Rows)
+                {
+                    list.Add(new ProductDeleteListItemModel
+                    {
+                        ProductId = row["ProductID"] == DBNull.Value ? 0 : Convert.ToInt32(row["ProductID"]),
+                        Sku = row["SKU"]?.ToString() ?? string.Empty,
+                        Name = row["Name"]?.ToString() ?? string.Empty,
+                        Category = row["Category"]?.ToString() ?? string.Empty,
+                        Price = row["Price"] == DBNull.Value ? 0m : Convert.ToDecimal(row["Price"]),
+                        StockQuantity = row["StockQuantity"] == DBNull.Value ? 0 : Convert.ToInt32(row["StockQuantity"])
+                    });
+                }
+
                 return list;
             });
         }
@@ -117,7 +222,7 @@ VALUES (@SKU, @Name, @Category, @Price, @StockQuantity, @MinThreshold)";
         public async Task<List<InventoryItemModel>> GetInventoryItemsAsync()
         {
             var list = new List<InventoryItemModel>();
-            string query = "SELECT SKU, Name, Category, StockQuantity, MinThreshold, Price FROM Products WHERE Category != N'Dịch vụ đi kèm'";
+            string query = "SELECT ProductID, SKU, Name, Category, StockQuantity, MinThreshold, Price FROM Products WHERE Category != N'Dịch vụ đi kèm'";
 
             await Task.Run(() => {
                 var dt = DatabaseHelper.ExecuteQuery(query);
@@ -132,6 +237,7 @@ VALUES (@SKU, @Name, @Category, @Price, @StockQuantity, @MinThreshold)";
 
                     list.Add(new InventoryItemModel
                     {
+                        ProductId = row["ProductID"] == DBNull.Value ? 0 : Convert.ToInt32(row["ProductID"]),
                         Sku = row["SKU"].ToString(),
                         Name = row["Name"].ToString(),
                         Category = row["Category"].ToString(),
@@ -166,15 +272,121 @@ ORDER BY CreatedAt DESC";
                     else if (span.TotalHours < 24) timeStr = $"{(int)span.TotalHours} giờ trước";
                     else timeStr = "Hôm qua";
 
+                    string eventRaw = row["EventDesc"]?.ToString() ?? "";
+                    string subRaw = row["SubDesc"] != DBNull.Value ? (row["SubDesc"]?.ToString() ?? "") : "";
+
+                    string eventUi = MapEventForUi(eventRaw);
+                    string subUi = FormatSubDescForUi(eventRaw, subRaw);
+
                     list.Add(new TransactionModel
                     {
-                        EventDesc = row["EventDesc"].ToString(),
-                        SubDesc = row["SubDesc"] != DBNull.Value ? (row["SubDesc"].ToString() ?? "") : "",
+                        EventDesc = eventUi,
+                        SubDesc = subUi,
                         Time = timeStr
                     });
                 }
             });
             return list;
+        }
+
+        private static string MapEventForUi(string eventDesc)
+        {
+            string e = (eventDesc ?? "").Trim();
+            if (string.Equals(e, "POS Checkout", StringComparison.OrdinalIgnoreCase)) return "Bán hàng (POS)";
+            if (string.Equals(e, "Nhập Kho Trực Tiếp", StringComparison.OrdinalIgnoreCase)) return "Nhập kho";
+            return e;
+        }
+
+        private static string FormatSubDescForUi(string eventDesc, string subDesc)
+        {
+            string e = (eventDesc ?? "").Trim();
+            string sub = (subDesc ?? "").Replace("\r", " ").Replace("\n", " ").Trim();
+            if (sub.Length == 0) return string.Empty;
+
+            if (string.Equals(e, "POS Checkout", StringComparison.OrdinalIgnoreCase))
+            {
+                string formatted = TryFormatPosCheckoutSubDesc(sub);
+                return string.IsNullOrWhiteSpace(formatted) ? sub : formatted;
+            }
+
+            return sub;
+        }
+
+        private static string TryFormatPosCheckoutSubDesc(string raw)
+        {
+            if (string.IsNullOrWhiteSpace(raw)) return string.Empty;
+
+            // New logs are already user-friendly (e.g., "HĐ #10 • ...").
+            if (raw.IndexOf("InvoiceID=", StringComparison.OrdinalIgnoreCase) < 0)
+            {
+                return raw;
+            }
+
+            var kv = ParseKeyValuePairs(raw);
+
+            int invoiceId = TryGetInt(kv, "InvoiceID");
+            string court = TryGetString(kv, "Court");
+            string total = TryGetString(kv, "Total");
+            string method = TryGetString(kv, "Method");
+            string methodUi = ToPaymentMethodDisplay(method);
+
+            var parts = new List<string>();
+            if (invoiceId > 0) parts.Add($"HĐ #{invoiceId}");
+
+            if (!string.IsNullOrWhiteSpace(court) && court != "-") parts.Add(court);
+            if (!string.IsNullOrWhiteSpace(total) && total != "-") parts.Add(total);
+            if (!string.IsNullOrWhiteSpace(methodUi)) parts.Add(methodUi);
+
+            return parts.Count == 0 ? raw : string.Join(" • ", parts);
+        }
+
+        private static Dictionary<string, string> ParseKeyValuePairs(string raw)
+        {
+            var dict = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            if (string.IsNullOrWhiteSpace(raw)) return dict;
+
+            string[] parts = raw.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+            for (int i = 0; i < parts.Length; i++)
+            {
+                string p = (parts[i] ?? "").Trim();
+                if (p.Length == 0) continue;
+
+                int eq = p.IndexOf('=');
+                if (eq <= 0) continue;
+
+                string key = p.Substring(0, eq).Trim();
+                string val = p.Substring(eq + 1).Trim();
+                if (key.Length == 0) continue;
+
+                dict[key] = val;
+            }
+
+            return dict;
+        }
+
+        private static int TryGetInt(Dictionary<string, string> kv, string key)
+        {
+            if (kv == null || string.IsNullOrWhiteSpace(key)) return 0;
+            if (!kv.TryGetValue(key, out var raw)) return 0;
+            if (string.IsNullOrWhiteSpace(raw)) return 0;
+            return int.TryParse(raw.Trim(), out int val) ? val : 0;
+        }
+
+        private static string TryGetString(Dictionary<string, string> kv, string key)
+        {
+            if (kv == null || string.IsNullOrWhiteSpace(key)) return string.Empty;
+            if (!kv.TryGetValue(key, out var raw)) return string.Empty;
+            return (raw ?? "").Trim();
+        }
+
+        private static string ToPaymentMethodDisplay(string paymentMethod)
+        {
+            string s = (paymentMethod ?? "").Trim();
+            if (s.Length == 0) return string.Empty;
+            if (string.Equals(s, "Cash", StringComparison.OrdinalIgnoreCase)) return "Tiền mặt";
+            if (string.Equals(s, "Bank", StringComparison.OrdinalIgnoreCase)) return "Chuyển khoản";
+            if (string.Equals(s, "Transfer", StringComparison.OrdinalIgnoreCase)) return "Chuyển khoản";
+            return s;
         }
     }
 }

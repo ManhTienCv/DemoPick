@@ -9,6 +9,13 @@ namespace DemoPick
     public partial class FrmThemSP : Sunny.UI.UIForm
     {
         private readonly InventoryService _inventoryService;
+        private static readonly string[] DefaultCategories =
+        {
+            "Thức uống",
+            "Đồ ăn nhẹ",
+            "Thuê Dụng cụ",
+            "Khác"
+        };
 
         public FrmThemSP()
         {
@@ -22,6 +29,43 @@ namespace DemoPick
         {
             btnDong.Click += (s, e) => this.Close();
             btnLuu.Click += BtnLuu_Click;
+            this.Shown += async (s, e) => await LoadCategoriesAsync();
+        }
+
+        private async System.Threading.Tasks.Task LoadCategoriesAsync()
+        {
+            cboLoai.Items.Clear();
+
+            var seen = new System.Collections.Generic.HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var cat in DefaultCategories)
+            {
+                if (string.IsNullOrWhiteSpace(cat)) continue;
+                if (seen.Add(cat.Trim())) cboLoai.Items.Add(cat.Trim());
+            }
+
+            try
+            {
+                var categories = await _inventoryService.GetProductCategoriesAsync();
+                if (categories != null)
+                {
+                    foreach (var cat in categories)
+                    {
+                        var normalized = (cat ?? string.Empty).Trim();
+                        if (string.IsNullOrWhiteSpace(normalized)) continue;
+                        if (seen.Add(normalized)) cboLoai.Items.Add(normalized);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                DatabaseHelper.TryLog("Load Categories Error", ex, "FrmThemSP.LoadCategoriesAsync");
+            }
+
+            if (cboLoai.Items.Count > 0)
+            {
+                cboLoai.SelectedIndex = 0;
+            }
         }
 
         private async void BtnLuu_Click(object sender, EventArgs e)
@@ -34,13 +78,13 @@ namespace DemoPick
 
             if (!decimal.TryParse(txtGia.Text.Trim(), NumberStyles.Any, CultureInfo.CurrentCulture, out decimal price) || price <= 0)
             {
-                MessageBox.Show("Đơn giá không hợp lệ (phải là số > 0).", "Chú ý", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Đơn giá không hợp lệ.", "Chú ý", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
             if (!int.TryParse(txtSoLuong.Text.Trim(), out int qty) || qty <= 0)
             {
-                MessageBox.Show("Số lượng không hợp lệ (phải là số nguyên > 0).", "Chú ý", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Số lượng không hợp lệ.", "Chú ý", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 

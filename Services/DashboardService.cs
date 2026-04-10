@@ -142,10 +142,13 @@ namespace DemoPick.Services
                         COALESCE(M.FullName, NULLIF(LTRIM(RTRIM(B.GuestName)), ''), N'Khách lẻ') as CustomerName,
                         FORMAT(B.StartTime, 'dd/MM/yyyy HH:mm') as TimeText,
                         B.Status as Status,
-                        CAST(CASE WHEN B.Status = 'Maintenance' THEN 0 ELSE ISNULL((DATEDIFF(minute, B.StartTime, B.EndTime) / 60.0) * C.HourlyRate, 0) END AS DECIMAL(18,2)) as Amount
+                        CAST(ISNULL((DATEDIFF(minute, B.StartTime, B.EndTime) / 60.0) * C.HourlyRate, 0) AS DECIMAL(18,2)) as Amount
                     FROM Bookings B
                     JOIN Courts C ON B.CourtID = C.CourtID
                     LEFT JOIN Members M ON B.MemberID = M.MemberID
+                    WHERE B.Status = 'Paid'
+                      AND ISNULL(LTRIM(RTRIM(B.GuestName)), '') NOT LIKE 'SMOKE%'
+                      AND ISNULL(LTRIM(RTRIM(M.FullName)), '') NOT LIKE 'SMOKE%'
                     ORDER BY B.StartTime DESC
                 ", new SqlParameter("@Take", take));
 

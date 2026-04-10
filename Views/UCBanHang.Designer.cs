@@ -17,6 +17,7 @@ namespace DemoPick
         public System.Windows.Forms.FlowLayoutPanel flpCategories;
         public System.Windows.Forms.FlowLayoutPanel flpProducts;
         public UIButton btnAddProduct;
+        public UIButton btnDeleteProduct;
         public UCCategoryChip chipCatAll;
         public UCCategoryChip chipCatDrink;
         public UCCategoryChip chipCatSnack;
@@ -55,6 +56,7 @@ namespace DemoPick
             this.flpProducts = new System.Windows.Forms.FlowLayoutPanel();
             this.flpCategories = new System.Windows.Forms.FlowLayoutPanel();
             this.btnAddProduct = new Sunny.UI.UIButton();
+            this.btnDeleteProduct = new Sunny.UI.UIButton();
             this.chipCatAll = new DemoPick.UCCategoryChip();
             this.chipCatDrink = new DemoPick.UCCategoryChip();
             this.chipCatSnack = new DemoPick.UCCategoryChip();
@@ -129,6 +131,7 @@ namespace DemoPick
             // 
             this.pnlCategoryBar.BackColor = System.Drawing.Color.Transparent;
             this.pnlCategoryBar.Controls.Add(this.flpCategories);
+            this.pnlCategoryBar.Controls.Add(this.btnDeleteProduct);
             this.pnlCategoryBar.Controls.Add(this.btnAddProduct);
             this.pnlCategoryBar.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlCategoryBar.Location = new System.Drawing.Point(20, 20);
@@ -280,6 +283,24 @@ namespace DemoPick
             this.btnAddProduct.Size = new System.Drawing.Size(110, 60);
             this.btnAddProduct.TabIndex = 0;
             this.btnAddProduct.Text = "+ Thêm SP";
+            // 
+            // btnDeleteProduct
+            // 
+            this.btnDeleteProduct.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnDeleteProduct.Dock = System.Windows.Forms.DockStyle.Right;
+            this.btnDeleteProduct.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(231)))), ((int)(((byte)(76)))), ((int)(((byte)(60)))));
+            this.btnDeleteProduct.FillHoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(86)))), ((int)(((byte)(70)))));
+            this.btnDeleteProduct.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.btnDeleteProduct.Location = new System.Drawing.Point(250, 0);
+            this.btnDeleteProduct.MinimumSize = new System.Drawing.Size(1, 1);
+            this.btnDeleteProduct.Name = "btnDeleteProduct";
+            this.btnDeleteProduct.Radius = 18;
+            this.btnDeleteProduct.RectColor = System.Drawing.Color.FromArgb(((int)(((byte)(231)))), ((int)(((byte)(76)))), ((int)(((byte)(60)))));
+            this.btnDeleteProduct.RectHoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(86)))), ((int)(((byte)(70)))));
+            this.btnDeleteProduct.Size = new System.Drawing.Size(110, 60);
+            this.btnDeleteProduct.TabIndex = 3;
+            this.btnDeleteProduct.Text = "Xóa SP";
+            this.btnDeleteProduct.TipsFont = new System.Drawing.Font("Segoe UI", 9F);
             this.btnAddProduct.TipsFont = new System.Drawing.Font("Segoe UI", 9F);
             //
             // pnlRight
@@ -379,6 +400,7 @@ namespace DemoPick
             this.pnlLeft.ResumeLayout(false);
             this.pnlLeft.PerformLayout();
             this.pnlCenter.ResumeLayout(false);
+            this.pnlCategoryBar.ResumeLayout(false);
             this.pnlRight.ResumeLayout(false);
             this.pnlRight.PerformLayout();
             this.pnlTotals.ResumeLayout(false);

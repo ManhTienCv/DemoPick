@@ -37,6 +37,7 @@ namespace DemoPick
         // Middle Section (List)
         public UIPanel pnlList;
         public Label lblListTitle;
+        public UIButton btnXoaSP;
         public UIButton btnThemSP;
         public ListView lstKhoHang;
 
@@ -77,6 +78,7 @@ namespace DemoPick
             this.lblC4Value = new System.Windows.Forms.Label();
             this.pnlList = new Sunny.UI.UIPanel();
             this.lblListTitle = new System.Windows.Forms.Label();
+            this.btnXoaSP = new Sunny.UI.UIButton();
             this.btnThemSP = new Sunny.UI.UIButton();
             this.lstKhoHang = new System.Windows.Forms.ListView();
             this.pnlBotLeft = new Sunny.UI.UIPanel();
@@ -310,6 +312,7 @@ namespace DemoPick
             // pnlList
             // 
             this.pnlList.Controls.Add(this.lblListTitle);
+            this.pnlList.Controls.Add(this.btnXoaSP);
             this.pnlList.Controls.Add(this.btnThemSP);
             this.pnlList.Controls.Add(this.lstKhoHang);
             this.pnlList.FillColor = System.Drawing.Color.White;
@@ -335,6 +338,24 @@ namespace DemoPick
             this.lblListTitle.Size = new System.Drawing.Size(189, 28);
             this.lblListTitle.TabIndex = 0;
             this.lblListTitle.Text = "Danh sách tồn kho";
+            // 
+            // btnXoaSP
+            // 
+            this.btnXoaSP.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnXoaSP.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnXoaSP.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(231)))), ((int)(((byte)(76)))), ((int)(((byte)(60)))));
+            this.btnXoaSP.FillHoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(86)))), ((int)(((byte)(70)))));
+            this.btnXoaSP.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.btnXoaSP.Location = new System.Drawing.Point(690, 15);
+            this.btnXoaSP.MinimumSize = new System.Drawing.Size(1, 1);
+            this.btnXoaSP.Name = "btnXoaSP";
+            this.btnXoaSP.Radius = 14;
+            this.btnXoaSP.RectColor = System.Drawing.Color.FromArgb(((int)(((byte)(231)))), ((int)(((byte)(76)))), ((int)(((byte)(60)))));
+            this.btnXoaSP.RectHoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(86)))), ((int)(((byte)(70)))));
+            this.btnXoaSP.Size = new System.Drawing.Size(200, 35);
+            this.btnXoaSP.TabIndex = 2;
+            this.btnXoaSP.Text = "[X] XÓA SẢN PHẨM";
+            this.btnXoaSP.TipsFont = new System.Drawing.Font("Segoe UI", 9F);
             // 
             // btnThemSP
             // 

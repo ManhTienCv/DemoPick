@@ -131,7 +131,7 @@ namespace DemoPick.Services
                 }));
 
                 // Step 5: Create & cancel a booking (best-effort cleanup)
-                steps.Add(RunStep("Create + cancel test booking", () =>
+                steps.Add(RunStep("Create + cleanup test booking", () =>
                 {
                     var controller = new BookingController();
 
@@ -157,8 +157,8 @@ namespace DemoPick.Services
                                 {
                                     controller.SubmitBooking(courtId, guest, note, start, end, status: "Confirmed");
                                     int bookingId = TryFindBookingId(courtId, guest, start, end);
-                                    bool cancelled = TryCancelBookingById(bookingId);
-                                    return $"Created booking on CourtID={courtId} {start:yyyy-MM-dd HH:mm} ({dur}m). Cancelled={cancelled}";
+                                    bool removed = TryDeleteBookingById(bookingId);
+                                    return $"Created booking on CourtID={courtId} {start:yyyy-MM-dd HH:mm} ({dur}m). Removed={removed}";
                                 }
                                 catch (Exception ex)
                                 {
@@ -194,6 +194,12 @@ namespace DemoPick.Services
                         return $"Deleted rows: {rows}";
                     }));
                 }
+
+                // Step 7b: Cleanup legacy smoke artifacts from older test runs.
+                steps.Add(RunStep("Cleanup legacy SMOKE artifacts", () =>
+                {
+                    return CleanupLegacySmokeArtifacts();
+                }));
 
                 // Step 8: Logic tests
                 steps.Add(RunStep("Logic tests (PriceCalculator + PendingOrders)", () =>
@@ -271,14 +277,14 @@ namespace DemoPick.Services
             }
         }
 
-        private static bool TryCancelBookingById(int bookingId)
+        private static bool TryDeleteBookingById(int bookingId)
         {
             if (bookingId <= 0) return false;
 
             try
             {
                 int rows = DatabaseHelper.ExecuteNonQuery(
-                    "UPDATE dbo.Bookings SET Status = 'Cancelled' WHERE BookingID = @Id",
+                    "DELETE FROM dbo.Bookings WHERE BookingID = @Id",
                     new SqlParameter("@Id", bookingId));
                 return rows > 0;
             }
@@ -614,6 +620,45 @@ namespace DemoPick.Services
         {
             string digits = Math.Abs(Guid.NewGuid().GetHashCode()).ToString("D10");
             return "09" + digits.Substring(0, 8);
+        }
+
+        private static string CleanupLegacySmokeArtifacts()
+        {
+            int delBooking = 0;
+            int delMembers = 0;
+            int delAccounts = 0;
+
+            try
+            {
+                delBooking = DatabaseHelper.ExecuteNonQuery(
+                    "DELETE FROM dbo.Bookings WHERE ISNULL(LTRIM(RTRIM(GuestName)), '') LIKE 'SMOKE%'");
+            }
+            catch
+            {
+                // Best-effort cleanup.
+            }
+
+            try
+            {
+                delMembers = DatabaseHelper.ExecuteNonQuery(
+                    "DELETE FROM dbo.Members WHERE ISNULL(LTRIM(RTRIM(FullName)), '') LIKE 'SMOKE%'");
+            }
+            catch
+            {
+                // Best-effort cleanup.
+            }
+
+            try
+            {
+                delAccounts = DatabaseHelper.ExecuteNonQuery(
+                    "DELETE FROM dbo.StaffAccounts WHERE ISNULL(LTRIM(RTRIM(Username)), '') LIKE 'smoke_%' OR ISNULL(LTRIM(RTRIM(Email)), '') LIKE 'smoke_%'");
+            }
+            catch
+            {
+                // Best-effort cleanup.
+            }
+
+            return $"Bookings={delBooking}, Members={delMembers}, StaffAccounts={delAccounts}";
         }
 
         private static PerfBaseline LoadOrCreatePerfBaseline(string root, string machine, double priceOps, double pendingOps)

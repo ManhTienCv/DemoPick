@@ -11,6 +11,8 @@ namespace DemoPick
     {
         private InventoryService _inventoryService;
 
+        private bool _listColumnsInitialized;
+
         public UCKhoHang()
         {
             InitializeComponent();
@@ -21,9 +23,93 @@ namespace DemoPick
             }
             _inventoryService = new InventoryService();
 
+            EnsureListColumns();
+
             btnThemSP.Click += BtnThemSP_Click;
+            btnXoaSP.Click += BtnXoaSP_Click;
 
             LoadDataAsync();
+        }
+
+        private void EnsureListColumns()
+        {
+            if (_listColumnsInitialized) return;
+            _listColumnsInitialized = true;
+
+            // Inventory list
+            lstKhoHang.BeginUpdate();
+            try
+            {
+                lstKhoHang.Columns.Clear();
+                lstKhoHang.Columns.Add("Sản phẩm", 360);
+                lstKhoHang.Columns.Add("Nhóm", 160);
+                lstKhoHang.Columns.Add("Tồn", 110, HorizontalAlignment.Right);
+                lstKhoHang.Columns.Add("Trạng thái", 150);
+                lstKhoHang.Columns.Add("Giá", 110, HorizontalAlignment.Right);
+            }
+            finally
+            {
+                lstKhoHang.EndUpdate();
+            }
+
+            // Recent transactions
+            lstGiaoDich.BeginUpdate();
+            try
+            {
+                lstGiaoDich.Columns.Clear();
+                // HeaderStyle=None in Designer, but Columns are still required to show content.
+                lstGiaoDich.Columns.Add("", 380);
+                lstGiaoDich.Columns.Add("", 110, HorizontalAlignment.Right);
+            }
+            finally
+            {
+                lstGiaoDich.EndUpdate();
+            }
+        }
+
+        private static string ToUiStatus(string raw)
+        {
+            string s = (raw ?? string.Empty).Trim();
+            if (s.Length == 0) return string.Empty;
+
+            if (string.Equals(s, "Out of Stock", StringComparison.OrdinalIgnoreCase)) return "Hết hàng";
+            if (string.Equals(s, "Critical Low", StringComparison.OrdinalIgnoreCase)) return "Cảnh báo";
+            if (string.Equals(s, "Warning", StringComparison.OrdinalIgnoreCase)) return "Sắp hết";
+            if (string.Equals(s, "Healthy", StringComparison.OrdinalIgnoreCase)) return "Ổn";
+
+            return s;
+        }
+
+        private void BtnXoaSP_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                using (var f = new FrmXoaSP())
+                {
+                    if (f.ShowDialog() == DialogResult.OK)
+                    {
+                        LoadDataAsync();
+
+                        try
+                        {
+                            var main = FindForm() as FrmChinh;
+                            if (main?.banHang != null)
+                            {
+                                main.banHang.RefreshOnActivated();
+                            }
+                        }
+                        catch
+                        {
+                            // Best effort cross-module refresh.
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                DatabaseHelper.TryLog("Inventory Delete Product Page Error", ex, "UCKhoHang.BtnXoaSP_Click");
+                MessageBox.Show("Không thể mở trang xóa sản phẩm: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void BtnThemSP_Click(object sender, EventArgs e)
@@ -56,19 +142,46 @@ namespace DemoPick
                 await Task.WhenAll(itemsTask, txsTask, kpiTask);
 
                 var items = itemsTask.Result;
-                lstKhoHang.Items.Clear();
-                foreach (var item in items)
+                lstKhoHang.BeginUpdate();
+                try
                 {
-                    lstKhoHang.Items.Add(new ListViewItem(new[] { $"{item.Name}\nSKU: {item.Sku}", item.Category, item.Stock, item.Status, item.Price }));
+                    lstKhoHang.Items.Clear();
+                    foreach (var item in items)
+                    {
+                        string nameCell = string.IsNullOrWhiteSpace(item.Sku)
+                            ? (item.Name ?? string.Empty)
+                            : $"{item.Name} (SKU: {item.Sku})";
+
+                        var lvi = new ListViewItem(new[] { nameCell, item.Category, item.Stock, ToUiStatus(item.Status), item.Price });
+                        lvi.Tag = new DemoPick.Models.ProductCatalogItemModel
+                        {
+                            ProductId = item.ProductId,
+                            Name = item.Name,
+                            Category = item.Category
+                        };
+                        lstKhoHang.Items.Add(lvi);
+                    }
+                }
+                finally
+                {
+                    lstKhoHang.EndUpdate();
                 }
 
                 var txs = txsTask.Result;
-                lstGiaoDich.Items.Clear();
-                foreach (var tx in txs)
+                lstGiaoDich.BeginUpdate();
+                try
                 {
-                    string sub = (tx.SubDesc ?? "").Replace("\r", " ").Replace("\n", " ").Trim();
-                    string line = string.IsNullOrWhiteSpace(sub) ? (tx.EventDesc ?? "") : $"{tx.EventDesc} — {sub}";
-                    lstGiaoDich.Items.Add(new ListViewItem(new[] { line, tx.Time }));
+                    lstGiaoDich.Items.Clear();
+                    foreach (var tx in txs)
+                    {
+                        string sub = (tx.SubDesc ?? "").Replace("\r", " ").Replace("\n", " ").Trim();
+                        string line = string.IsNullOrWhiteSpace(sub) ? (tx.EventDesc ?? "") : $"{tx.EventDesc} — {sub}";
+                        lstGiaoDich.Items.Add(new ListViewItem(new[] { line, tx.Time }));
+                    }
+                }
+                finally
+                {
+                    lstGiaoDich.EndUpdate();
                 }
 
                 var kpi = kpiTask.Result ?? new DemoPick.Models.InventoryKpiModel();

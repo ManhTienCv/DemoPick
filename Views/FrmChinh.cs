@@ -30,7 +30,9 @@ namespace DemoPick
                 return;
             }
 
-            new DatabaseMaintenanceService().TryHealCorruptedCourtNames();
+            var dbMaint = new DatabaseMaintenanceService();
+            dbMaint.TryHealCorruptedCourtNames();
+            System.Threading.Tasks.Task.Run(() => dbMaint.TryPurgeOrphanPosCheckoutLogs());
 
             InitModules();
 

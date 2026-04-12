@@ -587,6 +587,17 @@ namespace DemoPick.Services
                     {
                         DatabaseHelper.ExecuteNonQuery("DELETE FROM dbo.InvoiceDetails WHERE InvoiceID = @Id", new SqlParameter("@Id", invoiceId));
                         DatabaseHelper.ExecuteNonQuery("DELETE FROM dbo.Invoices WHERE InvoiceID = @Id", new SqlParameter("@Id", invoiceId));
+
+                        // Also remove POS checkout logs that reference this invoice.
+                        try
+                        {
+                            DatabaseHelper.ExecuteNonQuery(
+                                "DELETE FROM dbo.SystemLogs WHERE EventDesc = N'POS Checkout' AND (SubDesc LIKE @Legacy OR SubDesc LIKE @NewFmt)",
+                                new SqlParameter("@Legacy", $"InvoiceID={invoiceId}%"),
+                                new SqlParameter("@NewFmt", $"HĐ #{invoiceId}%")
+                            );
+                        }
+                        catch { }
                     }
                 }
                 catch { }

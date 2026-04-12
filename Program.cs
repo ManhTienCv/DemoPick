@@ -17,6 +17,8 @@ namespace DemoPick
             {
                 // Best-effort: suppress bootstrap UI prompts during automated runs.
                 try { Environment.SetEnvironmentVariable("DEMOPICK_SUPPRESS_UI", "1"); } catch { }
+                // Flag test mode so smoke runs don't pollute persistent app data (e.g., SystemLogs).
+                try { Environment.SetEnvironmentVariable("DEMOPICK_TEST_MODE", "1"); } catch { }
             }
 
             Application.EnableVisualStyles();

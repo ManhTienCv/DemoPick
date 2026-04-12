@@ -275,6 +275,17 @@ ORDER BY CreatedAt DESC";
                     string eventRaw = row["EventDesc"]?.ToString() ?? "";
                     string subRaw = row["SubDesc"] != DBNull.Value ? (row["SubDesc"]?.ToString() ?? "") : "";
 
+                    // Skip orphan POS logs (typically from automated tests) that reference an invoice
+                    // which no longer exists. These confuse the Inventory UI.
+                    if (string.Equals(eventRaw?.Trim(), "POS Checkout", StringComparison.OrdinalIgnoreCase))
+                    {
+                        int invoiceId = TryExtractInvoiceIdFromPosCheckoutSubDesc(subRaw);
+                        if (invoiceId > 0 && !InvoiceExists(invoiceId))
+                        {
+                            continue;
+                        }
+                    }
+
                     string eventUi = MapEventForUi(eventRaw);
                     string subUi = FormatSubDescForUi(eventRaw, subRaw);
 
@@ -287,6 +298,56 @@ ORDER BY CreatedAt DESC";
                 }
             });
             return list;
+        }
+
+        private static bool InvoiceExists(int invoiceId)
+        {
+            if (invoiceId <= 0) return false;
+            try
+            {
+                object obj = DatabaseHelper.ExecuteScalar(
+                    "SELECT COUNT(1) FROM dbo.Invoices WHERE InvoiceID = @Id",
+                    new SqlParameter("@Id", invoiceId));
+                int count = obj == null || obj == DBNull.Value ? 0 : Convert.ToInt32(obj);
+                return count > 0;
+            }
+            catch
+            {
+                return true; // Fail open: do not hide log if we cannot verify.
+            }
+        }
+
+        private static int TryExtractInvoiceIdFromPosCheckoutSubDesc(string subDesc)
+        {
+            if (string.IsNullOrWhiteSpace(subDesc)) return 0;
+            string s = subDesc.Trim();
+
+            // New format: "HĐ #12 • ..."
+            int hash = s.IndexOf('#');
+            if (hash >= 0)
+            {
+                int i = hash + 1;
+                while (i < s.Length && char.IsWhiteSpace(s[i])) i++;
+                int j = i;
+                while (j < s.Length && char.IsDigit(s[j])) j++;
+                if (j > i && int.TryParse(s.Substring(i, j - i), out int idFromHash))
+                    return idFromHash;
+            }
+
+            // Legacy debug format: "InvoiceID=12; ..."
+            const string key = "InvoiceID=";
+            int idx = s.IndexOf(key, StringComparison.OrdinalIgnoreCase);
+            if (idx >= 0)
+            {
+                int i = idx + key.Length;
+                while (i < s.Length && char.IsWhiteSpace(s[i])) i++;
+                int j = i;
+                while (j < s.Length && char.IsDigit(s[j])) j++;
+                if (j > i && int.TryParse(s.Substring(i, j - i), out int idFromKey))
+                    return idFromKey;
+            }
+
+            return 0;
         }
 
         private static string MapEventForUi(string eventDesc)

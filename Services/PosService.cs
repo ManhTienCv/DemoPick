@@ -177,13 +177,16 @@ namespace DemoPick.Services
                             }
                         }
 
-                        DatabaseHelper.ExecuteNonQuery(
-                            conn,
-                            tran,
-                            "INSERT INTO SystemLogs (EventDesc, SubDesc) VALUES (@EventDesc, @SubDesc)",
-                            new SqlParameter("@EventDesc", "POS Checkout"),
-                            new SqlParameter("@SubDesc", BuildPosCheckoutLogSubDesc(invoiceId, courtNameForLog, finalAmount, paymentMethod, lines))
-                        );
+                        if (!IsTestMode())
+                        {
+                            DatabaseHelper.ExecuteNonQuery(
+                                conn,
+                                tran,
+                                "INSERT INTO SystemLogs (EventDesc, SubDesc) VALUES (@EventDesc, @SubDesc)",
+                                new SqlParameter("@EventDesc", "POS Checkout"),
+                                new SqlParameter("@SubDesc", BuildPosCheckoutLogSubDesc(invoiceId, courtNameForLog, finalAmount, paymentMethod, lines))
+                            );
+                        }
 
                         tran.Commit();
                         return invoiceId;
@@ -198,6 +201,21 @@ namespace DemoPick.Services
                         throw;
                     }
                 }
+            }
+        }
+
+        private static bool IsTestMode()
+        {
+            try
+            {
+                string v = Environment.GetEnvironmentVariable("DEMOPICK_TEST_MODE");
+                if (string.IsNullOrWhiteSpace(v)) return false;
+                v = v.Trim();
+                return v == "1" || v.Equals("true", StringComparison.OrdinalIgnoreCase) || v.Equals("yes", StringComparison.OrdinalIgnoreCase);
+            }
+            catch
+            {
+                return false;
             }
         }
 

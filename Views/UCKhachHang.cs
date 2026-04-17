@@ -22,6 +22,7 @@ namespace DemoPick
             }
             _customerService = new CustomerService();
             _allCustomersCache = new System.Collections.Generic.List<DemoPick.Models.CustomerModel>();
+            InitializeCustomerListColumns();
 
             lblTabAll.Click += (s, e) => FilterList("Tất cả", lblTabAll);
             lblTabAll.Cursor = Cursors.Hand;
@@ -49,6 +50,23 @@ namespace DemoPick
             lstKhachHang.DrawSubItem += LstKhachHang_DrawSubItem;
 
             LoadDataAsync();
+        }
+
+        private void InitializeCustomerListColumns()
+        {
+            if (lstKhachHang == null)
+            {
+                return;
+            }
+
+            lstKhachHang.BeginUpdate();
+            lstKhachHang.Columns.Clear();
+            lstKhachHang.Columns.Add("Khách hàng", 420, HorizontalAlignment.Left);
+            lstKhachHang.Columns.Add("SĐT", 170, HorizontalAlignment.Left);
+            lstKhachHang.Columns.Add("Phân loại", 130, HorizontalAlignment.Left);
+            lstKhachHang.Columns.Add("Giờ tích lũy", 180, HorizontalAlignment.Left);
+            lstKhachHang.Columns.Add("Chi tiêu", 160, HorizontalAlignment.Right);
+            lstKhachHang.EndUpdate();
         }
 
         private void FilterList(string filterMode, Label activeLabel)

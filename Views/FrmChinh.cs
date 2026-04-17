@@ -72,14 +72,14 @@ namespace DemoPick
             // Draw clean subtle 1px borders per Design System #e5e7eb
             pnlSidebar.Paint += (s, e) =>
             {
-                using (var pen = new Pen(Color.FromArgb(229, 231, 235), 1))
+                using (var pen = new Pen(UiTheme.FrameDivider, 1))
                 {
                     e.Graphics.DrawLine(pen, pnlSidebar.Width - 1, 0, pnlSidebar.Width - 1, pnlSidebar.Height);
                 }
             };
             pnlHeader.Paint += (s, e) =>
             {
-                using (var pen = new Pen(Color.FromArgb(229, 231, 235), 1))
+                using (var pen = new Pen(UiTheme.FrameDivider, 1))
                 {
                     e.Graphics.DrawLine(pen, 0, pnlHeader.Height - 1, pnlHeader.Width, pnlHeader.Height - 1);
                 }

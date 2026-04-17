@@ -269,9 +269,9 @@ namespace DemoPick
 
                 _lastCompletedInvoiceId = invoiceId;
                 _lastCompletedCourtName = _selectedCourtName ?? string.Empty;
-                if (_txtReprintInvoiceId != null)
+                if (ucInvoiceReprintPanel != null)
                 {
-                    _txtReprintInvoiceId.Text = invoiceId.ToString();
+                    ucInvoiceReprintPanel.InvoiceIdText = invoiceId.ToString();
                 }
                 UpdateReprintButtonState();
 

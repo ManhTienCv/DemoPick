@@ -1,5 +1,4 @@
 using System;
-using System.Drawing;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using DemoPick.Models;
@@ -8,104 +7,22 @@ using Sunny.UI;
 
 namespace DemoPick
 {
-    public class FrmXoaSP : UIForm
+    public partial class FrmXoaSP : UIForm
     {
         private readonly InventoryService _inventoryService;
-
-        private readonly ListView _lstProducts;
-        private readonly UIButton _btnDelete;
-        private readonly UIButton _btnClose;
-
         private bool _hasDeleted;
 
         public FrmXoaSP()
         {
+            InitializeComponent();
             _inventoryService = new InventoryService();
+            SetupForm();
+        }
 
-            Text = "Xóa sản phẩm";
-            StartPosition = FormStartPosition.CenterParent;
-            MinimumSize = new Size(900, 520);
-            Size = new Size(1024, 600);
-
-            var pnlTop = new Panel
-            {
-                Dock = DockStyle.Top,
-                Height = 48,
-                Padding = new Padding(12, 10, 12, 0)
-            };
-
-            var lblTitle = new Label
-            {
-                AutoSize = true,
-                Text = "Danh sách sản phẩm để xóa",
-                Font = new Font("Segoe UI", 12F, FontStyle.Bold)
-            };
-            pnlTop.Controls.Add(lblTitle);
-
-            _lstProducts = new ListView
-            {
-                Dock = DockStyle.Fill,
-                View = View.Details,
-                FullRowSelect = true,
-                MultiSelect = false,
-                HideSelection = false,
-                BorderStyle = BorderStyle.None,
-                Font = new Font("Segoe UI", 10F)
-            };
-            _lstProducts.Columns.Add("ID", 70, HorizontalAlignment.Right);
-            _lstProducts.Columns.Add("Tên", 320, HorizontalAlignment.Left);
-            _lstProducts.Columns.Add("Danh mục", 180, HorizontalAlignment.Left);
-            _lstProducts.Columns.Add("Giá", 120, HorizontalAlignment.Right);
-            _lstProducts.Columns.Add("Tồn", 80, HorizontalAlignment.Right);
+        private void SetupForm()
+        {
             _lstProducts.SelectedIndexChanged += (s, e) => UpdateDeleteButtonState();
-
-            var pnlBottom = new Panel
-            {
-                Dock = DockStyle.Bottom,
-                Height = 64,
-                Padding = new Padding(12, 10, 12, 10)
-            };
-
-            _btnClose = new UIButton
-            {
-                Cursor = Cursors.Hand,
-                Font = new Font("Segoe UI", 10F, FontStyle.Bold),
-                Radius = 14,
-                Size = new Size(120, 35),
-                Text = "Đóng",
-                FillColor = Color.FromArgb(107, 114, 128),
-                FillHoverColor = Color.FromArgb(127, 134, 148),
-                RectColor = Color.Transparent
-            };
-
-            _btnDelete = new UIButton
-            {
-                Cursor = Cursors.Hand,
-                Font = new Font("Segoe UI", 10F, FontStyle.Bold),
-                Radius = 14,
-                Size = new Size(180, 35),
-                Text = "Xóa sản phẩm",
-                FillColor = Color.FromArgb(231, 76, 60),
-                FillHoverColor = Color.FromArgb(241, 86, 70),
-                RectColor = Color.FromArgb(231, 76, 60),
-                RectHoverColor = Color.FromArgb(241, 86, 70)
-            };
-
-            pnlBottom.Controls.Add(_btnClose);
-            pnlBottom.Controls.Add(_btnDelete);
-
-            pnlBottom.Resize += (s, e) =>
-            {
-                _btnClose.Left = pnlBottom.Width - _btnClose.Width;
-                _btnClose.Top = 10;
-
-                _btnDelete.Left = _btnClose.Left - 10 - _btnDelete.Width;
-                _btnDelete.Top = 10;
-            };
-
-            Controls.Add(_lstProducts);
-            Controls.Add(pnlBottom);
-            Controls.Add(pnlTop);
+            _pnlBottom.Resize += PnlBottom_Resize;
 
             Shown += async (s, e) => await LoadProductsAsync();
             FormClosing += (s, e) =>
@@ -124,7 +41,22 @@ namespace DemoPick
 
             _btnDelete.Click += async (s, e) => await DeleteSelectedAsync();
 
+            PnlBottom_Resize(_pnlBottom, EventArgs.Empty);
             UpdateDeleteButtonState();
+        }
+
+        private void PnlBottom_Resize(object sender, EventArgs e)
+        {
+            if (_pnlBottom == null || _btnClose == null || _btnDelete == null)
+            {
+                return;
+            }
+
+            _btnClose.Left = _pnlBottom.Width - _btnClose.Width;
+            _btnClose.Top = 10;
+
+            _btnDelete.Left = _btnClose.Left - 10 - _btnDelete.Width;
+            _btnDelete.Top = 10;
         }
 
         private void UpdateDeleteButtonState()

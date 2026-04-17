@@ -28,12 +28,14 @@ namespace DemoPick
         public System.Windows.Forms.Label lblTotalV;
         public UIButton btnCheckout;
         public UIButton btnCancel;
+        public UCInvoiceReprintPanel ucInvoiceReprintPanel;
 
         public System.Windows.Forms.Panel pnlRight;
         public System.Windows.Forms.Label lblPreviewTitle;
         public System.Windows.Forms.Panel pnlMockInvoice;
         public System.Windows.Forms.Label lblPreviewTotal;
         public System.Windows.Forms.Label lblPreviewDesc;
+        public UCPaymentHistoryPanel ucPaymentHistoryPanel;
 
         protected override void Dispose(bool disposing)
         {
@@ -61,7 +63,9 @@ namespace DemoPick
             this.lblTotalV = new System.Windows.Forms.Label();
             this.btnCheckout = new Sunny.UI.UIButton();
             this.btnCancel = new Sunny.UI.UIButton();
+            this.ucInvoiceReprintPanel = new DemoPick.UCInvoiceReprintPanel();
             this.pnlRight = new System.Windows.Forms.Panel();
+            this.ucPaymentHistoryPanel = new DemoPick.UCPaymentHistoryPanel();
             this.lblPreviewTitle = new System.Windows.Forms.Label();
             this.pnlMockInvoice = new System.Windows.Forms.Panel();
             this.lblPreviewDesc = new System.Windows.Forms.Label();
@@ -194,6 +198,7 @@ namespace DemoPick
             this.pnlTotals.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pnlTotals.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(250)))), ((int)(((byte)(250)))));
+            this.pnlTotals.Controls.Add(this.ucInvoiceReprintPanel);
             this.pnlTotals.Controls.Add(this.lblSubTotalT);
             this.pnlTotals.Controls.Add(this.lblSubTotalV);
             this.pnlTotals.Controls.Add(this.lblDiscountT);
@@ -308,16 +313,33 @@ namespace DemoPick
             this.btnCancel.Text = "HỦY";
             this.btnCancel.TipsFont = new System.Drawing.Font("Segoe UI", 9F);
             // 
+            // ucInvoiceReprintPanel
+            // 
+            this.ucInvoiceReprintPanel.BackColor = System.Drawing.Color.Transparent;
+            this.ucInvoiceReprintPanel.Location = new System.Drawing.Point(150, 18);
+            this.ucInvoiceReprintPanel.Name = "ucInvoiceReprintPanel";
+            this.ucInvoiceReprintPanel.Size = new System.Drawing.Size(355, 147);
+            this.ucInvoiceReprintPanel.TabIndex = 8;
+            // 
             // pnlRight
             // 
             this.pnlRight.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(243)))), ((int)(((byte)(244)))), ((int)(((byte)(246)))));
             this.pnlRight.Controls.Add(this.pnlMockInvoice);
             this.pnlRight.Controls.Add(this.lblPreviewTitle);
+            this.pnlRight.Controls.Add(this.ucPaymentHistoryPanel);
             this.pnlRight.Dock = System.Windows.Forms.DockStyle.Right;
             this.pnlRight.Location = new System.Drawing.Point(840, 0);
             this.pnlRight.Name = "pnlRight";
             this.pnlRight.Size = new System.Drawing.Size(320, 820);
             this.pnlRight.TabIndex = 2;
+            // 
+            // ucPaymentHistoryPanel
+            // 
+            this.ucPaymentHistoryPanel.BackColor = System.Drawing.Color.Transparent;
+            this.ucPaymentHistoryPanel.Location = new System.Drawing.Point(20, 500);
+            this.ucPaymentHistoryPanel.Name = "ucPaymentHistoryPanel";
+            this.ucPaymentHistoryPanel.Size = new System.Drawing.Size(280, 300);
+            this.ucPaymentHistoryPanel.TabIndex = 2;
             // 
             // lblPreviewTitle
             // 

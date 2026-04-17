@@ -5,7 +5,9 @@ using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Reflection;
 using System.Text;
+using System.Windows.Forms;
 using DemoPick.Controllers;
 using DemoPick.Models;
 
@@ -209,7 +211,13 @@ namespace DemoPick.Services
                     return "All logic assertions passed";
                 }));
 
-                // Step 9: Performance tests
+                // Step 9: UI refactor tests
+                steps.Add(RunStep("UI refactor tests (UCThanhToan + FrmXoaSP)", () =>
+                {
+                    return RunUiRefactorTests();
+                }));
+
+                // Step 10: Performance tests
                 steps.Add(RunStep("Performance tests (micro-benchmark)", () =>
                 {
                     return RunPerformanceTests();
@@ -396,6 +404,137 @@ namespace DemoPick.Services
 
             // Case 6: DB integration - auto create member when checkout with guest phone
             RunAutoCreateMemberIntegrationTest();
+        }
+
+        private static string RunUiRefactorTests()
+        {
+            var summary = new StringBuilder();
+
+            using (var reprintPanel = new DemoPick.UCInvoiceReprintPanel())
+            {
+                bool byIdRaised = false;
+                bool lastRaised = false;
+
+                reprintPanel.ReprintByIdRequested += (s, e) => byIdRaised = true;
+                reprintPanel.ReprintLastRequested += (s, e) => lastRaised = true;
+
+                reprintPanel.InvoiceIdText = "12345";
+                if (!string.Equals(reprintPanel.InvoiceIdText, "12345", StringComparison.Ordinal))
+                    throw new InvalidOperationException("UCInvoiceReprintPanel InvoiceIdText get/set failed");
+
+                reprintPanel.SetLastInvoiceEnabled(true);
+                var reprintLastBtn = GetPrivateField<Sunny.UI.UIButton>(reprintPanel, "btnReprintLast");
+                if (reprintLastBtn == null)
+                    throw new InvalidOperationException("UCInvoiceReprintPanel missing btnReprintLast");
+                if (!reprintLastBtn.Enabled)
+                    throw new InvalidOperationException("UCInvoiceReprintPanel SetLastInvoiceEnabled(true) did not enable button");
+
+                InvokePrivateMethod(reprintPanel, "BtnReprintById_Click", reprintPanel, EventArgs.Empty);
+                InvokePrivateMethod(reprintPanel, "BtnReprintLast_Click", reprintPanel, EventArgs.Empty);
+
+                if (!byIdRaised)
+                    throw new InvalidOperationException("UCInvoiceReprintPanel did not raise ReprintByIdRequested");
+                if (!lastRaised)
+                    throw new InvalidOperationException("UCInvoiceReprintPanel did not raise ReprintLastRequested");
+
+                summary.Append("ReprintPanel=OK; ");
+            }
+
+            using (var historyPanel = new DemoPick.UCPaymentHistoryPanel())
+            {
+                bool searchRaised = false;
+                bool openRaised = false;
+
+                historyPanel.SearchRequested += (s, e) => searchRaised = true;
+                historyPanel.OpenRequested += (s, e) => openRaised = true;
+
+                historyPanel.SearchKeyword = "SMOKE";
+                if (!string.Equals(historyPanel.SearchKeyword, "SMOKE", StringComparison.Ordinal))
+                    throw new InvalidOperationException("UCPaymentHistoryPanel SearchKeyword get/set failed");
+
+                var rows = new List<DemoPick.UCPaymentHistoryPanel.HistoryRow>
+                {
+                    new DemoPick.UCPaymentHistoryPanel.HistoryRow
+                    {
+                        InvoiceCode = "1",
+                        TimeText = "18/04 10:00",
+                        CustomerText = "A",
+                        TotalText = "10.000đ",
+                        ToolTipText = "Sân: A",
+                        Tag = "A"
+                    },
+                    new DemoPick.UCPaymentHistoryPanel.HistoryRow
+                    {
+                        InvoiceCode = "2",
+                        TimeText = "18/04 11:00",
+                        CustomerText = "B",
+                        TotalText = "20.000đ",
+                        ToolTipText = "Sân: B",
+                        IsHighlighted = true,
+                        Tag = "B"
+                    }
+                };
+
+                historyPanel.BindRows(rows);
+
+                var list = GetPrivateField<ListView>(historyPanel, "lstHistory");
+                if (list == null)
+                    throw new InvalidOperationException("UCPaymentHistoryPanel missing lstHistory");
+                if (list.Items.Count != 2)
+                    throw new InvalidOperationException("UCPaymentHistoryPanel BindRows did not render expected row count");
+
+                var selectedTag = list.Items[1].Tag as string;
+                if (!string.Equals(selectedTag, "B", StringComparison.Ordinal))
+                    throw new InvalidOperationException("UCPaymentHistoryPanel BindRows did not preserve row Tag correctly");
+
+                if (list.Items[1].BackColor != System.Drawing.Color.FromArgb(239, 246, 255))
+                    throw new InvalidOperationException("UCPaymentHistoryPanel highlighted row style was not applied");
+
+                InvokePrivateMethod(historyPanel, "BtnSearch_Click", historyPanel, EventArgs.Empty);
+                InvokePrivateMethod(historyPanel, "BtnOpen_Click", historyPanel, EventArgs.Empty);
+
+                if (!searchRaised)
+                    throw new InvalidOperationException("UCPaymentHistoryPanel did not raise SearchRequested");
+                if (!openRaised)
+                    throw new InvalidOperationException("UCPaymentHistoryPanel did not raise OpenRequested");
+
+                summary.Append("PaymentHistoryPanel=OK; ");
+            }
+
+            using (var checkout = new DemoPick.UCThanhToan())
+            {
+                if (checkout.ucInvoiceReprintPanel == null || checkout.ucInvoiceReprintPanel.Parent != checkout.pnlTotals)
+                    throw new InvalidOperationException("UCThanhToan reprint panel not attached to pnlTotals");
+
+                if (checkout.ucPaymentHistoryPanel == null || checkout.ucPaymentHistoryPanel.Parent != checkout.pnlRight)
+                    throw new InvalidOperationException("UCThanhToan payment history panel not attached to pnlRight");
+
+                summary.Append("UCThanhToanEmbed=OK; ");
+            }
+
+            using (var frm = new DemoPick.FrmXoaSP())
+            {
+                var list = GetPrivateField<ListView>(frm, "_lstProducts");
+                var pnlBottom = GetPrivateField<Panel>(frm, "_pnlBottom");
+                var btnClose = GetPrivateField<Sunny.UI.UIButton>(frm, "_btnClose");
+                var btnDelete = GetPrivateField<Sunny.UI.UIButton>(frm, "_btnDelete");
+
+                if (list == null || list.Columns.Count != 5)
+                    throw new InvalidOperationException("FrmXoaSP designer ListView columns not initialized as expected");
+
+                if (pnlBottom == null || btnClose == null || btnDelete == null)
+                    throw new InvalidOperationException("FrmXoaSP designer controls missing");
+
+                pnlBottom.Width = 1000;
+                InvokePrivateMethod(frm, "PnlBottom_Resize", pnlBottom, EventArgs.Empty);
+
+                if (!(btnDelete.Left < btnClose.Left))
+                    throw new InvalidOperationException("FrmXoaSP button layout rule violated (_btnDelete should be left of _btnClose)");
+
+                summary.Append("FrmXoaSPDesigner=OK");
+            }
+
+            return summary.ToString();
         }
 
         private static string RunPerformanceTests()
@@ -841,6 +980,30 @@ namespace DemoPick.Services
             decimal diff = Math.Abs(expected - actual);
             if (diff > tolerance)
                 throw new InvalidOperationException($"{name} expected {expected}, actual {actual}, diff {diff}");
+        }
+
+        private static T GetPrivateField<T>(object target, string fieldName) where T : class
+        {
+            if (target == null || string.IsNullOrWhiteSpace(fieldName))
+                return null;
+
+            var field = target.GetType().GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic);
+            if (field == null)
+                return null;
+
+            return field.GetValue(target) as T;
+        }
+
+        private static void InvokePrivateMethod(object target, string methodName, params object[] args)
+        {
+            if (target == null)
+                throw new InvalidOperationException("Cannot invoke private method on null target");
+
+            var method = target.GetType().GetMethod(methodName, BindingFlags.Instance | BindingFlags.NonPublic);
+            if (method == null)
+                throw new InvalidOperationException($"Method not found: {target.GetType().FullName}.{methodName}");
+
+            method.Invoke(target, args);
         }
 
         private static string WriteMarkdownReport(DateTime startedAt, TimeSpan total, List<StepResult> steps, string identifier, string credentialSource)

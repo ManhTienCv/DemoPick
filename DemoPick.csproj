@@ -186,6 +186,9 @@
     <Compile Include="Views\FrmXoaSP.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Views\FrmXoaSP.Designer.cs">
+      <DependentUpon>FrmXoaSP.cs</DependentUpon>
+    </Compile>
     <Compile Include="Views\FrmDoiCaBooking.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -269,6 +272,18 @@
     </Compile>
     <Compile Include="Views\Controls\UCDateRangeFilter.Designer.cs">
       <DependentUpon>UCDateRangeFilter.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Controls\UCInvoiceReprintPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\Controls\UCInvoiceReprintPanel.Designer.cs">
+      <DependentUpon>UCInvoiceReprintPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Controls\UCPaymentHistoryPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\Controls\UCPaymentHistoryPanel.Designer.cs">
+      <DependentUpon>UCPaymentHistoryPanel.cs</DependentUpon>
     </Compile>
     <Compile Include="Views\UCDatLich.cs">
       <SubType>UserControl</SubType>

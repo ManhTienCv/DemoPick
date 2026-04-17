@@ -1,9 +1,6 @@
 using System;
-using System.Drawing;
 using System.Windows.Forms;
 using DemoPick.Services;
-using Sunny.UI;
-using Panel = System.Windows.Forms.Panel;
 
 namespace DemoPick
 {
@@ -31,12 +28,19 @@ namespace DemoPick
             btnSearchCustomer.Click += BtnSearchCustomer_Click;
             btnCheckout.Click += BtnCheckout_Click;
             btnCancel.Click += BtnCancel_Click;
+
+            InitializeReprintButton();
+            InitializePaymentHistoryPanel();
+            UpdateReprintButtonState();
+            ReloadPaymentHistory();
         }
 
         public void RefreshOnActivated()
         {
             LoadCourts();
             ResetCheckoutPane();
+            UpdateReprintButtonState();
+            ReloadPaymentHistory();
         }
     }
 }

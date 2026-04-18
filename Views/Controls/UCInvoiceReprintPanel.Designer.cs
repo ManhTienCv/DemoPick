@@ -24,7 +24,7 @@ namespace DemoPick
             // 
             this.txtInvoiceId.Cursor = System.Windows.Forms.Cursors.IBeam;
             this.txtInvoiceId.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.txtInvoiceId.Location = new System.Drawing.Point(150, 0);
+            this.txtInvoiceId.Location = new System.Drawing.Point(0, 0);
             this.txtInvoiceId.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.txtInvoiceId.MinimumSize = new System.Drawing.Size(1, 16);
             this.txtInvoiceId.Name = "txtInvoiceId";
@@ -43,7 +43,7 @@ namespace DemoPick
             this.btnReprintById.FillHoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(99)))), ((int)(((byte)(235)))));
             this.btnReprintById.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.btnReprintById.ForeColor = System.Drawing.Color.White;
-            this.btnReprintById.Location = new System.Drawing.Point(275, 0);
+            this.btnReprintById.Location = new System.Drawing.Point(125, 0);
             this.btnReprintById.MinimumSize = new System.Drawing.Size(1, 1);
             this.btnReprintById.Name = "btnReprintById";
             this.btnReprintById.Radius = 8;
@@ -61,13 +61,13 @@ namespace DemoPick
             this.btnReprintLast.FillHoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(209)))), ((int)(((byte)(213)))), ((int)(((byte)(219)))));
             this.btnReprintLast.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             this.btnReprintLast.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(75)))), ((int)(((byte)(85)))), ((int)(((byte)(99)))));
-            this.btnReprintLast.Location = new System.Drawing.Point(0, 97);
+            this.btnReprintLast.Location = new System.Drawing.Point(0, 40);
             this.btnReprintLast.MinimumSize = new System.Drawing.Size(1, 1);
             this.btnReprintLast.Name = "btnReprintLast";
             this.btnReprintLast.Radius = 15;
             this.btnReprintLast.RectColor = System.Drawing.Color.Transparent;
             this.btnReprintLast.RectHoverColor = System.Drawing.Color.Transparent;
-            this.btnReprintLast.Size = new System.Drawing.Size(140, 50);
+            this.btnReprintLast.Size = new System.Drawing.Size(205, 32);
             this.btnReprintLast.TabIndex = 2;
             this.btnReprintLast.Text = "IN LẠI HĐ";
             this.btnReprintLast.TipsFont = new System.Drawing.Font("Segoe UI", 9F);
@@ -80,7 +80,7 @@ namespace DemoPick
             this.Controls.Add(this.btnReprintById);
             this.Controls.Add(this.txtInvoiceId);
             this.Name = "UCInvoiceReprintPanel";
-            this.Size = new System.Drawing.Size(355, 147);
+            this.Size = new System.Drawing.Size(205, 72);
             this.ResumeLayout(false);
 
         }

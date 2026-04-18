@@ -316,9 +316,9 @@ namespace DemoPick
             // ucInvoiceReprintPanel
             // 
             this.ucInvoiceReprintPanel.BackColor = System.Drawing.Color.Transparent;
-            this.ucInvoiceReprintPanel.Location = new System.Drawing.Point(150, 18);
+            this.ucInvoiceReprintPanel.Location = new System.Drawing.Point(300, 15);
             this.ucInvoiceReprintPanel.Name = "ucInvoiceReprintPanel";
-            this.ucInvoiceReprintPanel.Size = new System.Drawing.Size(355, 147);
+            this.ucInvoiceReprintPanel.Size = new System.Drawing.Size(205, 72);
             this.ucInvoiceReprintPanel.TabIndex = 8;
             // 
             // pnlRight

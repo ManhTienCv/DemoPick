@@ -250,15 +250,15 @@ namespace DemoPick.Services
                     // which no longer exists. These confuse the Inventory UI.
                     if (string.Equals(eventRaw?.Trim(), "POS Checkout", StringComparison.OrdinalIgnoreCase))
                     {
-                        int invoiceId = TryExtractInvoiceIdFromPosCheckoutSubDesc(subRaw);
+                        int invoiceId = InventoryTransactionFormatter.TryExtractInvoiceId(subRaw);
                         if (invoiceId > 0 && !InvoiceExists(invoiceId))
                         {
                             continue;
                         }
                     }
 
-                    string eventUi = MapEventForUi(eventRaw);
-                    string subUi = FormatSubDescForUi(eventRaw, subRaw);
+                    string eventUi = InventoryTransactionFormatter.MapEventForUi(eventRaw);
+                    string subUi = InventoryTransactionFormatter.FormatSubDescForUi(eventRaw, subRaw);
 
                     list.Add(new TransactionModel
                     {
@@ -286,139 +286,6 @@ namespace DemoPick.Services
             {
                 return true; // Fail open: do not hide log if we cannot verify.
             }
-        }
-
-        private static int TryExtractInvoiceIdFromPosCheckoutSubDesc(string subDesc)
-        {
-            if (string.IsNullOrWhiteSpace(subDesc)) return 0;
-            string s = subDesc.Trim();
-
-            // New format: "HĐ #12 • ..."
-            int hash = s.IndexOf('#');
-            if (hash >= 0)
-            {
-                int i = hash + 1;
-                while (i < s.Length && char.IsWhiteSpace(s[i])) i++;
-                int j = i;
-                while (j < s.Length && char.IsDigit(s[j])) j++;
-                if (j > i && int.TryParse(s.Substring(i, j - i), out int idFromHash))
-                    return idFromHash;
-            }
-
-            // Legacy debug format: "InvoiceID=12; ..."
-            const string key = "InvoiceID=";
-            int idx = s.IndexOf(key, StringComparison.OrdinalIgnoreCase);
-            if (idx >= 0)
-            {
-                int i = idx + key.Length;
-                while (i < s.Length && char.IsWhiteSpace(s[i])) i++;
-                int j = i;
-                while (j < s.Length && char.IsDigit(s[j])) j++;
-                if (j > i && int.TryParse(s.Substring(i, j - i), out int idFromKey))
-                    return idFromKey;
-            }
-
-            return 0;
-        }
-
-        private static string MapEventForUi(string eventDesc)
-        {
-            string e = (eventDesc ?? "").Trim();
-            if (string.Equals(e, "POS Checkout", StringComparison.OrdinalIgnoreCase)) return "Bán hàng (POS)";
-            if (string.Equals(e, "Nhập Kho Trực Tiếp", StringComparison.OrdinalIgnoreCase)) return "Nhập kho";
-            return e;
-        }
-
-        private static string FormatSubDescForUi(string eventDesc, string subDesc)
-        {
-            string e = (eventDesc ?? "").Trim();
-            string sub = (subDesc ?? "").Replace("\r", " ").Replace("\n", " ").Trim();
-            if (sub.Length == 0) return string.Empty;
-
-            if (string.Equals(e, "POS Checkout", StringComparison.OrdinalIgnoreCase))
-            {
-                string formatted = TryFormatPosCheckoutSubDesc(sub);
-                return string.IsNullOrWhiteSpace(formatted) ? sub : formatted;
-            }
-
-            return sub;
-        }
-
-        private static string TryFormatPosCheckoutSubDesc(string raw)
-        {
-            if (string.IsNullOrWhiteSpace(raw)) return string.Empty;
-
-            // New logs are already user-friendly (e.g., "HĐ #10 • ...").
-            if (raw.IndexOf("InvoiceID=", StringComparison.OrdinalIgnoreCase) < 0)
-            {
-                return raw;
-            }
-
-            var kv = ParseKeyValuePairs(raw);
-
-            int invoiceId = TryGetInt(kv, "InvoiceID");
-            string court = TryGetString(kv, "Court");
-            string total = TryGetString(kv, "Total");
-            string method = TryGetString(kv, "Method");
-            string methodUi = ToPaymentMethodDisplay(method);
-
-            var parts = new List<string>();
-            if (invoiceId > 0) parts.Add($"HĐ #{invoiceId}");
-
-            if (!string.IsNullOrWhiteSpace(court) && court != "-") parts.Add(court);
-            if (!string.IsNullOrWhiteSpace(total) && total != "-") parts.Add(total);
-            if (!string.IsNullOrWhiteSpace(methodUi)) parts.Add(methodUi);
-
-            return parts.Count == 0 ? raw : string.Join(" • ", parts);
-        }
-
-        private static Dictionary<string, string> ParseKeyValuePairs(string raw)
-        {
-            var dict = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-            if (string.IsNullOrWhiteSpace(raw)) return dict;
-
-            string[] parts = raw.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
-            for (int i = 0; i < parts.Length; i++)
-            {
-                string p = (parts[i] ?? "").Trim();
-                if (p.Length == 0) continue;
-
-                int eq = p.IndexOf('=');
-                if (eq <= 0) continue;
-
-                string key = p.Substring(0, eq).Trim();
-                string val = p.Substring(eq + 1).Trim();
-                if (key.Length == 0) continue;
-
-                dict[key] = val;
-            }
-
-            return dict;
-        }
-
-        private static int TryGetInt(Dictionary<string, string> kv, string key)
-        {
-            if (kv == null || string.IsNullOrWhiteSpace(key)) return 0;
-            if (!kv.TryGetValue(key, out var raw)) return 0;
-            if (string.IsNullOrWhiteSpace(raw)) return 0;
-            return int.TryParse(raw.Trim(), out int val) ? val : 0;
-        }
-
-        private static string TryGetString(Dictionary<string, string> kv, string key)
-        {
-            if (kv == null || string.IsNullOrWhiteSpace(key)) return string.Empty;
-            if (!kv.TryGetValue(key, out var raw)) return string.Empty;
-            return (raw ?? "").Trim();
-        }
-
-        private static string ToPaymentMethodDisplay(string paymentMethod)
-        {
-            string s = (paymentMethod ?? "").Trim();
-            if (s.Length == 0) return string.Empty;
-            if (string.Equals(s, "Cash", StringComparison.OrdinalIgnoreCase)) return "Tiền mặt";
-            if (string.Equals(s, "Bank", StringComparison.OrdinalIgnoreCase)) return "Chuyển khoản";
-            if (string.Equals(s, "Transfer", StringComparison.OrdinalIgnoreCase)) return "Chuyển khoản";
-            return s;
         }
     }
 }

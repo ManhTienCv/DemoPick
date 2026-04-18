@@ -173,7 +173,18 @@ namespace DemoPick
                     foreach (var tx in txs)
                     {
                         string sub = (tx.SubDesc ?? "").Replace("\r", " ").Replace("\n", " ").Trim();
-                        string line = string.IsNullOrWhiteSpace(sub) ? (tx.EventDesc ?? "") : $"{tx.EventDesc} — {sub}";
+                        string eventText = (tx.EventDesc ?? string.Empty).Trim();
+
+                        string line;
+                        if (string.Equals(eventText, "POS", StringComparison.OrdinalIgnoreCase))
+                        {
+                            line = string.IsNullOrWhiteSpace(sub) ? "POS" : sub;
+                        }
+                        else
+                        {
+                            line = string.IsNullOrWhiteSpace(sub) ? eventText : $"{eventText} — {sub}";
+                        }
+
                         lstGiaoDich.Items.Add(new ListViewItem(new[] { line, tx.Time }));
                     }
                 }

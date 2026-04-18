@@ -2,8 +2,6 @@ using DemoPick.Models;
 using System;
 using System.Data;
 using System.Data.SqlClient;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace DemoPick.Services
 {
@@ -95,8 +93,8 @@ namespace DemoPick.Services
                 if (storedHash == null || storedSalt == null)
                     continue;
 
-                byte[] computed = HashPassword(password, storedSalt);
-                if (!FixedTimeEquals(storedHash, computed))
+                byte[] computed = AuthPasswordCrypto.HashPassword(password, storedSalt);
+                if (!AuthPasswordCrypto.FixedTimeEquals(storedHash, computed))
                     continue;
 
                 matchCount++;
@@ -164,19 +162,12 @@ namespace DemoPick.Services
 
         private static void RecordFailedLoginAttempt(int accountId)
         {
-            // Best-effort lockout. If the DB schema doesn't have these columns yet, ignore errors.
-            DatabaseHelper.ExecuteNonQuery(
-                SqlQueries.Auth.RecordFailedLoginAttempt,
-                new SqlParameter("@Id", accountId),
-                new SqlParameter("@Max", MaxFailedLoginAttempts),
-                new SqlParameter("@Minutes", LockoutMinutes));
+            AuthLoginAttemptTracker.RecordFailedLoginAttempt(accountId, MaxFailedLoginAttempts, LockoutMinutes);
         }
 
         private static void ResetFailedLogin(int accountId)
         {
-            DatabaseHelper.ExecuteNonQuery(
-                SqlQueries.Auth.ResetFailedLogin,
-                new SqlParameter("@Id", accountId));
+            AuthLoginAttemptTracker.ResetFailedLogin(accountId);
         }
 
         internal static bool TryRegister(string fullName, string email, string phone, string password, string confirmPassword, out string error)
@@ -221,8 +212,8 @@ namespace DemoPick.Services
                     return false;
                 }
 
-                byte[] salt = GenerateSalt(16);
-                byte[] hash = HashPassword(password, salt);
+                byte[] salt = AuthPasswordCrypto.GenerateSalt(16);
+                byte[] hash = AuthPasswordCrypto.HashPassword(password, salt);
 
                 DatabaseHelper.ExecuteNonQuery(
                     SqlQueries.Auth.RegisterStaffAccount,
@@ -258,11 +249,11 @@ namespace DemoPick.Services
             string password = Environment.GetEnvironmentVariable("DEMOPICK_BOOTSTRAP_ADMIN_PASSWORD");
             if (string.IsNullOrWhiteSpace(password))
             {
-                password = GenerateRandomPassword(14);
+                password = AuthPasswordCrypto.GenerateRandomPassword(14);
             }
 
-            byte[] salt = GenerateSalt(16);
-            byte[] hash = HashPassword(password, salt);
+            byte[] salt = AuthPasswordCrypto.GenerateSalt(16);
+            byte[] hash = AuthPasswordCrypto.HashPassword(password, salt);
 
             DatabaseHelper.ExecuteNonQuery(
                 SqlQueries.Auth.SeedAdmin,
@@ -274,25 +265,6 @@ namespace DemoPick.Services
             seededUsername = username;
             seededPassword = password;
             return true;
-        }
-
-        private static string GenerateRandomPassword(int length)
-        {
-            const string alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%";
-            if (length < 8) length = 8;
-
-            byte[] bytes = new byte[length];
-            using (var rng = RandomNumberGenerator.Create())
-            {
-                rng.GetBytes(bytes);
-            }
-
-            var sb = new StringBuilder(length);
-            for (int i = 0; i < length; i++)
-            {
-                sb.Append(alphabet[bytes[i] % alphabet.Length]);
-            }
-            return sb.ToString();
         }
 
         internal static bool TryChangePassword(int accountId, string oldPassword, string newPassword, string confirmNewPassword, out string error)
@@ -344,15 +316,15 @@ namespace DemoPick.Services
                     return false;
                 }
 
-                byte[] computedOld = HashPassword(oldPassword, storedSalt);
-                if (!FixedTimeEquals(storedHash, computedOld))
+                byte[] computedOld = AuthPasswordCrypto.HashPassword(oldPassword, storedSalt);
+                if (!AuthPasswordCrypto.FixedTimeEquals(storedHash, computedOld))
                 {
                     error = "Mật khẩu cũ không đúng.";
                     return false;
                 }
 
-                byte[] newSalt = GenerateSalt(16);
-                byte[] newHash = HashPassword(newPassword, newSalt);
+                byte[] newSalt = AuthPasswordCrypto.GenerateSalt(16);
+                byte[] newHash = AuthPasswordCrypto.HashPassword(newPassword, newSalt);
 
                 DatabaseHelper.ExecuteNonQuery(
                     SqlQueries.Auth.ChangePasswordUpdateHashSalt,
@@ -370,35 +342,5 @@ namespace DemoPick.Services
             }
         }
 
-        private static byte[] GenerateSalt(int size)
-        {
-            var salt = new byte[size];
-            using (var rng = new RNGCryptoServiceProvider())
-            {
-                rng.GetBytes(salt);
-            }
-            return salt;
-        }
-
-        private static byte[] HashPassword(string password, byte[] salt)
-        {
-            // PBKDF2
-            using (var pbkdf2 = new Rfc2898DeriveBytes(password, salt, 100_000))
-            {
-                return pbkdf2.GetBytes(32);
-            }
-        }
-
-        private static bool FixedTimeEquals(byte[] a, byte[] b)
-        {
-            if (a == null || b == null || a.Length != b.Length) return false;
-
-            int diff = 0;
-            for (int i = 0; i < a.Length; i++)
-            {
-                diff |= a[i] ^ b[i];
-            }
-            return diff == 0;
-        }
     }
 }

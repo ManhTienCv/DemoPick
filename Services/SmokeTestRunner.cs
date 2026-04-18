@@ -5,7 +5,6 @@ using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
-using System.Reflection;
 using System.Text;
 using System.Windows.Forms;
 using DemoPick.Controllers;
@@ -15,41 +14,13 @@ namespace DemoPick.Services
 {
     internal static class SmokeTestRunner
     {
-        private sealed class StepResult
-        {
-            public string Name;
-            public bool Success;
-            public TimeSpan Duration;
-            public string Details;
-            public Exception Exception;
-        }
-
-        private sealed class PerfBaseline
-        {
-            public string Machine;
-            public double PriceCalcMinOps;
-            public double PendingOrdersMinOps;
-            public DateTime UpdatedAt;
-        }
-
-        private sealed class ModulePerfResult
-        {
-            public string Module;
-            public int Iterations;
-            public long ElapsedMs;
-            public double OpsPerSec;
-            public double ThresholdOpsPerSec;
-            public bool Passed;
-            public string Mode;
-        }
-
         internal static int Run(string[] args)
         {
             EnsureConsole();
 
             var startedAt = DateTime.Now;
             var swTotal = Stopwatch.StartNew();
-            var steps = new List<StepResult>();
+            var steps = new List<SmokeTestStepResult>();
 
             string identifier = GetArg(args, "--id") ?? GetArg(args, "-id");
             string password = GetArg(args, "--pw") ?? GetArg(args, "-pw");
@@ -64,7 +35,7 @@ namespace DemoPick.Services
             try
             {
                 // Step 1: DB init
-                steps.Add(RunStep("DB init (schema + migrations)", () =>
+                steps.Add(SmokeStepRunner.RunStep("DB init (schema + migrations)", () =>
                 {
                     SchemaInstaller.EnsureDatabaseAndSchema();
                     MigrationsRunner.ApplyPendingMigrations();
@@ -76,7 +47,7 @@ namespace DemoPick.Services
                 {
                     // If DB is empty, seed admin (DEBUG only inside SchemaInstaller); we avoid UI there.
                     // Otherwise, register a unique temp user we can always login with.
-                    steps.Add(RunStep("Obtain test credentials", () =>
+                    steps.Add(SmokeStepRunner.RunStep("Obtain test credentials", () =>
                     {
                         // If there are zero accounts, try seeding admin here (works in both DEBUG/RELEASE).
                         if (AuthService.TrySeedAdminIfEmpty(out var seededUser, out var seededPass))
@@ -110,7 +81,7 @@ namespace DemoPick.Services
                 }
 
                 // Step 3: Login
-                steps.Add(RunStep("Login", () =>
+                steps.Add(SmokeStepRunner.RunStep("Login", () =>
                 {
                     if (!AuthService.TryLogin(identifier, password, out var user, out var err))
                         throw new InvalidOperationException(err ?? "Login failed");
@@ -124,7 +95,7 @@ namespace DemoPick.Services
 
                 // Step 4: Load courts
                 List<Models.CourtModel> courts = null;
-                steps.Add(RunStep("Load courts", () =>
+                steps.Add(SmokeStepRunner.RunStep("Load courts", () =>
                 {
                     var controller = new BookingController();
                     courts = controller.GetCourts();
@@ -134,7 +105,7 @@ namespace DemoPick.Services
                 }));
 
                 // Step 5: Create & cancel a booking (best-effort cleanup)
-                steps.Add(RunStep("Create + cleanup test booking", () =>
+                steps.Add(SmokeStepRunner.RunStep("Create + cleanup test booking", () =>
                 {
                     var controller = new BookingController();
 
@@ -178,7 +149,7 @@ namespace DemoPick.Services
                 }));
 
                 // Step 6: Logout
-                steps.Add(RunStep("Logout", () =>
+                steps.Add(SmokeStepRunner.RunStep("Logout", () =>
                 {
                     AppSession.SignOut();
                     if (AppSession.CurrentUser != null)
@@ -189,7 +160,7 @@ namespace DemoPick.Services
                 // Step 7: Cleanup temp account (best-effort)
                 if (createdTempAccount && !string.IsNullOrWhiteSpace(tempUsername))
                 {
-                    steps.Add(RunStep("Cleanup temp account", () =>
+                    steps.Add(SmokeStepRunner.RunStep("Cleanup temp account", () =>
                     {
                         int rows = DatabaseHelper.ExecuteNonQuery(
                             "DELETE FROM dbo.StaffAccounts WHERE Username = @U OR (Email IS NOT NULL AND Email = @U)",
@@ -199,33 +170,33 @@ namespace DemoPick.Services
                 }
 
                 // Step 7b: Cleanup legacy smoke artifacts from older test runs.
-                steps.Add(RunStep("Cleanup legacy SMOKE artifacts", () =>
+                steps.Add(SmokeStepRunner.RunStep("Cleanup legacy SMOKE artifacts", () =>
                 {
-                    return CleanupLegacySmokeArtifacts();
+                    return SmokeMaintenanceHelper.CleanupLegacySmokeArtifacts();
                 }));
 
                 // Step 8: Logic tests
-                steps.Add(RunStep("Logic tests (PriceCalculator + PendingOrders)", () =>
+                steps.Add(SmokeStepRunner.RunStep("Logic tests (PriceCalculator + PendingOrders)", () =>
                 {
                     RunLogicTests();
                     return "All logic assertions passed";
                 }));
 
                 // Step 9: UI refactor tests
-                steps.Add(RunStep("UI refactor tests (UCThanhToan + FrmXoaSP)", () =>
+                steps.Add(SmokeStepRunner.RunStep("UI refactor tests (UCThanhToan + FrmXoaSP)", () =>
                 {
                     return RunUiRefactorTests();
                 }));
 
                 // Step 10: Performance tests
-                steps.Add(RunStep("Performance tests (micro-benchmark)", () =>
+                steps.Add(SmokeStepRunner.RunStep("Performance tests (micro-benchmark)", () =>
                 {
                     return RunPerformanceTests();
                 }));
 
                 swTotal.Stop();
 
-                string reportPath = WriteMarkdownReport(startedAt, swTotal.Elapsed, steps, identifier, credentialSource);
+                string reportPath = SmokeReportWriter.WriteMarkdownReport(FindWorkspaceRoot(), startedAt, swTotal.Elapsed, steps, identifier, credentialSource);
                 Console.WriteLine("\nSMOKE TEST: SUCCESS");
                 Console.WriteLine("Report: " + reportPath);
                 return 0;
@@ -233,7 +204,7 @@ namespace DemoPick.Services
             catch (Exception fatal)
             {
                 swTotal.Stop();
-                steps.Add(new StepResult
+                steps.Add(new SmokeTestStepResult
                 {
                     Name = "Fatal",
                     Success = false,
@@ -242,27 +213,11 @@ namespace DemoPick.Services
                     Exception = fatal
                 });
 
-                string reportPath = WriteMarkdownReport(startedAt, swTotal.Elapsed, steps, identifier, credentialSource);
+                string reportPath = SmokeReportWriter.WriteMarkdownReport(FindWorkspaceRoot(), startedAt, swTotal.Elapsed, steps, identifier, credentialSource);
                 Console.WriteLine("\nSMOKE TEST: FAILED");
                 Console.WriteLine(fatal.ToString());
                 Console.WriteLine("Report: " + reportPath);
                 return 1;
-            }
-        }
-
-        private static StepResult RunStep(string name, Func<string> action)
-        {
-            var sw = Stopwatch.StartNew();
-            try
-            {
-                string details = action?.Invoke();
-                sw.Stop();
-                return new StepResult { Name = name, Success = true, Duration = sw.Elapsed, Details = details };
-            }
-            catch (Exception ex)
-            {
-                sw.Stop();
-                return new StepResult { Name = name, Success = false, Duration = sw.Elapsed, Details = ex.Message, Exception = ex };
             }
         }
 
@@ -423,14 +378,14 @@ namespace DemoPick.Services
                     throw new InvalidOperationException("UCInvoiceReprintPanel InvoiceIdText get/set failed");
 
                 reprintPanel.SetLastInvoiceEnabled(true);
-                var reprintLastBtn = GetPrivateField<Sunny.UI.UIButton>(reprintPanel, "btnReprintLast");
+                var reprintLastBtn = SmokeUiReflectionHelper.GetPrivateField<Sunny.UI.UIButton>(reprintPanel, "btnReprintLast");
                 if (reprintLastBtn == null)
                     throw new InvalidOperationException("UCInvoiceReprintPanel missing btnReprintLast");
                 if (!reprintLastBtn.Enabled)
                     throw new InvalidOperationException("UCInvoiceReprintPanel SetLastInvoiceEnabled(true) did not enable button");
 
-                InvokePrivateMethod(reprintPanel, "BtnReprintById_Click", reprintPanel, EventArgs.Empty);
-                InvokePrivateMethod(reprintPanel, "BtnReprintLast_Click", reprintPanel, EventArgs.Empty);
+                SmokeUiReflectionHelper.InvokePrivateMethod(reprintPanel, "BtnReprintById_Click", reprintPanel, EventArgs.Empty);
+                SmokeUiReflectionHelper.InvokePrivateMethod(reprintPanel, "BtnReprintLast_Click", reprintPanel, EventArgs.Empty);
 
                 if (!byIdRaised)
                     throw new InvalidOperationException("UCInvoiceReprintPanel did not raise ReprintByIdRequested");
@@ -477,7 +432,7 @@ namespace DemoPick.Services
 
                 historyPanel.BindRows(rows);
 
-                var list = GetPrivateField<ListView>(historyPanel, "lstHistory");
+                var list = SmokeUiReflectionHelper.GetPrivateField<ListView>(historyPanel, "lstHistory");
                 if (list == null)
                     throw new InvalidOperationException("UCPaymentHistoryPanel missing lstHistory");
                 if (list.Items.Count != 2)
@@ -490,8 +445,8 @@ namespace DemoPick.Services
                 if (list.Items[1].BackColor != System.Drawing.Color.FromArgb(239, 246, 255))
                     throw new InvalidOperationException("UCPaymentHistoryPanel highlighted row style was not applied");
 
-                InvokePrivateMethod(historyPanel, "BtnSearch_Click", historyPanel, EventArgs.Empty);
-                InvokePrivateMethod(historyPanel, "BtnOpen_Click", historyPanel, EventArgs.Empty);
+                SmokeUiReflectionHelper.InvokePrivateMethod(historyPanel, "BtnSearch_Click", historyPanel, EventArgs.Empty);
+                SmokeUiReflectionHelper.InvokePrivateMethod(historyPanel, "BtnOpen_Click", historyPanel, EventArgs.Empty);
 
                 if (!searchRaised)
                     throw new InvalidOperationException("UCPaymentHistoryPanel did not raise SearchRequested");
@@ -514,10 +469,10 @@ namespace DemoPick.Services
 
             using (var frm = new DemoPick.FrmXoaSP())
             {
-                var list = GetPrivateField<ListView>(frm, "_lstProducts");
-                var pnlBottom = GetPrivateField<Panel>(frm, "_pnlBottom");
-                var btnClose = GetPrivateField<Sunny.UI.UIButton>(frm, "_btnClose");
-                var btnDelete = GetPrivateField<Sunny.UI.UIButton>(frm, "_btnDelete");
+                var list = SmokeUiReflectionHelper.GetPrivateField<ListView>(frm, "_lstProducts");
+                var pnlBottom = SmokeUiReflectionHelper.GetPrivateField<Panel>(frm, "_pnlBottom");
+                var btnClose = SmokeUiReflectionHelper.GetPrivateField<Sunny.UI.UIButton>(frm, "_btnClose");
+                var btnDelete = SmokeUiReflectionHelper.GetPrivateField<Sunny.UI.UIButton>(frm, "_btnDelete");
 
                 if (list == null || list.Columns.Count != 5)
                     throw new InvalidOperationException("FrmXoaSP designer ListView columns not initialized as expected");
@@ -526,7 +481,7 @@ namespace DemoPick.Services
                     throw new InvalidOperationException("FrmXoaSP designer controls missing");
 
                 pnlBottom.Width = 1000;
-                InvokePrivateMethod(frm, "PnlBottom_Resize", pnlBottom, EventArgs.Empty);
+                SmokeUiReflectionHelper.InvokePrivateMethod(frm, "PnlBottom_Resize", pnlBottom, EventArgs.Empty);
 
                 if (!(btnDelete.Left < btnClose.Left))
                     throw new InvalidOperationException("FrmXoaSP button layout rule violated (_btnDelete should be left of _btnClose)");
@@ -588,13 +543,13 @@ namespace DemoPick.Services
             double priceOps = loops / Math.Max(0.001, swPrice.Elapsed.TotalSeconds);
             double pendingOps = loops / Math.Max(0.001, swPending.Elapsed.TotalSeconds);
 
-            var baseline = LoadOrCreatePerfBaseline(root, Environment.MachineName, priceOps, pendingOps, persistBaselineIfMissing);
+            var baseline = SmokePerformancePersistence.LoadOrCreatePerfBaseline(root, Environment.MachineName, priceOps, pendingOps, persistBaselineIfMissing);
 
             string mode = enforceBaseline ? "baseline-guard" : "debug-no-guard";
 
-            var results = new List<ModulePerfResult>
+            var results = new List<SmokeModulePerfResult>
             {
-                new ModulePerfResult
+                new SmokeModulePerfResult
                 {
                     Module = "PriceCalculator",
                     Iterations = loops,
@@ -604,7 +559,7 @@ namespace DemoPick.Services
                     Passed = !enforceBaseline || priceOps >= baseline.PriceCalcMinOps,
                     Mode = mode
                 },
-                new ModulePerfResult
+                new SmokeModulePerfResult
                 {
                     Module = "PendingOrders",
                     Iterations = loops,
@@ -616,8 +571,8 @@ namespace DemoPick.Services
                 }
             };
 
-            string perfReportPath = WritePerformanceModuleReport(root, results, checksum);
-            AppendPerformanceHistory(root, results);
+            string perfReportPath = SmokePerformancePersistence.WritePerformanceModuleReport(root, results, checksum);
+            SmokePerformancePersistence.AppendPerformanceHistory(root, results);
 
             foreach (var r in results)
             {
@@ -665,12 +620,12 @@ namespace DemoPick.Services
             if (targetCourt == null)
                 throw new InvalidOperationException("No available court for auto-member integration test");
 
-            string phone = BuildUniquePhone();
+            string phone = SmokeMaintenanceHelper.BuildUniquePhone();
             string guest = "SMOKE AUTO " + Guid.NewGuid().ToString("N").Substring(0, 6) + " - " + phone;
             DateTime start = now.AddMinutes(-20);
             DateTime end = now.AddMinutes(40);
 
-            bool hadMemberBefore = HasMemberByPhone(phone);
+            bool hadMemberBefore = SmokeMaintenanceHelper.HasMemberByPhone(phone);
             if (hadMemberBefore)
                 throw new InvalidOperationException("Generated phone already exists; cannot run isolated auto-member test");
 
@@ -780,201 +735,6 @@ namespace DemoPick.Services
             }
         }
 
-        private static bool HasMemberByPhone(string phone)
-        {
-            object obj = DatabaseHelper.ExecuteScalar(
-                "SELECT TOP 1 1 FROM dbo.Members WHERE Phone = @Phone",
-                new SqlParameter("@Phone", phone)
-            );
-            return obj != null && obj != DBNull.Value;
-        }
-
-        private static string BuildUniquePhone()
-        {
-            string digits = Math.Abs(Guid.NewGuid().GetHashCode()).ToString("D10");
-            return "09" + digits.Substring(0, 8);
-        }
-
-        private static string CleanupLegacySmokeArtifacts()
-        {
-            int delBooking = 0;
-            int delMembers = 0;
-            int delAccounts = 0;
-
-            try
-            {
-                delBooking = DatabaseHelper.ExecuteNonQuery(
-                    "DELETE FROM dbo.Bookings WHERE ISNULL(LTRIM(RTRIM(GuestName)), '') LIKE 'SMOKE%'");
-            }
-            catch
-            {
-                // Best-effort cleanup.
-            }
-
-            try
-            {
-                delMembers = DatabaseHelper.ExecuteNonQuery(
-                    "DELETE FROM dbo.Members WHERE ISNULL(LTRIM(RTRIM(FullName)), '') LIKE 'SMOKE%'");
-            }
-            catch
-            {
-                // Best-effort cleanup.
-            }
-
-            try
-            {
-                delAccounts = DatabaseHelper.ExecuteNonQuery(
-                    "DELETE FROM dbo.StaffAccounts WHERE ISNULL(LTRIM(RTRIM(Username)), '') LIKE 'smoke_%' OR ISNULL(LTRIM(RTRIM(Email)), '') LIKE 'smoke_%'");
-            }
-            catch
-            {
-                // Best-effort cleanup.
-            }
-
-            return $"Bookings={delBooking}, Members={delMembers}, StaffAccounts={delAccounts}";
-        }
-
-        private static PerfBaseline LoadOrCreatePerfBaseline(string root, string machine, double priceOps, double pendingOps, bool persistIfMissing)
-        {
-            string docsDir = Path.Combine(root, "Docs");
-            Directory.CreateDirectory(docsDir);
-
-            string path = Path.Combine(docsDir, "PERF_BASELINES.csv");
-
-            var map = new Dictionary<string, PerfBaseline>(StringComparer.OrdinalIgnoreCase);
-            if (File.Exists(path))
-            {
-                var lines = File.ReadAllLines(path);
-                for (int i = 1; i < lines.Length; i++)
-                {
-                    string line = lines[i].Trim();
-                    if (line.Length == 0) continue;
-                    var parts = line.Split(',');
-                    if (parts.Length < 4) continue;
-
-                    if (!double.TryParse(parts[1], NumberStyles.Float, CultureInfo.InvariantCulture, out var p1)) continue;
-                    if (!double.TryParse(parts[2], NumberStyles.Float, CultureInfo.InvariantCulture, out var p2)) continue;
-                    DateTime.TryParse(parts[3], CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out var updated);
-
-                    map[parts[0]] = new PerfBaseline
-                    {
-                        Machine = parts[0],
-                        PriceCalcMinOps = p1,
-                        PendingOrdersMinOps = p2,
-                        UpdatedAt = updated
-                    };
-                }
-            }
-
-            if (!map.TryGetValue(machine, out var baseline))
-            {
-                // First run on this machine: set a conservative baseline for future regression checks.
-                baseline = new PerfBaseline
-                {
-                    Machine = machine,
-                    PriceCalcMinOps = Math.Max(1d, priceOps * 0.80d),
-                    PendingOrdersMinOps = Math.Max(1d, pendingOps * 0.80d),
-                    UpdatedAt = DateTime.Now
-                };
-                map[machine] = baseline;
-                if (persistIfMissing)
-                {
-                    SavePerfBaselines(path, map);
-                }
-            }
-
-            return baseline;
-        }
-
-        private static void SavePerfBaselines(string path, Dictionary<string, PerfBaseline> map)
-        {
-            var sb = new StringBuilder();
-            sb.AppendLine("Machine,PriceCalcMinOps,PendingOrdersMinOps,UpdatedAt");
-            foreach (var kv in map)
-            {
-                var b = kv.Value;
-                sb.AppendLine(string.Format(
-                    CultureInfo.InvariantCulture,
-                    "{0},{1:F2},{2:F2},{3:yyyy-MM-dd HH:mm:ss}",
-                    b.Machine,
-                    b.PriceCalcMinOps,
-                    b.PendingOrdersMinOps,
-                    b.UpdatedAt
-                ));
-            }
-            File.WriteAllText(path, sb.ToString(), new UTF8Encoding(false));
-        }
-
-        private static string WritePerformanceModuleReport(string root, List<ModulePerfResult> results, decimal checksum)
-        {
-            string perfDir = Path.Combine(root, "Docs", "Perf");
-            Directory.CreateDirectory(perfDir);
-
-            string path = Path.Combine(perfDir, "PERF_LAST_RUN.md");
-            var sb = new StringBuilder();
-            sb.AppendLine("# DemoPick Performance Report");
-            sb.AppendLine();
-            sb.AppendLine($"- Timestamp: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
-            sb.AppendLine($"- Machine: {Environment.MachineName}");
-            sb.AppendLine($"- Checksum: {checksum:N0}");
-            sb.AppendLine();
-            sb.AppendLine("| Module | Iterations | Elapsed (ms) | Ops/s | Baseline Min Ops/s | Result | Mode |");
-            sb.AppendLine("|---|---:|---:|---:|---:|---|---|");
-
-            foreach (var r in results)
-            {
-                sb.AppendLine(string.Format(
-                    CultureInfo.InvariantCulture,
-                    "| {0} | {1} | {2} | {3:F0} | {4:F0} | {5} | {6} |",
-                    r.Module,
-                    r.Iterations,
-                    r.ElapsedMs,
-                    r.OpsPerSec,
-                    r.ThresholdOpsPerSec,
-                    r.Passed ? "PASS" : "FAIL",
-                    r.Mode
-                ));
-            }
-
-            File.WriteAllText(path, sb.ToString(), new UTF8Encoding(false));
-            return path;
-        }
-
-        private static void AppendPerformanceHistory(string root, List<ModulePerfResult> results)
-        {
-            string perfDir = Path.Combine(root, "Docs", "Perf");
-            Directory.CreateDirectory(perfDir);
-
-            string history = Path.Combine(perfDir, "PERF_MODULES_HISTORY.csv");
-            bool exists = File.Exists(history);
-
-            var sb = new StringBuilder();
-            if (!exists)
-            {
-                sb.AppendLine("Timestamp,Machine,Module,Iterations,ElapsedMs,OpsPerSec,BaselineMinOpsPerSec,Passed,Mode");
-            }
-
-            string ts = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
-            foreach (var r in results)
-            {
-                sb.AppendLine(string.Format(
-                    CultureInfo.InvariantCulture,
-                    "{0},{1},{2},{3},{4},{5:F2},{6:F2},{7},{8}",
-                    ts,
-                    Environment.MachineName,
-                    r.Module,
-                    r.Iterations,
-                    r.ElapsedMs,
-                    r.OpsPerSec,
-                    r.ThresholdOpsPerSec,
-                    r.Passed ? "1" : "0",
-                    r.Mode
-                ));
-            }
-
-            File.AppendAllText(history, sb.ToString(), new UTF8Encoding(false));
-        }
-
         private static void AssertDecimal(string name, decimal expected, decimal actual, decimal tolerance = 0.001m)
         {
             decimal diff = Math.Abs(expected - actual);
@@ -982,100 +742,6 @@ namespace DemoPick.Services
                 throw new InvalidOperationException($"{name} expected {expected}, actual {actual}, diff {diff}");
         }
 
-        private static T GetPrivateField<T>(object target, string fieldName) where T : class
-        {
-            if (target == null || string.IsNullOrWhiteSpace(fieldName))
-                return null;
-
-            var field = target.GetType().GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic);
-            if (field == null)
-                return null;
-
-            return field.GetValue(target) as T;
-        }
-
-        private static void InvokePrivateMethod(object target, string methodName, params object[] args)
-        {
-            if (target == null)
-                throw new InvalidOperationException("Cannot invoke private method on null target");
-
-            var method = target.GetType().GetMethod(methodName, BindingFlags.Instance | BindingFlags.NonPublic);
-            if (method == null)
-                throw new InvalidOperationException($"Method not found: {target.GetType().FullName}.{methodName}");
-
-            method.Invoke(target, args);
-        }
-
-        private static string WriteMarkdownReport(DateTime startedAt, TimeSpan total, List<StepResult> steps, string identifier, string credentialSource)
-        {
-            string root = FindWorkspaceRoot();
-            string docsDir = Path.Combine(root, "Docs");
-            Directory.CreateDirectory(docsDir);
-
-            string path = Path.Combine(docsDir, "SMOKE_RUN.md");
-
-            var sb = new StringBuilder();
-            sb.AppendLine("# DemoPick Smoke Test Report");
-            sb.AppendLine();
-            sb.AppendLine($"- Started: {startedAt:yyyy-MM-dd HH:mm:ss}");
-            sb.AppendLine($"- Duration: {total.TotalSeconds:F2}s");
-            sb.AppendLine($"- Machine: {Environment.MachineName}");
-            sb.AppendLine($"- User: {Environment.UserName}");
-            sb.AppendLine($"- App: {AppDomain.CurrentDomain.FriendlyName}");
-            sb.AppendLine();
-
-            if (!string.IsNullOrWhiteSpace(identifier))
-            {
-                sb.AppendLine("## Login Used");
-                sb.AppendLine();
-                sb.AppendLine($"- Identifier: {identifier}");
-                if (!string.IsNullOrWhiteSpace(credentialSource)) sb.AppendLine($"- Source: {credentialSource}");
-                sb.AppendLine();
-            }
-
-            sb.AppendLine("## Steps");
-            sb.AppendLine();
-            sb.AppendLine("| Step | Result | Duration | Details |");
-            sb.AppendLine("|---|---|---:|---|");
-
-            foreach (var s in steps)
-            {
-                string res = s.Success ? "SUCCESS" : "FAIL";
-                string dur = s.Duration.TotalMilliseconds.ToString("0") + "ms";
-                string details = (s.Details ?? "").Replace("\r", " ").Replace("\n", " ");
-                if (details.Length > 200) details = details.Substring(0, 200) + "…";
-                sb.AppendLine($"| {EscapePipe(s.Name)} | {res} | {dur} | {EscapePipe(details)} |");
-            }
-
-            sb.AppendLine();
-            sb.AppendLine("## Failures");
-            sb.AppendLine();
-            bool anyFail = false;
-            foreach (var s in steps)
-            {
-                if (s.Success) continue;
-                anyFail = true;
-                sb.AppendLine($"### {s.Name}");
-                sb.AppendLine();
-                sb.AppendLine("```text");
-                sb.AppendLine((s.Exception ?? new Exception(s.Details ?? "Unknown error")).ToString());
-                sb.AppendLine("```");
-                sb.AppendLine();
-            }
-            if (!anyFail)
-            {
-                sb.AppendLine("No failures.");
-                sb.AppendLine();
-            }
-
-            File.WriteAllText(path, sb.ToString(), new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
-            return path;
-        }
-
-        private static string EscapePipe(string s)
-        {
-            return (s ?? "").Replace("|", "\\|");
-        }
 
         private static string FindWorkspaceRoot()
         {

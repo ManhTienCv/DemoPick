@@ -156,5 +156,10 @@ namespace DemoPick
             }
         }
 
+        public void RefreshOnActivated()
+        {
+            ReloadTimelineAsync(forceReload: true);
+        }
+
     }
 }

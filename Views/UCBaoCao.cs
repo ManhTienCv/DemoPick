@@ -174,6 +174,11 @@ namespace DemoPick
             await ReloadAsync(from, to);
         }
 
+        public void RefreshOnActivated()
+        {
+            _ = ReloadAsync();
+        }
+
         private async System.Threading.Tasks.Task ReloadAsync()
         {
             var from = GetFilterFromDate();

@@ -249,6 +249,11 @@ namespace DemoPick
             }
         }
 
+        public void RefreshOnActivated()
+        {
+            LoadDataAsync();
+        }
+
         private Task<System.Collections.Generic.List<DemoPick.Models.CustomerModel>> LoadCustomersAsync()
         {
             return _customerService.GetAllCustomersAsync();

@@ -18,6 +18,12 @@ namespace DemoPick
         public UCBaoCao baoCao;
         public UCThanhToan thanhToan;
         private UserControl _activeModule;
+
+        private readonly Timer _moduleRefreshDebounceTimer;
+        private UserControl _pendingRefreshModule;
+        private DateTime _lastModuleRefreshAtUtc = DateTime.MinValue;
+
+        private const int SameModuleRefreshDebounceMs = 260;
         
         private List<Sunny.UI.UIPanel> menuButtons;
 
@@ -46,6 +52,20 @@ namespace DemoPick
             {
                 _menuFontRegular?.Dispose();
                 _menuFontBold?.Dispose();
+                if (_moduleRefreshDebounceTimer != null)
+                {
+                    _moduleRefreshDebounceTimer.Stop();
+                    _moduleRefreshDebounceTimer.Dispose();
+                }
+            };
+
+            _moduleRefreshDebounceTimer = new Timer { Interval = SameModuleRefreshDebounceMs };
+            _moduleRefreshDebounceTimer.Tick += (s, e) =>
+            {
+                _moduleRefreshDebounceTimer.Stop();
+                var module = _pendingRefreshModule;
+                _pendingRefreshModule = null;
+                TriggerModuleRefresh(module);
             };
 
             InitModules();
@@ -131,9 +151,7 @@ namespace DemoPick
         private void BindClick(Sunny.UI.UIPanel p, UserControl uc, string title, string subtitle)
         {
             System.EventHandler h = (s, e) => {
-                pnlContent.Controls.Clear();
-                pnlContent.Controls.Add(uc);
-                if(uc != null) SwitchModule(uc, p, title, subtitle);
+                if (uc != null) SwitchModule(uc, p, title, subtitle);
             };
             p.Click += h;
 
@@ -162,7 +180,6 @@ namespace DemoPick
         public void SwitchModule(UserControl uc, Sunny.UI.UIPanel activeBtn, string title, string subtitle)
         {
             bool isSameModule = ReferenceEquals(_activeModule, uc);
-            bool shouldRefresh = !isSameModule || (uc is UCBanHang);
 
             if (!isSameModule)
             {
@@ -175,20 +192,7 @@ namespace DemoPick
                 _activeModule = uc;
             }
 
-            // Refresh data-driven modules when navigating between pages.
-            if (shouldRefresh)
-            {
-                try
-                {
-                    if (uc is UCBanHang bh) bh.RefreshOnActivated();
-                    else if (uc is UCKhoHang kho) kho.RefreshOnActivated();
-                    else if (uc is UCThanhToan tt) tt.RefreshOnActivated();
-                }
-                catch (Exception ex)
-                {
-                    try { DemoPick.Services.DatabaseHelper.TryLog("SwitchModule Refresh Error", ex, "FrmChinh.SwitchModule"); } catch { }
-                }
-            }
+            QueueModuleRefresh(uc, isSameModule);
             
             lblPageTitle.Text = title;
             lblPageSubtitle.Text = subtitle;
@@ -202,6 +206,61 @@ namespace DemoPick
             activeBtn.FillColor = Color.FromArgb(76, 175, 80);
             
             SetLabelStyle(activeBtn, true);
+        }
+
+        private void QueueModuleRefresh(UserControl module, bool isSameModule)
+        {
+            if (module == null) return;
+
+            // Switching to another module should feel instant.
+            if (!isSameModule)
+            {
+                _moduleRefreshDebounceTimer.Stop();
+                _pendingRefreshModule = null;
+                TriggerModuleRefresh(module);
+                return;
+            }
+
+            // Re-clicking the same module is throttled to prevent redundant heavy reloads.
+            var elapsedMs = (DateTime.UtcNow - _lastModuleRefreshAtUtc).TotalMilliseconds;
+            if (elapsedMs >= SameModuleRefreshDebounceMs)
+            {
+                _moduleRefreshDebounceTimer.Stop();
+                _pendingRefreshModule = null;
+                TriggerModuleRefresh(module);
+                return;
+            }
+
+            _pendingRefreshModule = module;
+            _moduleRefreshDebounceTimer.Interval = Math.Max(60, SameModuleRefreshDebounceMs - (int)Math.Max(0, elapsedMs));
+            _moduleRefreshDebounceTimer.Stop();
+            _moduleRefreshDebounceTimer.Start();
+        }
+
+        private void TriggerModuleRefresh(UserControl module)
+        {
+            RefreshModuleData(module);
+            _lastModuleRefreshAtUtc = DateTime.UtcNow;
+        }
+
+        private static void RefreshModuleData(UserControl uc)
+        {
+            if (uc == null) return;
+
+            try
+            {
+                if (uc is UCBanHang bh) bh.RefreshOnActivated();
+                else if (uc is UCTongQuan tq) tq.RefreshOnActivated();
+                else if (uc is UCDatLich dl) dl.RefreshOnActivated();
+                else if (uc is UCKhachHang kh) kh.RefreshOnActivated();
+                else if (uc is UCKhoHang kho) kho.RefreshOnActivated();
+                else if (uc is UCBaoCao bc) bc.RefreshOnActivated();
+                else if (uc is UCThanhToan tt) tt.RefreshOnActivated();
+            }
+            catch (Exception ex)
+            {
+                try { DemoPick.Services.DatabaseHelper.TryLog("SwitchModule Refresh Error", ex, "FrmChinh.RefreshModuleData"); } catch { }
+            }
         }
 
         public void NavigateToDatLich()

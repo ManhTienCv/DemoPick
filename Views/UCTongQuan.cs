@@ -183,6 +183,12 @@ namespace DemoPick
             }
         }
 
+        public void RefreshOnActivated()
+        {
+            LoadRealDataAsync();
+            QueueResetScrollToTop();
+        }
+
         private void BindTopCards(DemoPick.Models.DashboardMetricsModel metrics)
         {
             metrics = metrics ?? new DemoPick.Models.DashboardMetricsModel();

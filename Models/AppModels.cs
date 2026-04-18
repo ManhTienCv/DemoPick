@@ -54,6 +54,7 @@ namespace DemoPick.Models
         public int CourtID { get; set; }
         public string GuestName { get; set; }
         public string Note { get; set; }
+        public string PaymentState { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
         public string Status { get; set; } 

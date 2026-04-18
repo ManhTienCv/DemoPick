@@ -144,7 +144,8 @@ namespace DemoPick
                         minSeconds: 300);
                 }
 
-                _controller.SubmitBooking(courtId, memberId, txtName.Text + " - " + txtPhone.Text, note, start, end, status: AppConstants.BookingStatus.Confirmed);
+                    string paymentState = MapPaymentSelectionToState();
+                    _controller.SubmitBooking(courtId, memberId, txtName.Text + " - " + txtPhone.Text, note, start, end, status: AppConstants.BookingStatus.Confirmed, paymentState: paymentState);
                 MessageBox.Show($"Đã chốt sân thành công!\n- {txtName.Text}\n- Mốc: Từ {start:HH:mm} đến {end:HH:mm} ngày {start:dd/MM/yyyy}", " Đặt sân hoàn tất", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 this.DialogResult = DialogResult.OK; 
                 this.Close();
@@ -153,6 +154,19 @@ namespace DemoPick
             {
                 MessageBox.Show("LỖI ĐẶT SÂN: " + ex.Message, "Cảnh báo trùng lặp", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private string MapPaymentSelectionToState()
+        {
+            string selected = (cbPayment?.SelectedItem?.ToString() ?? string.Empty).Trim();
+
+            if (string.Equals(selected, "Đã chuyển khoản", StringComparison.OrdinalIgnoreCase))
+                return AppConstants.BookingPaymentState.BankTransferred;
+
+            if (string.Equals(selected, "Đã đặt cọc 50%", StringComparison.OrdinalIgnoreCase))
+                return AppConstants.BookingPaymentState.Deposit50;
+
+            return AppConstants.BookingPaymentState.PayAtVenue;
         }
 
         private void Form_MouseDown(object sender, MouseEventArgs e)

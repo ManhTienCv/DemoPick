@@ -11,6 +11,13 @@ namespace DemoPick.Services
             internal const string Pending = "Pending";
         }
 
+        internal static class BookingPaymentState
+        {
+            internal const string PayAtVenue = "PayAtVenue";
+            internal const string BankTransferred = "BankTransferred";
+            internal const string Deposit50 = "Deposit50";
+        }
+
         internal static class Roles
         {
             internal const string Admin = "Admin";

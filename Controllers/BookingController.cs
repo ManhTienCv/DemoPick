@@ -32,6 +32,20 @@ namespace DemoPick.Controllers
                         DatabaseHelper.ExecuteNonQuery("ALTER TABLE dbo.Bookings ADD Note NVARCHAR(200) NULL;");
                     }
 
+                    object payCol = DatabaseHelper.ExecuteScalar("SELECT COL_LENGTH('dbo.Bookings', 'PaymentState')");
+                    if (payCol == null || payCol == DBNull.Value)
+                    {
+                        DatabaseHelper.ExecuteNonQuery($@"ALTER TABLE dbo.Bookings
+ADD PaymentState NVARCHAR(50) NOT NULL
+CONSTRAINT DF_Bookings_PaymentState DEFAULT '{AppConstants.BookingPaymentState.PayAtVenue}';");
+                    }
+                    else
+                    {
+                        DatabaseHelper.ExecuteNonQuery($@"UPDATE dbo.Bookings
+SET PaymentState = '{AppConstants.BookingPaymentState.PayAtVenue}'
+WHERE PaymentState IS NULL OR LTRIM(RTRIM(PaymentState)) = '';");
+                    }
+
                     // 2) Ensure procedure exists and supports @Note
                     DatabaseHelper.ExecuteNonQuery(@"IF OBJECT_ID('dbo.sp_CreateBooking','P') IS NULL
 BEGIN
@@ -44,6 +58,7 @@ ALTER PROCEDURE dbo.sp_CreateBooking
     @MemberID INT = NULL,
     @GuestName NVARCHAR(100) = NULL,
     @Note NVARCHAR(200) = NULL,
+    @PaymentState NVARCHAR(50) = '{AppConstants.BookingPaymentState.PayAtVenue}',
     @StartTime DATETIME,
     @EndTime DATETIME,
     @Status NVARCHAR(50) = '{AppConstants.BookingStatus.Confirmed}'
@@ -62,8 +77,8 @@ BEGIN
         RETURN;
     END
 
-    INSERT INTO dbo.Bookings (CourtID, MemberID, GuestName, Note, StartTime, EndTime, Status)
-    VALUES (@CourtID, @MemberID, @GuestName, @Note, @StartTime, @EndTime, @Status);
+    INSERT INTO dbo.Bookings (CourtID, MemberID, GuestName, Note, PaymentState, StartTime, EndTime, Status)
+    VALUES (@CourtID, @MemberID, @GuestName, @Note, @PaymentState, @StartTime, @EndTime, @Status);
 END");
 
                     _noteSchemaOk = true;
@@ -103,6 +118,25 @@ END");
                     eventDesc: "Booking Note Schema Check Failed",
                     ex: ex,
                     context: "BookingController.HasBookingNoteColumn",
+                    minSeconds: 300);
+                return false;
+            }
+        }
+
+        private static bool HasBookingPaymentStateColumn()
+        {
+            try
+            {
+                object col = DatabaseHelper.ExecuteScalar("SELECT COL_LENGTH('dbo.Bookings', 'PaymentState')");
+                return !(col == null || col == DBNull.Value);
+            }
+            catch (Exception ex)
+            {
+                DatabaseHelper.TryLogThrottled(
+                    throttleKey: "BookingController.HasBookingPaymentStateColumn",
+                    eventDesc: "Booking PaymentState Schema Check Failed",
+                    ex: ex,
+                    context: "BookingController.HasBookingPaymentStateColumn",
                     minSeconds: 300);
                 return false;
             }
@@ -156,6 +190,46 @@ WHERE object_id = OBJECT_ID('dbo.sp_CreateBooking')
                     minSeconds: 300);
                 return false;
             }
+        }
+
+        private static bool SpCreateBookingHasPaymentStateParam()
+        {
+            try
+            {
+                object obj = DatabaseHelper.ExecuteScalar(@"
+SELECT COUNT(*)
+FROM sys.parameters
+WHERE object_id = OBJECT_ID('dbo.sp_CreateBooking')
+  AND name = '@PaymentState'");
+
+                int count = obj == null || obj == DBNull.Value ? 0 : Convert.ToInt32(obj);
+                return count > 0;
+            }
+            catch (Exception ex)
+            {
+                DatabaseHelper.TryLogThrottled(
+                    throttleKey: "BookingController.SpCreateBookingHasPaymentStateParam",
+                    eventDesc: "Booking Proc Metadata Check Failed",
+                    ex: ex,
+                    context: "BookingController.SpCreateBookingHasPaymentStateParam",
+                    minSeconds: 300);
+                return false;
+            }
+        }
+
+        private static string NormalizeBookingPaymentState(string paymentState)
+        {
+            string p = (paymentState ?? string.Empty).Trim();
+            if (string.IsNullOrWhiteSpace(p))
+                return AppConstants.BookingPaymentState.PayAtVenue;
+
+            if (string.Equals(p, AppConstants.BookingPaymentState.BankTransferred, StringComparison.OrdinalIgnoreCase))
+                return AppConstants.BookingPaymentState.BankTransferred;
+
+            if (string.Equals(p, AppConstants.BookingPaymentState.Deposit50, StringComparison.OrdinalIgnoreCase))
+                return AppConstants.BookingPaymentState.Deposit50;
+
+            return AppConstants.BookingPaymentState.PayAtVenue;
         }
 
         public int? GetOrCreateMemberId(string fullName, string phone)
@@ -259,14 +333,19 @@ ORDER BY
                         TryEnsureBookingNoteSchema();
 
                         bool hasNote = HasBookingNoteColumn();
+                        bool hasPaymentState = HasBookingPaymentStateColumn();
+                        string selectNote = hasNote ? "Note" : "CAST(NULL AS NVARCHAR(200)) AS Note";
+                        string selectPaymentState = hasPaymentState
+                                ? "PaymentState"
+                                : $"CAST('{AppConstants.BookingPaymentState.PayAtVenue}' AS NVARCHAR(50)) AS PaymentState";
                         string query = hasNote
                                 ? $@"
-                                SELECT BookingID, CourtID, GuestName, Note, StartTime, EndTime, Status
+                                SELECT BookingID, CourtID, GuestName, {selectNote}, {selectPaymentState}, StartTime, EndTime, Status
                                 FROM Bookings
                                 WHERE CAST(StartTime AS DATE) = @Date
                                     AND Status != '{AppConstants.BookingStatus.Cancelled}'"
                                 : $@"
-                                SELECT BookingID, CourtID, GuestName, CAST(NULL AS NVARCHAR(200)) AS Note, StartTime, EndTime, Status
+                                SELECT BookingID, CourtID, GuestName, {selectNote}, {selectPaymentState}, StartTime, EndTime, Status
                                 FROM Bookings
                                 WHERE CAST(StartTime AS DATE) = @Date
                                     AND Status != '{AppConstants.BookingStatus.Cancelled}'";
@@ -286,6 +365,7 @@ ORDER BY
                     CourtID = Convert.ToInt32(row["CourtID"]),
                     GuestName = guest,
                     Note = row["Note"] != DBNull.Value ? row["Note"].ToString() : "",
+                    PaymentState = row["PaymentState"] != DBNull.Value ? row["PaymentState"].ToString() : AppConstants.BookingPaymentState.PayAtVenue,
                     StartTime = Convert.ToDateTime(row["StartTime"]),
                     EndTime = Convert.ToDateTime(row["EndTime"]),
                     Status = row["Status"].ToString()
@@ -302,11 +382,16 @@ ORDER BY
             TryEnsureBookingNoteSchema();
 
             bool hasNote = HasBookingNoteColumn();
+            bool hasPaymentState = HasBookingPaymentStateColumn();
             DateTime toDateExclusive = toDateInclusive.Date.AddDays(1);
+            string selectNote = hasNote ? "Note" : "CAST(NULL AS NVARCHAR(200)) AS Note";
+            string selectPaymentState = hasPaymentState
+                ? "PaymentState"
+                : $"CAST('{AppConstants.BookingPaymentState.PayAtVenue}' AS NVARCHAR(50)) AS PaymentState";
 
             string query = hasNote
                 ? $@"
-                                SELECT BookingID, CourtID, GuestName, Note, StartTime, EndTime, Status
+                                SELECT BookingID, CourtID, GuestName, {selectNote}, {selectPaymentState}, StartTime, EndTime, Status
                                 FROM Bookings
                                 WHERE StartTime < @ToDateExclusive
                                     AND Status <> '{AppConstants.BookingStatus.Cancelled}'
@@ -314,7 +399,7 @@ ORDER BY
                                     AND Status <> '{AppConstants.BookingStatus.Paid}'
                                 ORDER BY StartTime ASC, CourtID ASC, BookingID ASC"
                 : $@"
-                                SELECT BookingID, CourtID, GuestName, CAST(NULL AS NVARCHAR(200)) AS Note, StartTime, EndTime, Status
+                                SELECT BookingID, CourtID, GuestName, {selectNote}, {selectPaymentState}, StartTime, EndTime, Status
                                 FROM Bookings
                                 WHERE StartTime < @ToDateExclusive
                                     AND Status <> '{AppConstants.BookingStatus.Cancelled}'
@@ -337,6 +422,7 @@ ORDER BY
                     CourtID = Convert.ToInt32(row["CourtID"]),
                     GuestName = guest,
                     Note = row["Note"] != DBNull.Value ? row["Note"].ToString() : "",
+                    PaymentState = row["PaymentState"] != DBNull.Value ? row["PaymentState"].ToString() : AppConstants.BookingPaymentState.PayAtVenue,
                     StartTime = Convert.ToDateTime(row["StartTime"]),
                     EndTime = Convert.ToDateTime(row["EndTime"]),
                     Status = row["Status"].ToString()
@@ -348,20 +434,20 @@ ORDER BY
 
         public void SubmitBooking(int courtId, string guestName, DateTime startTime, DateTime endTime)
         {
-            SubmitBooking(courtId, guestName, note: null, startTime: startTime, endTime: endTime, status: AppConstants.BookingStatus.Confirmed);
+            SubmitBooking(courtId, guestName, note: null, startTime: startTime, endTime: endTime, status: AppConstants.BookingStatus.Confirmed, paymentState: null);
         }
 
         public void SubmitBooking(int courtId, string guestName, DateTime startTime, DateTime endTime, string status)
         {
-            SubmitBooking(courtId, guestName, note: null, startTime: startTime, endTime: endTime, status: status);
+            SubmitBooking(courtId, guestName, note: null, startTime: startTime, endTime: endTime, status: status, paymentState: null);
         }
 
-        public void SubmitBooking(int courtId, string guestName, string note, DateTime startTime, DateTime endTime, string status)
+        public void SubmitBooking(int courtId, string guestName, string note, DateTime startTime, DateTime endTime, string status, string paymentState = null)
         {
-            SubmitBooking(courtId, memberId: null, guestName: guestName, note: note, startTime: startTime, endTime: endTime, status: status);
+            SubmitBooking(courtId, memberId: null, guestName: guestName, note: note, startTime: startTime, endTime: endTime, status: status, paymentState: paymentState);
         }
 
-        public void SubmitBooking(int courtId, int? memberId, string guestName, string note, DateTime startTime, DateTime endTime, string status)
+        public void SubmitBooking(int courtId, int? memberId, string guestName, string note, DateTime startTime, DateTime endTime, string status, string paymentState = null)
         {
             // Ensure schema/proc if possible; if not, fall back to legacy proc call (without @Note).
             TryEnsureBookingNoteSchema();
@@ -395,6 +481,11 @@ ORDER BY
                 {
                     object noteDb = string.IsNullOrWhiteSpace(note) ? (object)DBNull.Value : note.Trim();
                     cmd.Parameters.AddWithValue("@Note", noteDb);
+                }
+
+                if (HasBookingPaymentStateColumn() && SpCreateBookingHasPaymentStateParam())
+                {
+                    cmd.Parameters.AddWithValue("@PaymentState", NormalizeBookingPaymentState(paymentState));
                 }
 
                 cmd.Parameters.AddWithValue("@StartTime", startTime);

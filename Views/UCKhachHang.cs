@@ -11,6 +11,7 @@ namespace DemoPick
     {
         private CustomerService _customerService;
         private System.Collections.Generic.List<DemoPick.Models.CustomerModel> _allCustomersCache;
+        private ImageList _rowHeightImageList;
 
         public UCKhachHang()
         {
@@ -22,7 +23,17 @@ namespace DemoPick
             }
             _customerService = new CustomerService();
             _allCustomersCache = new System.Collections.Generic.List<DemoPick.Models.CustomerModel>();
+            EnsureCustomerListRowHeight();
             InitializeCustomerListColumns();
+
+            this.Disposed += (s, e) =>
+            {
+                if (_rowHeightImageList != null)
+                {
+                    _rowHeightImageList.Dispose();
+                    _rowHeightImageList = null;
+                }
+            };
 
             lblTabAll.Click += (s, e) => FilterList("Tất cả", lblTabAll);
             lblTabAll.Cursor = Cursors.Hand;
@@ -50,6 +61,26 @@ namespace DemoPick
             lstKhachHang.DrawSubItem += LstKhachHang_DrawSubItem;
 
             LoadDataAsync();
+        }
+
+        private void EnsureCustomerListRowHeight()
+        {
+            if (lstKhachHang == null)
+            {
+                return;
+            }
+
+            if (_rowHeightImageList == null)
+            {
+                _rowHeightImageList = new ImageList
+                {
+                    ColorDepth = ColorDepth.Depth32Bit,
+                    ImageSize = new Size(1, 36)
+                };
+                _rowHeightImageList.Images.Add(new Bitmap(1, 36));
+            }
+
+            lstKhachHang.SmallImageList = _rowHeightImageList;
         }
 
         private void InitializeCustomerListColumns()
@@ -91,8 +122,9 @@ namespace DemoPick
                 
                 if (show)
                 {
+                    string customerIdentity = $"{c.Name} - ID: {c.Id}";
                     var item = new ListViewItem(new[] { 
-                        $"   {c.Name}\n   ID: {c.Id}", 
+                        $"   {customerIdentity}", 
                         c.Phone, 
                         c.CustomerType, 
                         c.TotalHours.ToString("0.##") + "h", 
@@ -141,11 +173,15 @@ namespace DemoPick
                 Color fgColor = isFixed ? Color.FromArgb(16, 185, 129) : Color.FromArgb(107, 114, 128);
                 string text = isFixed ? "Cố định" : "Vãng lai";
 
-                Rectangle rect = new Rectangle(e.Bounds.X + 5, e.Bounds.Y + 10, 80, 24);
+                int pillHeight = Math.Max(18, Math.Min(22, e.Bounds.Height - 8));
+                int pillWidth = Math.Min(86, Math.Max(72, e.Bounds.Width - 12));
+                int pillY = e.Bounds.Y + (e.Bounds.Height - pillHeight) / 2;
+
+                Rectangle rect = new Rectangle(e.Bounds.X + 6, pillY, pillWidth, pillHeight);
                 
                 using (GraphicsPath p = new GraphicsPath())
                 {
-                    int r = 12;
+                    int r = Math.Min(12, rect.Height / 2);
                     p.AddArc(rect.X, rect.Y, r, r, 180, 90);
                     p.AddArc(rect.Right - r, rect.Y, r, r, 270, 90);
                     p.AddArc(rect.Right - r, rect.Bottom - r, r, r, 0, 90);

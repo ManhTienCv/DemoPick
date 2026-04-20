@@ -144,9 +144,11 @@
     </Compile>
     <Compile Include="Views\FrmDatSanCoDinh.Booking.cs">
       <DependentUpon>FrmDatSanCoDinh.cs</DependentUpon>
+      <SubType>Form</SubType>
     </Compile>
     <Compile Include="Views\FrmDatSanCoDinh.WindowChrome.cs">
       <DependentUpon>FrmDatSanCoDinh.cs</DependentUpon>
+      <SubType>Form</SubType>
     </Compile>
     <Compile Include="Views\FrmDatSanCoDinh.Designer.cs">
       <DependentUpon>FrmDatSanCoDinh.cs</DependentUpon>

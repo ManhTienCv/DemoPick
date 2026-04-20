@@ -402,7 +402,38 @@ namespace DemoPick
             _selectedCourt = court;
             _cartTotal = 0;
 
+            UpdatePaymentStateHint();
             UpdateTotals();
+        }
+
+        private void UpdatePaymentStateHint()
+        {
+            if (lblPaymentStateHint == null) return;
+
+            if (_currentBooking == null)
+            {
+                lblPaymentStateHint.Text = "Không có booking: chỉ thu order chờ/dịch vụ.";
+                lblPaymentStateHint.ForeColor = Color.FromArgb(55, 65, 81);
+                return;
+            }
+
+            string paymentState = (_currentBooking.PaymentState ?? string.Empty).Trim();
+            if (string.Equals(paymentState, AppConstants.BookingPaymentState.BankTransferred, StringComparison.OrdinalIgnoreCase))
+            {
+                lblPaymentStateHint.Text = "Đã chuyển khoản sân: chỉ thu dịch vụ phát sinh.";
+                lblPaymentStateHint.ForeColor = Color.FromArgb(22, 163, 74);
+                return;
+            }
+
+            if (string.Equals(paymentState, AppConstants.BookingPaymentState.Deposit50, StringComparison.OrdinalIgnoreCase))
+            {
+                lblPaymentStateHint.Text = "Đã đặt cọc 50%: thu 50% tiền sân còn lại + dịch vụ.";
+                lblPaymentStateHint.ForeColor = Color.FromArgb(234, 88, 12);
+                return;
+            }
+
+            lblPaymentStateHint.Text = "Thu tại sân: thu đủ tiền sân + dịch vụ.";
+            lblPaymentStateHint.ForeColor = Color.FromArgb(37, 99, 235);
         }
 
         private void ResetCheckoutPane()
@@ -421,6 +452,7 @@ namespace DemoPick
             _selectedCourtName = "";
             _lastDiscountAmount = 0m;
             _lastFinalTotal = 0m;
+            UpdatePaymentStateHint();
             UpdateTotals();
         }
     }

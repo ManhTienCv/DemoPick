@@ -100,7 +100,7 @@ namespace DemoPick.Views
             this.lblHeaderTop.ForeColor = System.Drawing.Color.White;
             this.lblHeaderTop.Location = new System.Drawing.Point(18, 11);
             this.lblHeaderTop.Name = "lblHeaderTop";
-            this.lblHeaderTop.Size = new System.Drawing.Size(170, 28);
+            this.lblHeaderTop.Size = new System.Drawing.Size(192, 28);
             this.lblHeaderTop.TabIndex = 0;
             this.lblHeaderTop.Text = "ĐỔI CA / GIỜ CHƠI";
             // 
@@ -111,7 +111,7 @@ namespace DemoPick.Views
             this.lblInfoHeader.ForeColor = System.Drawing.Color.DimGray;
             this.lblInfoHeader.Location = new System.Drawing.Point(18, 65);
             this.lblInfoHeader.Name = "lblInfoHeader";
-            this.lblInfoHeader.Size = new System.Drawing.Size(196, 28);
+            this.lblInfoHeader.Size = new System.Drawing.Size(222, 28);
             this.lblInfoHeader.TabIndex = 1;
             this.lblInfoHeader.Text = "THÔNG TIN BOOKING";
             // 
@@ -121,7 +121,7 @@ namespace DemoPick.Views
             this.lblBookingId.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.lblBookingId.Location = new System.Drawing.Point(20, 102);
             this.lblBookingId.Name = "lblBookingId";
-            this.lblBookingId.Size = new System.Drawing.Size(97, 23);
+            this.lblBookingId.Size = new System.Drawing.Size(105, 23);
             this.lblBookingId.TabIndex = 2;
             this.lblBookingId.Text = "Mã booking:";
             // 
@@ -132,7 +132,7 @@ namespace DemoPick.Views
             this.lblBookingIdValue.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(35)))), ((int)(((byte)(50)))));
             this.lblBookingIdValue.Location = new System.Drawing.Point(140, 102);
             this.lblBookingIdValue.Name = "lblBookingIdValue";
-            this.lblBookingIdValue.Size = new System.Drawing.Size(30, 23);
+            this.lblBookingIdValue.Size = new System.Drawing.Size(17, 23);
             this.lblBookingIdValue.TabIndex = 3;
             this.lblBookingIdValue.Text = "-";
             // 
@@ -142,7 +142,7 @@ namespace DemoPick.Views
             this.lblCourt.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.lblCourt.Location = new System.Drawing.Point(20, 132);
             this.lblCourt.Name = "lblCourt";
-            this.lblCourt.Size = new System.Drawing.Size(43, 23);
+            this.lblCourt.Size = new System.Drawing.Size(42, 23);
             this.lblCourt.TabIndex = 4;
             this.lblCourt.Text = "Sân:";
             // 
@@ -163,7 +163,7 @@ namespace DemoPick.Views
             this.lblGuest.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.lblGuest.Location = new System.Drawing.Point(20, 162);
             this.lblGuest.Name = "lblGuest";
-            this.lblGuest.Size = new System.Drawing.Size(55, 23);
+            this.lblGuest.Size = new System.Drawing.Size(61, 23);
             this.lblGuest.TabIndex = 6;
             this.lblGuest.Text = "Khách:";
             // 
@@ -184,7 +184,7 @@ namespace DemoPick.Views
             this.lblStatus.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.lblStatus.Location = new System.Drawing.Point(20, 192);
             this.lblStatus.Name = "lblStatus";
-            this.lblStatus.Size = new System.Drawing.Size(87, 23);
+            this.lblStatus.Size = new System.Drawing.Size(91, 23);
             this.lblStatus.TabIndex = 8;
             this.lblStatus.Text = "Trạng thái:";
             // 
@@ -195,7 +195,7 @@ namespace DemoPick.Views
             this.lblStatusValue.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(35)))), ((int)(((byte)(50)))));
             this.lblStatusValue.Location = new System.Drawing.Point(140, 192);
             this.lblStatusValue.Name = "lblStatusValue";
-            this.lblStatusValue.Size = new System.Drawing.Size(30, 23);
+            this.lblStatusValue.Size = new System.Drawing.Size(17, 23);
             this.lblStatusValue.TabIndex = 9;
             this.lblStatusValue.Text = "-";
             // 
@@ -206,7 +206,7 @@ namespace DemoPick.Views
             this.lblCurrent.ForeColor = System.Drawing.Color.Gray;
             this.lblCurrent.Location = new System.Drawing.Point(20, 222);
             this.lblCurrent.Name = "lblCurrent";
-            this.lblCurrent.Size = new System.Drawing.Size(70, 21);
+            this.lblCurrent.Size = new System.Drawing.Size(66, 21);
             this.lblCurrent.TabIndex = 10;
             this.lblCurrent.Text = "Hiện tại:";
             // 
@@ -217,7 +217,7 @@ namespace DemoPick.Views
             this.lblChangeHeader.ForeColor = System.Drawing.Color.DimGray;
             this.lblChangeHeader.Location = new System.Drawing.Point(18, 252);
             this.lblChangeHeader.Name = "lblChangeHeader";
-            this.lblChangeHeader.Size = new System.Drawing.Size(150, 28);
+            this.lblChangeHeader.Size = new System.Drawing.Size(159, 28);
             this.lblChangeHeader.TabIndex = 11;
             this.lblChangeHeader.Text = "CHỌN GIỜ MỚI";
             // 
@@ -227,7 +227,7 @@ namespace DemoPick.Views
             this.lblTime.Font = new System.Drawing.Font("Segoe UI", 9.5F);
             this.lblTime.Location = new System.Drawing.Point(20, 292);
             this.lblTime.Name = "lblTime";
-            this.lblTime.Size = new System.Drawing.Size(93, 21);
+            this.lblTime.Size = new System.Drawing.Size(94, 21);
             this.lblTime.TabIndex = 12;
             this.lblTime.Text = "Giờ bắt đầu:";
             // 
@@ -274,7 +274,7 @@ namespace DemoPick.Views
             "23:00"});
             this.cbTime.Location = new System.Drawing.Point(140, 288);
             this.cbTime.Name = "cbTime";
-            this.cbTime.Size = new System.Drawing.Size(210, 31);
+            this.cbTime.Size = new System.Drawing.Size(154, 31);
             this.cbTime.TabIndex = 13;
             // 
             // lblDuration
@@ -283,7 +283,7 @@ namespace DemoPick.Views
             this.lblDuration.Font = new System.Drawing.Font("Segoe UI", 9.5F);
             this.lblDuration.Location = new System.Drawing.Point(300, 292);
             this.lblDuration.Name = "lblDuration";
-            this.lblDuration.Size = new System.Drawing.Size(77, 21);
+            this.lblDuration.Size = new System.Drawing.Size(89, 21);
             this.lblDuration.TabIndex = 14;
             this.lblDuration.Text = "Thời lượng:";
             // 
@@ -308,7 +308,7 @@ namespace DemoPick.Views
             this.lblNote.Font = new System.Drawing.Font("Segoe UI", 9.5F);
             this.lblNote.Location = new System.Drawing.Point(20, 330);
             this.lblNote.Name = "lblNote";
-            this.lblNote.Size = new System.Drawing.Size(105, 21);
+            this.lblNote.Size = new System.Drawing.Size(106, 21);
             this.lblNote.TabIndex = 19;
             this.lblNote.Text = "Ghi chú thêm:";
             // 
@@ -370,7 +370,7 @@ namespace DemoPick.Views
             this.lblHint.ForeColor = System.Drawing.Color.Gray;
             this.lblHint.Location = new System.Drawing.Point(20, 392);
             this.lblHint.Name = "lblHint";
-            this.lblHint.Size = new System.Drawing.Size(239, 20);
+            this.lblHint.Size = new System.Drawing.Size(241, 20);
             this.lblHint.TabIndex = 18;
             this.lblHint.Text = "Mẹo: double-click booking để đổi ca.";
             // 
@@ -404,12 +404,13 @@ namespace DemoPick.Views
             this.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Name = "FrmDoiCaBooking";
-            this.Text = "Đổi ca";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+            this.Text = "Đổi ca";
             this.pnlTop.ResumeLayout(false);
             this.pnlTop.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
+
         }
     }
 }

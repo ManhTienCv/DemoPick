@@ -54,11 +54,9 @@ namespace DemoPick
             this.lblLeftTitle = new System.Windows.Forms.Label();
             this.flpCourts = new System.Windows.Forms.FlowLayoutPanel();
             this.pnlCenter = new System.Windows.Forms.Panel();
-            this.pnlCategoryBar = new System.Windows.Forms.Panel();
             this.flpProducts = new System.Windows.Forms.FlowLayoutPanel();
+            this.pnlCategoryBar = new System.Windows.Forms.Panel();
             this.flpCategories = new System.Windows.Forms.FlowLayoutPanel();
-            this.btnAddProduct = new Sunny.UI.UIButton();
-            this.btnDeleteProduct = new Sunny.UI.UIButton();
             this.chipCatAll = new DemoPick.UCCategoryChip();
             this.chipCatDrink = new DemoPick.UCCategoryChip();
             this.chipCatSnack = new DemoPick.UCCategoryChip();
@@ -69,10 +67,12 @@ namespace DemoPick
             this.chipCatExtra4 = new DemoPick.UCCategoryChip();
             this.chipCatExtra5 = new DemoPick.UCCategoryChip();
             this.chipCatExtra6 = new DemoPick.UCCategoryChip();
+            this.btnDeleteProduct = new Sunny.UI.UIButton();
+            this.btnAddProduct = new Sunny.UI.UIButton();
             this.pnlRight = new System.Windows.Forms.Panel();
-            this.lblRightTitle = new System.Windows.Forms.Label();
             this.btnQtyPlus = new Sunny.UI.UIButton();
             this.btnQtyMinus = new Sunny.UI.UIButton();
+            this.lblRightTitle = new System.Windows.Forms.Label();
             this.lstCart = new System.Windows.Forms.ListView();
             this.pnlTotals = new System.Windows.Forms.Panel();
             this.btnCheckout = new Sunny.UI.UIButton();
@@ -80,6 +80,7 @@ namespace DemoPick
             this.pnlLeft.SuspendLayout();
             this.pnlCenter.SuspendLayout();
             this.pnlCategoryBar.SuspendLayout();
+            this.flpCategories.SuspendLayout();
             this.pnlRight.SuspendLayout();
             this.pnlTotals.SuspendLayout();
             this.SuspendLayout();
@@ -116,7 +117,6 @@ namespace DemoPick
             this.flpCourts.Name = "flpCourts";
             this.flpCourts.Size = new System.Drawing.Size(260, 740);
             this.flpCourts.TabIndex = 1;
-
             // 
             // pnlCenter
             // 
@@ -129,7 +129,16 @@ namespace DemoPick
             this.pnlCenter.Padding = new System.Windows.Forms.Padding(20);
             this.pnlCenter.Size = new System.Drawing.Size(510, 820);
             this.pnlCenter.TabIndex = 0;
-
+            // 
+            // flpProducts
+            // 
+            this.flpProducts.AutoScroll = true;
+            this.flpProducts.BackColor = System.Drawing.Color.Transparent;
+            this.flpProducts.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flpProducts.Location = new System.Drawing.Point(20, 80);
+            this.flpProducts.Name = "flpProducts";
+            this.flpProducts.Size = new System.Drawing.Size(470, 720);
+            this.flpProducts.TabIndex = 0;
             // 
             // pnlCategoryBar
             // 
@@ -142,16 +151,6 @@ namespace DemoPick
             this.pnlCategoryBar.Name = "pnlCategoryBar";
             this.pnlCategoryBar.Size = new System.Drawing.Size(470, 60);
             this.pnlCategoryBar.TabIndex = 2;
-            // 
-            // flpProducts
-            // 
-            this.flpProducts.AutoScroll = true;
-            this.flpProducts.BackColor = System.Drawing.Color.Transparent;
-            this.flpProducts.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flpProducts.Location = new System.Drawing.Point(20, 80);
-            this.flpProducts.Name = "flpProducts";
-            this.flpProducts.Size = new System.Drawing.Size(470, 720);
-            this.flpProducts.TabIndex = 0;
             // 
             // flpCategories
             // 
@@ -168,125 +167,127 @@ namespace DemoPick
             this.flpCategories.Controls.Add(this.chipCatExtra5);
             this.flpCategories.Controls.Add(this.chipCatExtra6);
             this.flpCategories.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flpCategories.FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight;
             this.flpCategories.Location = new System.Drawing.Point(0, 0);
             this.flpCategories.Name = "flpCategories";
-            this.flpCategories.Size = new System.Drawing.Size(360, 60);
+            this.flpCategories.Size = new System.Drawing.Size(250, 60);
             this.flpCategories.TabIndex = 1;
             this.flpCategories.WrapContents = false;
-
             // 
             // chipCatAll
             // 
+            this.chipCatAll.BackColor = System.Drawing.Color.Transparent;
+            this.chipCatAll.IsActive = false;
+            this.chipCatAll.Location = new System.Drawing.Point(6, 4);
             this.chipCatAll.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
             this.chipCatAll.Name = "chipCatAll";
             this.chipCatAll.Size = new System.Drawing.Size(100, 35);
             this.chipCatAll.TabIndex = 2;
             this.chipCatAll.Text = "Tất cả";
-
             // 
             // chipCatDrink
             // 
+            this.chipCatDrink.BackColor = System.Drawing.Color.Transparent;
+            this.chipCatDrink.IsActive = false;
+            this.chipCatDrink.Location = new System.Drawing.Point(118, 4);
             this.chipCatDrink.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
             this.chipCatDrink.Name = "chipCatDrink";
-            this.chipCatDrink.Size = new System.Drawing.Size(110, 35);
+            this.chipCatDrink.Size = new System.Drawing.Size(123, 35);
             this.chipCatDrink.TabIndex = 3;
             this.chipCatDrink.Text = "Thức uống";
-
             // 
             // chipCatSnack
             // 
+            this.chipCatSnack.BackColor = System.Drawing.Color.Transparent;
+            this.chipCatSnack.IsActive = false;
+            this.chipCatSnack.Location = new System.Drawing.Point(253, 4);
             this.chipCatSnack.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
             this.chipCatSnack.Name = "chipCatSnack";
-            this.chipCatSnack.Size = new System.Drawing.Size(120, 35);
+            this.chipCatSnack.Size = new System.Drawing.Size(119, 35);
             this.chipCatSnack.TabIndex = 4;
             this.chipCatSnack.Text = "Đồ ăn nhẹ";
-
             // 
             // chipCatTool
             // 
+            this.chipCatTool.BackColor = System.Drawing.Color.Transparent;
+            this.chipCatTool.IsActive = false;
+            this.chipCatTool.Location = new System.Drawing.Point(384, 4);
             this.chipCatTool.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
             this.chipCatTool.Name = "chipCatTool";
-            this.chipCatTool.Size = new System.Drawing.Size(140, 35);
+            this.chipCatTool.Size = new System.Drawing.Size(100, 35);
             this.chipCatTool.TabIndex = 5;
             this.chipCatTool.Text = "Dịch vụ";
-
             // 
             // chipCatExtra1
             // 
+            this.chipCatExtra1.BackColor = System.Drawing.Color.Transparent;
+            this.chipCatExtra1.IsActive = false;
+            this.chipCatExtra1.Location = new System.Drawing.Point(496, 4);
             this.chipCatExtra1.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
             this.chipCatExtra1.Name = "chipCatExtra1";
             this.chipCatExtra1.Size = new System.Drawing.Size(100, 35);
             this.chipCatExtra1.TabIndex = 6;
-            this.chipCatExtra1.Text = "";
+            this.chipCatExtra1.Text = "Danh mục";
             this.chipCatExtra1.Visible = false;
-
             // 
             // chipCatExtra2
             // 
+            this.chipCatExtra2.BackColor = System.Drawing.Color.Transparent;
+            this.chipCatExtra2.IsActive = false;
+            this.chipCatExtra2.Location = new System.Drawing.Point(608, 4);
             this.chipCatExtra2.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
             this.chipCatExtra2.Name = "chipCatExtra2";
             this.chipCatExtra2.Size = new System.Drawing.Size(100, 35);
             this.chipCatExtra2.TabIndex = 7;
-            this.chipCatExtra2.Text = "";
+            this.chipCatExtra2.Text = "Danh mục";
             this.chipCatExtra2.Visible = false;
-
             // 
             // chipCatExtra3
             // 
+            this.chipCatExtra3.BackColor = System.Drawing.Color.Transparent;
+            this.chipCatExtra3.IsActive = false;
+            this.chipCatExtra3.Location = new System.Drawing.Point(720, 4);
             this.chipCatExtra3.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
             this.chipCatExtra3.Name = "chipCatExtra3";
             this.chipCatExtra3.Size = new System.Drawing.Size(100, 35);
             this.chipCatExtra3.TabIndex = 8;
-            this.chipCatExtra3.Text = "";
+            this.chipCatExtra3.Text = "Danh mục";
             this.chipCatExtra3.Visible = false;
-
             // 
             // chipCatExtra4
             // 
+            this.chipCatExtra4.BackColor = System.Drawing.Color.Transparent;
+            this.chipCatExtra4.IsActive = false;
+            this.chipCatExtra4.Location = new System.Drawing.Point(832, 4);
             this.chipCatExtra4.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
             this.chipCatExtra4.Name = "chipCatExtra4";
             this.chipCatExtra4.Size = new System.Drawing.Size(100, 35);
             this.chipCatExtra4.TabIndex = 9;
-            this.chipCatExtra4.Text = "";
+            this.chipCatExtra4.Text = "Danh mục";
             this.chipCatExtra4.Visible = false;
-
             // 
             // chipCatExtra5
             // 
+            this.chipCatExtra5.BackColor = System.Drawing.Color.Transparent;
+            this.chipCatExtra5.IsActive = false;
+            this.chipCatExtra5.Location = new System.Drawing.Point(944, 4);
             this.chipCatExtra5.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
             this.chipCatExtra5.Name = "chipCatExtra5";
             this.chipCatExtra5.Size = new System.Drawing.Size(100, 35);
             this.chipCatExtra5.TabIndex = 10;
-            this.chipCatExtra5.Text = "";
+            this.chipCatExtra5.Text = "Danh mục";
             this.chipCatExtra5.Visible = false;
-
             // 
             // chipCatExtra6
             // 
+            this.chipCatExtra6.BackColor = System.Drawing.Color.Transparent;
+            this.chipCatExtra6.IsActive = false;
+            this.chipCatExtra6.Location = new System.Drawing.Point(1056, 4);
             this.chipCatExtra6.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
             this.chipCatExtra6.Name = "chipCatExtra6";
             this.chipCatExtra6.Size = new System.Drawing.Size(100, 35);
             this.chipCatExtra6.TabIndex = 11;
-            this.chipCatExtra6.Text = "";
+            this.chipCatExtra6.Text = "Danh mục";
             this.chipCatExtra6.Visible = false;
-
-            // 
-            // btnAddProduct
-            // 
-            this.btnAddProduct.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnAddProduct.Dock = System.Windows.Forms.DockStyle.Right;
-            this.btnAddProduct.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(76)))), ((int)(((byte)(175)))), ((int)(((byte)(80)))));
-            this.btnAddProduct.FillHoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(86)))), ((int)(((byte)(185)))), ((int)(((byte)(90)))));
-            this.btnAddProduct.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
-            this.btnAddProduct.Location = new System.Drawing.Point(360, 0);
-            this.btnAddProduct.MinimumSize = new System.Drawing.Size(1, 1);
-            this.btnAddProduct.Name = "btnAddProduct";
-            this.btnAddProduct.Radius = 18;
-            this.btnAddProduct.RectColor = System.Drawing.Color.FromArgb(((int)(((byte)(76)))), ((int)(((byte)(175)))), ((int)(((byte)(80)))));
-            this.btnAddProduct.Size = new System.Drawing.Size(110, 60);
-            this.btnAddProduct.TabIndex = 0;
-            this.btnAddProduct.Text = "+ Thêm SP";
             // 
             // btnDeleteProduct
             // 
@@ -305,8 +306,24 @@ namespace DemoPick
             this.btnDeleteProduct.TabIndex = 3;
             this.btnDeleteProduct.Text = "Xóa SP";
             this.btnDeleteProduct.TipsFont = new System.Drawing.Font("Segoe UI", 9F);
+            // 
+            // btnAddProduct
+            // 
+            this.btnAddProduct.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnAddProduct.Dock = System.Windows.Forms.DockStyle.Right;
+            this.btnAddProduct.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(76)))), ((int)(((byte)(175)))), ((int)(((byte)(80)))));
+            this.btnAddProduct.FillHoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(86)))), ((int)(((byte)(185)))), ((int)(((byte)(90)))));
+            this.btnAddProduct.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.btnAddProduct.Location = new System.Drawing.Point(360, 0);
+            this.btnAddProduct.MinimumSize = new System.Drawing.Size(1, 1);
+            this.btnAddProduct.Name = "btnAddProduct";
+            this.btnAddProduct.Radius = 18;
+            this.btnAddProduct.RectColor = System.Drawing.Color.FromArgb(((int)(((byte)(76)))), ((int)(((byte)(175)))), ((int)(((byte)(80)))));
+            this.btnAddProduct.Size = new System.Drawing.Size(110, 60);
+            this.btnAddProduct.TabIndex = 0;
+            this.btnAddProduct.Text = "+ Thêm SP";
             this.btnAddProduct.TipsFont = new System.Drawing.Font("Segoe UI", 9F);
-            //
+            // 
             // pnlRight
             // 
             this.pnlRight.BackColor = System.Drawing.Color.White;
@@ -321,24 +338,13 @@ namespace DemoPick
             this.pnlRight.Size = new System.Drawing.Size(350, 820);
             this.pnlRight.TabIndex = 1;
             // 
-            // lblRightTitle
-            // 
-            this.lblRightTitle.AutoSize = true;
-            this.lblRightTitle.Font = new System.Drawing.Font("Segoe UI", 14F, System.Drawing.FontStyle.Bold);
-            this.lblRightTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(35)))), ((int)(((byte)(50)))));
-            this.lblRightTitle.Location = new System.Drawing.Point(20, 20);
-            this.lblRightTitle.Name = "lblRightTitle";
-            this.lblRightTitle.Size = new System.Drawing.Size(244, 32);
-            this.lblRightTitle.TabIndex = 0;
-            this.lblRightTitle.Text = "Sản phẩm chờ - Sân VIP 1";
-            // 
             // btnQtyPlus
             // 
             this.btnQtyPlus.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnQtyPlus.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(46)))), ((int)(((byte)(204)))), ((int)(((byte)(113)))));
             this.btnQtyPlus.FillHoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(56)))), ((int)(((byte)(214)))), ((int)(((byte)(123)))));
             this.btnQtyPlus.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
-            this.btnQtyPlus.Location = new System.Drawing.Point(295, 20);
+            this.btnQtyPlus.Location = new System.Drawing.Point(312, 55);
             this.btnQtyPlus.MinimumSize = new System.Drawing.Size(1, 1);
             this.btnQtyPlus.Name = "btnQtyPlus";
             this.btnQtyPlus.Radius = 14;
@@ -355,7 +361,7 @@ namespace DemoPick
             this.btnQtyMinus.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(231)))), ((int)(((byte)(76)))), ((int)(((byte)(60)))));
             this.btnQtyMinus.FillHoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(86)))), ((int)(((byte)(70)))));
             this.btnQtyMinus.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
-            this.btnQtyMinus.Location = new System.Drawing.Point(254, 20);
+            this.btnQtyMinus.Location = new System.Drawing.Point(271, 55);
             this.btnQtyMinus.MinimumSize = new System.Drawing.Size(1, 1);
             this.btnQtyMinus.Name = "btnQtyMinus";
             this.btnQtyMinus.Radius = 14;
@@ -365,6 +371,17 @@ namespace DemoPick
             this.btnQtyMinus.TabIndex = 5;
             this.btnQtyMinus.Text = "-";
             this.btnQtyMinus.TipsFont = new System.Drawing.Font("Segoe UI", 9F);
+            // 
+            // lblRightTitle
+            // 
+            this.lblRightTitle.AutoSize = true;
+            this.lblRightTitle.Font = new System.Drawing.Font("Segoe UI", 14F, System.Drawing.FontStyle.Bold);
+            this.lblRightTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(35)))), ((int)(((byte)(50)))));
+            this.lblRightTitle.Location = new System.Drawing.Point(20, 20);
+            this.lblRightTitle.Name = "lblRightTitle";
+            this.lblRightTitle.Size = new System.Drawing.Size(306, 32);
+            this.lblRightTitle.TabIndex = 0;
+            this.lblRightTitle.Text = "Sản phẩm chờ - Sân VIP 1";
             // 
             // lstCart
             // 
@@ -441,10 +458,10 @@ namespace DemoPick
             this.pnlLeft.PerformLayout();
             this.pnlCenter.ResumeLayout(false);
             this.pnlCategoryBar.ResumeLayout(false);
+            this.flpCategories.ResumeLayout(false);
             this.pnlRight.ResumeLayout(false);
             this.pnlRight.PerformLayout();
             this.pnlTotals.ResumeLayout(false);
-            this.pnlTotals.PerformLayout();
             this.ResumeLayout(false);
 
         }

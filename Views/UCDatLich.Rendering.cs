@@ -170,6 +170,7 @@ namespace DemoPick
             // Draw Title inside block
             string safeTitle = string.IsNullOrWhiteSpace(title) ? "(Không tên)" : title;
             string timeText = $"{startTime:HH:mm} - {endTime:HH:mm}";
+            string safeNote = string.IsNullOrWhiteSpace(note) ? string.Empty : note.Trim();
 
             // Draw 2-3 lines: name + time range + (optional) note
             using (Font f = new Font("Segoe UI", 9F, FontStyle.Bold))
@@ -178,20 +179,37 @@ namespace DemoPick
                 g.DrawString(safeTitle, f, titleBrush, x + 10, y + 6);
             }
 
-            using (Font tf = new Font("Segoe UI", 8.5F, FontStyle.Regular))
-            using (var timeBrush = new SolidBrush(Color.FromArgb(75, 85, 99)))
-            {
-                g.DrawString(timeText, tf, timeBrush, x + 10, y + 26);
-            }
+            bool canShowNote = showNote && !string.IsNullOrWhiteSpace(safeNote);
+            bool canShowThreeLines = h >= 56;
 
-            if (showNote && !string.IsNullOrWhiteSpace(note) && h >= 62)
+            // Compact blocks: prioritize showing note in the second line.
+            if (canShowNote && !canShowThreeLines)
             {
                 using (Font nf = new Font("Segoe UI", 8.25F, FontStyle.Italic))
                 using (var noteBrush = new SolidBrush(Color.FromArgb(107, 114, 128)))
                 using (var noteFormat = new StringFormat { Trimming = StringTrimming.EllipsisCharacter, FormatFlags = StringFormatFlags.NoWrap })
                 {
-                    var noteRect = new RectangleF(x + 10, y + 44, Math.Max(0, w - 14), 18);
-                    g.DrawString(note.Trim(), nf, noteBrush, noteRect, noteFormat);
+                    var noteRect = new RectangleF(x + 10, y + 24, Math.Max(0, w - 14), 16);
+                    g.DrawString(safeNote, nf, noteBrush, noteRect, noteFormat);
+                }
+            }
+            else
+            {
+                using (Font tf = new Font("Segoe UI", 8.5F, FontStyle.Regular))
+                using (var timeBrush = new SolidBrush(Color.FromArgb(75, 85, 99)))
+                {
+                    g.DrawString(timeText, tf, timeBrush, x + 10, y + 26);
+                }
+
+                if (canShowNote && canShowThreeLines)
+                {
+                    using (Font nf = new Font("Segoe UI", 8.25F, FontStyle.Italic))
+                    using (var noteBrush = new SolidBrush(Color.FromArgb(107, 114, 128)))
+                    using (var noteFormat = new StringFormat { Trimming = StringTrimming.EllipsisCharacter, FormatFlags = StringFormatFlags.NoWrap })
+                    {
+                        var noteRect = new RectangleF(x + 10, y + 40, Math.Max(0, w - 14), Math.Max(12, h - 42));
+                        g.DrawString(safeNote, nf, noteBrush, noteRect, noteFormat);
+                    }
                 }
             }
 

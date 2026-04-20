@@ -17,6 +17,7 @@ namespace DemoPick
         public UITextBox txtCustomerPhone;
         public UIButton btnSearchCustomer;
         public System.Windows.Forms.Label lblCustomerInfo;
+        public System.Windows.Forms.Label lblPaymentStateHint;
         public System.Windows.Forms.ListView lstCart;
         
         public System.Windows.Forms.Panel pnlTotals;
@@ -53,6 +54,7 @@ namespace DemoPick
             this.txtCustomerPhone = new Sunny.UI.UITextBox();
             this.btnSearchCustomer = new Sunny.UI.UIButton();
             this.lblCustomerInfo = new System.Windows.Forms.Label();
+            this.lblPaymentStateHint = new System.Windows.Forms.Label();
             this.lstCart = new System.Windows.Forms.ListView();
             this.pnlTotals = new System.Windows.Forms.Panel();
             this.lblSubTotalT = new System.Windows.Forms.Label();
@@ -114,6 +116,7 @@ namespace DemoPick
             this.pnlCenter.Controls.Add(this.txtCustomerPhone);
             this.pnlCenter.Controls.Add(this.btnSearchCustomer);
             this.pnlCenter.Controls.Add(this.lblCustomerInfo);
+            this.pnlCenter.Controls.Add(this.lblPaymentStateHint);
             this.pnlCenter.Controls.Add(this.lstCart);
             this.pnlCenter.Controls.Add(this.pnlTotals);
             this.pnlCenter.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -175,6 +178,17 @@ namespace DemoPick
             this.lblCustomerInfo.TabIndex = 3;
             this.lblCustomerInfo.Text = "Khách lẻ (Không áp dụng thẻ)";
             // 
+            // lblPaymentStateHint
+            // 
+            this.lblPaymentStateHint.AutoSize = true;
+            this.lblPaymentStateHint.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
+            this.lblPaymentStateHint.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(99)))), ((int)(((byte)(235)))));
+            this.lblPaymentStateHint.Location = new System.Drawing.Point(20, 148);
+            this.lblPaymentStateHint.Name = "lblPaymentStateHint";
+            this.lblPaymentStateHint.Size = new System.Drawing.Size(201, 21);
+            this.lblPaymentStateHint.TabIndex = 6;
+            this.lblPaymentStateHint.Text = "Không có booking đến hạn";
+            // 
             // lstCart
             // 
             this.lstCart.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -186,9 +200,9 @@ namespace DemoPick
             this.lstCart.GridLines = false;
             this.lstCart.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
             this.lstCart.HideSelection = false;
-            this.lstCart.Location = new System.Drawing.Point(20, 160);
+            this.lstCart.Location = new System.Drawing.Point(20, 180);
             this.lstCart.Name = "lstCart";
-            this.lstCart.Size = new System.Drawing.Size(520, 450);
+            this.lstCart.Size = new System.Drawing.Size(520, 430);
             this.lstCart.TabIndex = 4;
             this.lstCart.UseCompatibleStateImageBehavior = false;
             this.lstCart.View = System.Windows.Forms.View.Details;

@@ -10,6 +10,21 @@ namespace DemoPick
 {
     public partial class UCThanhToan
     {
+        private decimal GetCourtPayableRatio()
+        {
+            if (_currentBooking == null)
+                return 1m;
+
+            string paymentState = (_currentBooking.PaymentState ?? string.Empty).Trim();
+            if (string.Equals(paymentState, AppConstants.BookingPaymentState.BankTransferred, StringComparison.OrdinalIgnoreCase))
+                return 0m;
+
+            if (string.Equals(paymentState, AppConstants.BookingPaymentState.Deposit50, StringComparison.OrdinalIgnoreCase))
+                return 0.5m;
+
+            return 1m;
+        }
+
         private void SetupListView()
         {
             lstCart.Columns.Add("Sản phẩm", 140);
@@ -47,13 +62,15 @@ namespace DemoPick
                 }
 
                 decimal courtMultiplier = PriceCalculator.GetCourtRateMultiplier(_selectedCourt?.CourtType, _selectedCourt?.Name);
+                decimal courtPayableRatio = GetCourtPayableRatio();
 
                 var breakdown = DemoPick.Services.PriceCalculator.CalculateTotal(_currentBooking.StartTime, _currentBooking.EndTime, _isFixedCustomer, services, courtMultiplier);
 
                 foreach (var ts in breakdown.TimeSlots)
                 {
-                    var lviCourt = new ListViewItem(new[] { "Giờ sân " + ts.Description, $"{ts.Hours:0.##}h", ts.Total.ToString("N0") + "đ" });
-                    lviCourt.Tag = new CartLine(-1, "Giờ sân " + ts.Description, 1, ts.Total);
+                    decimal payableSlotTotal = ts.Total * courtPayableRatio;
+                    var lviCourt = new ListViewItem(new[] { "Giờ sân " + ts.Description, $"{ts.Hours:0.##}h", payableSlotTotal.ToString("N0") + "đ" });
+                    lviCourt.Tag = new CartLine(-1, "Giờ sân " + ts.Description, 1, payableSlotTotal);
                     lviCourt.ForeColor = Color.DarkBlue;
                     lstCart.Items.Add(lviCourt);
                 }
@@ -65,8 +82,8 @@ namespace DemoPick
                     lstCart.Items.Add(lvi);
                 }
 
-                _cartTotal = breakdown.SubtotalCourts + breakdown.SubtotalServices;
-                fixedDiscountAmtAmount = breakdown.DiscountAmount;
+                _cartTotal = (breakdown.SubtotalCourts * courtPayableRatio) + breakdown.SubtotalServices;
+                fixedDiscountAmtAmount = breakdown.DiscountAmount * courtPayableRatio;
             }
             else
             {

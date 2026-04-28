@@ -129,8 +129,8 @@ namespace DemoPick
                 return;
 
             bool quickMode = CurrentMode == BookingMode.Quick;
-            int formHeight = 540;
-            int buttonTop = 460;
+            int formHeight = 520;
+            int buttonTop = 455;
 
             if (showSuggestions)
             {

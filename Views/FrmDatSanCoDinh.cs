@@ -50,6 +50,13 @@ namespace DemoPick
             SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.OptimizedDoubleBuffer, true);
             UpdateStyles();
 
+            FormBorderStyle = FormBorderStyle.None;
+            StartPosition = FormStartPosition.CenterParent;
+
+            // Wire Resize trước mọi thứ thay đổi size
+            Resize += (s, e) => UpdateFormRegion();
+            Paint += Frm_Paint;
+
             BuildStartTimePicker();
             BuildRealtimeConflictHint();
             BuildSmartSuggestionUi();
@@ -61,14 +68,18 @@ namespace DemoPick
             else
                 rbKhachThue.Checked = true;
 
-            ApplyModeLayout();
-
-            btnCancel.Click += (s, e) => Close();
-            btnCancelTop.Click += (s, e) => Close();
-
+            // Wire mode radio events
             rbDatNhanh.CheckedChanged += RbMode_CheckedChanged;
             rbKhachThue.CheckedChanged += RbMode_CheckedChanged;
             rbBaoTri.CheckedChanged += RbMode_CheckedChanged;
+
+            ApplyModeLayout();
+
+            // Sau ApplyModeLayout cập nhật region một lần nữa cho chắc
+            UpdateFormRegion();
+
+            btnCancel.Click += (s, e) => { DialogResult = DialogResult.Cancel; Close(); };
+            btnCancelTop.Click += (s, e) => { DialogResult = DialogResult.Cancel; Close(); };
 
             if (txtPhone != null)
             {
@@ -120,13 +131,6 @@ namespace DemoPick
             pnlHeader.MouseDown += Form_MouseDown;
             lblTitle.MouseDown += Form_MouseDown;
 
-            FormBorderStyle = FormBorderStyle.None;
-            StartPosition = FormStartPosition.CenterParent;
-
-            UpdateFormRegion();
-            Resize += (s, e) => UpdateFormRegion();
-
-            Paint += Frm_Paint;
             UpdatePhoneValidationUi();
             UiTheme.NormalizeTextBackgrounds(this);
         }

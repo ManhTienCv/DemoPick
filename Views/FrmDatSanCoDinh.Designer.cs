@@ -381,11 +381,11 @@ namespace DemoPick
             // 
             this.lblDateRange.AutoSize = true;
             this.lblDateRange.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.lblDateRange.Location = new System.Drawing.Point(30, 350);
+            this.lblDateRange.Location = new System.Drawing.Point(30, 355);
             this.lblDateRange.Name = "lblDateRange";
             this.lblDateRange.Size = new System.Drawing.Size(148, 23);
             this.lblDateRange.TabIndex = 19;
-            this.lblDateRange.Text = "Chu kỳ (Từ - Đến):";
+            this.lblDateRange.Text = "Ngày chơi:";
             // 
             // lblTo
             // 
@@ -498,7 +498,7 @@ namespace DemoPick
             this.btnCancel.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold);
             this.btnCancel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(60)))), ((int)(((byte)(70)))));
             this.btnCancel.ForeHoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(60)))), ((int)(((byte)(70)))));
-            this.btnCancel.Location = new System.Drawing.Point(30, 460);
+            this.btnCancel.Location = new System.Drawing.Point(30, 455);
             this.btnCancel.MinimumSize = new System.Drawing.Size(1, 1);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Radius = 8;
@@ -514,7 +514,7 @@ namespace DemoPick
             this.btnConfirm.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(119)))), ((int)(((byte)(219)))), ((int)(((byte)(44)))));
             this.btnConfirm.FillHoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(56)))), ((int)(((byte)(214)))), ((int)(((byte)(123)))));
             this.btnConfirm.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold);
-            this.btnConfirm.Location = new System.Drawing.Point(250, 460);
+            this.btnConfirm.Location = new System.Drawing.Point(250, 455);
             this.btnConfirm.MinimumSize = new System.Drawing.Size(1, 1);
             this.btnConfirm.Name = "btnConfirm";
             this.btnConfirm.Radius = 8;
@@ -526,17 +526,17 @@ namespace DemoPick
             // 
             // ucDateRange
             // 
-            this.ucDateRange.Location = new System.Drawing.Point(30, 372);
-            this.ucDateRange.Mode = DemoPick.UCDateRangeFilter.DateFilterMode.Range;
+            this.ucDateRange.Location = new System.Drawing.Point(30, 378);
+            this.ucDateRange.Mode = DemoPick.UCDateRangeFilter.DateFilterMode.SingleDate;
             this.ucDateRange.Name = "ucDateRange";
             this.ucDateRange.ShowApplyButton = false;
-            this.ucDateRange.Size = new System.Drawing.Size(420, 39);
+            this.ucDateRange.Size = new System.Drawing.Size(300, 39);
             this.ucDateRange.TabIndex = 28;
             // 
             // FrmDatSanCoDinh
             // 
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(250)))), ((int)(((byte)(250)))));
-            this.ClientSize = new System.Drawing.Size(760, 540);
+            this.ClientSize = new System.Drawing.Size(760, 520);
             this.Controls.Add(this.ucDateRange);
             this.Controls.Add(this.btnConfirm);
             this.Controls.Add(this.btnCancel);

@@ -54,16 +54,6 @@ namespace DemoPick
                 cbDuration.SelectedItem = "90 phút";
             }
 
-            // Select the correct radio based on constructor mode
-            if (_mode == BookingMode.Quick)
-            {
-                rbDatNhanh.Checked = true;
-            }
-            else
-            {
-                rbKhachThue.Checked = true;
-            }
-
             QueueConflictHintRefresh();
         }
 

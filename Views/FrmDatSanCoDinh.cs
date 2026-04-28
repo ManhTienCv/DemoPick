@@ -54,6 +54,13 @@ namespace DemoPick
             BuildRealtimeConflictHint();
             BuildSmartSuggestionUi();
             BuildConflictDebounceTimer();
+
+            // Set radio theo mode trước khi apply layout
+            if (_mode == BookingMode.Quick)
+                rbDatNhanh.Checked = true;
+            else
+                rbKhachThue.Checked = true;
+
             ApplyModeLayout();
 
             btnCancel.Click += (s, e) => Close();
@@ -116,16 +123,22 @@ namespace DemoPick
             FormBorderStyle = FormBorderStyle.None;
             StartPosition = FormStartPosition.CenterParent;
 
+            UpdateFormRegion();
+            Resize += (s, e) => UpdateFormRegion();
+
+            Paint += Frm_Paint;
+            UpdatePhoneValidationUi();
+            UiTheme.NormalizeTextBackgrounds(this);
+        }
+
+        private void UpdateFormRegion()
+        {
             using (var path = RoundedRect(new Rectangle(0, 0, Width, Height), 20))
             {
                 var old = Region;
                 Region = new Region(path);
                 if (old != null) old.Dispose();
             }
-
-            Paint += Frm_Paint;
-            UpdatePhoneValidationUi();
-            UiTheme.NormalizeTextBackgrounds(this);
         }
 
         private void BuildStartTimePicker()

@@ -1,7 +1,9 @@
+using DemoPick.Helpers;
+using DemoPick.Data;
 using System;
 using System.Text;
 
-namespace DemoPick.Services
+namespace DemoPick.Helpers
 {
     internal static class PosGuestInfoParser
     {
@@ -53,3 +55,5 @@ namespace DemoPick.Services
         }
     }
 }
+
+

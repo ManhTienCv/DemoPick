@@ -1,9 +1,11 @@
+using DemoPick.Helpers;
+using DemoPick.Data;
 using DemoPick.Models;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace DemoPick.Services
+namespace DemoPick.Helpers
 {
     internal static class PosCheckoutLogFormatter
     {
@@ -130,3 +132,5 @@ namespace DemoPick.Services
         }
     }
 }
+
+

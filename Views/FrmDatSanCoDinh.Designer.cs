@@ -1,3 +1,5 @@
+using DemoPick.Helpers;
+using DemoPick.Data;
 using System.Drawing;
 using System.Windows.Forms;
 using Sunny.UI;
@@ -381,7 +383,7 @@ namespace DemoPick
             // 
             this.lblDateRange.AutoSize = true;
             this.lblDateRange.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.lblDateRange.Location = new System.Drawing.Point(30, 355);
+            this.lblDateRange.Location = new System.Drawing.Point(30, 395);
             this.lblDateRange.Name = "lblDateRange";
             this.lblDateRange.Size = new System.Drawing.Size(148, 23);
             this.lblDateRange.TabIndex = 19;
@@ -424,7 +426,7 @@ namespace DemoPick
             this.chkTue.Cursor = System.Windows.Forms.Cursors.Hand;
             this.chkTue.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.chkTue.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(48)))), ((int)(((byte)(48)))), ((int)(((byte)(48)))));
-            this.chkTue.Location = new System.Drawing.Point(470, 320);
+            this.chkTue.Location = new System.Drawing.Point(460, 320);
             this.chkTue.MinimumSize = new System.Drawing.Size(1, 1);
             this.chkTue.Name = "chkTue";
             this.chkTue.Size = new System.Drawing.Size(80, 29);
@@ -436,7 +438,7 @@ namespace DemoPick
             this.chkWed.Cursor = System.Windows.Forms.Cursors.Hand;
             this.chkWed.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.chkWed.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(48)))), ((int)(((byte)(48)))), ((int)(((byte)(48)))));
-            this.chkWed.Location = new System.Drawing.Point(570, 320);
+            this.chkWed.Location = new System.Drawing.Point(550, 320);
             this.chkWed.MinimumSize = new System.Drawing.Size(1, 1);
             this.chkWed.Name = "chkWed";
             this.chkWed.Size = new System.Drawing.Size(80, 29);
@@ -448,7 +450,7 @@ namespace DemoPick
             this.chkThu.Cursor = System.Windows.Forms.Cursors.Hand;
             this.chkThu.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.chkThu.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(48)))), ((int)(((byte)(48)))), ((int)(((byte)(48)))));
-            this.chkThu.Location = new System.Drawing.Point(370, 355);
+            this.chkThu.Location = new System.Drawing.Point(640, 320);
             this.chkThu.MinimumSize = new System.Drawing.Size(1, 1);
             this.chkThu.Name = "chkThu";
             this.chkThu.Size = new System.Drawing.Size(80, 29);
@@ -460,7 +462,7 @@ namespace DemoPick
             this.chkFri.Cursor = System.Windows.Forms.Cursors.Hand;
             this.chkFri.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.chkFri.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(48)))), ((int)(((byte)(48)))), ((int)(((byte)(48)))));
-            this.chkFri.Location = new System.Drawing.Point(470, 355);
+            this.chkFri.Location = new System.Drawing.Point(370, 355);
             this.chkFri.MinimumSize = new System.Drawing.Size(1, 1);
             this.chkFri.Name = "chkFri";
             this.chkFri.Size = new System.Drawing.Size(80, 29);
@@ -472,7 +474,7 @@ namespace DemoPick
             this.chkSat.Cursor = System.Windows.Forms.Cursors.Hand;
             this.chkSat.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.chkSat.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(48)))), ((int)(((byte)(48)))), ((int)(((byte)(48)))));
-            this.chkSat.Location = new System.Drawing.Point(570, 355);
+            this.chkSat.Location = new System.Drawing.Point(460, 355);
             this.chkSat.MinimumSize = new System.Drawing.Size(1, 1);
             this.chkSat.Name = "chkSat";
             this.chkSat.Size = new System.Drawing.Size(80, 29);
@@ -484,7 +486,7 @@ namespace DemoPick
             this.chkSun.Cursor = System.Windows.Forms.Cursors.Hand;
             this.chkSun.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.chkSun.ForeColor = System.Drawing.Color.Red;
-            this.chkSun.Location = new System.Drawing.Point(370, 390);
+            this.chkSun.Location = new System.Drawing.Point(550, 355);
             this.chkSun.MinimumSize = new System.Drawing.Size(1, 1);
             this.chkSun.Name = "chkSun";
             this.chkSun.Size = new System.Drawing.Size(120, 29);
@@ -498,7 +500,7 @@ namespace DemoPick
             this.btnCancel.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold);
             this.btnCancel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(60)))), ((int)(((byte)(70)))));
             this.btnCancel.ForeHoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(60)))), ((int)(((byte)(70)))));
-            this.btnCancel.Location = new System.Drawing.Point(30, 455);
+            this.btnCancel.Location = new System.Drawing.Point(30, 480);
             this.btnCancel.MinimumSize = new System.Drawing.Size(1, 1);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Radius = 8;
@@ -514,7 +516,7 @@ namespace DemoPick
             this.btnConfirm.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(119)))), ((int)(((byte)(219)))), ((int)(((byte)(44)))));
             this.btnConfirm.FillHoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(56)))), ((int)(((byte)(214)))), ((int)(((byte)(123)))));
             this.btnConfirm.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold);
-            this.btnConfirm.Location = new System.Drawing.Point(250, 455);
+            this.btnConfirm.Location = new System.Drawing.Point(250, 480);
             this.btnConfirm.MinimumSize = new System.Drawing.Size(1, 1);
             this.btnConfirm.Name = "btnConfirm";
             this.btnConfirm.Radius = 8;
@@ -526,17 +528,17 @@ namespace DemoPick
             // 
             // ucDateRange
             // 
-            this.ucDateRange.Location = new System.Drawing.Point(30, 378);
+            this.ucDateRange.Location = new System.Drawing.Point(30, 420);
             this.ucDateRange.Mode = DemoPick.UCDateRangeFilter.DateFilterMode.SingleDate;
             this.ucDateRange.Name = "ucDateRange";
             this.ucDateRange.ShowApplyButton = false;
-            this.ucDateRange.Size = new System.Drawing.Size(300, 39);
+            this.ucDateRange.Size = new System.Drawing.Size(420, 39);
             this.ucDateRange.TabIndex = 28;
             // 
             // FrmDatSanCoDinh
             // 
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(250)))), ((int)(((byte)(250)))));
-            this.ClientSize = new System.Drawing.Size(760, 520);
+            this.ClientSize = new System.Drawing.Size(760, 540);
             this.Controls.Add(this.ucDateRange);
             this.Controls.Add(this.btnConfirm);
             this.Controls.Add(this.btnCancel);
@@ -577,3 +579,4 @@ namespace DemoPick
         
     }
 }
+

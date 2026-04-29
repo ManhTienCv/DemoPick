@@ -1,15 +1,25 @@
+// ==========================================================
+// File: UCTongQuan.cs
+// Role: View (MVC)
+// Description: UserControl tổng quan bảng điều khiển.
+// Hiển thị thông tin từ DashboardController và InventoryController.
+// ==========================================================
 using System;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
+using DemoPick.Controllers;
+using DemoPick.Models;
 using DemoPick.Services;
+using DemoPick.Data;
+using DemoPick.Helpers;
 
 namespace DemoPick
 {
     public partial class UCTongQuan : UserControl
     {
-        private DashboardService _dashboardService;
-        private InventoryService _inventoryService;
+        private DashboardController _dashboardController;
+        private InventoryController _inventoryController;
         private Label _lblInventoryWarning;
 
         private bool _scrollResetQueued;
@@ -26,8 +36,8 @@ namespace DemoPick
             SetupTable();
             AttachBorders();
 
-            _dashboardService = new DashboardService();
-            _inventoryService = new InventoryService();
+            _dashboardController = new DashboardController();
+            _inventoryController = new InventoryController();
 
             _lblInventoryWarning = new Label();
             _lblInventoryWarning.AutoSize = true;
@@ -195,11 +205,11 @@ namespace DemoPick
         {
             try
             {
-                var metricsTask = _dashboardService.GetMetricsAsync();
-                var trendTask = _dashboardService.GetRevenueTrendLast7DaysAsync();
-                var pieTask = _dashboardService.GetTopCourtsRevenueAsync();
-                var activityTask = _dashboardService.GetRecentActivityAsync(10);
-                var inventoryTask = _inventoryService.GetInventoryKpisAsync();
+                var metricsTask = _dashboardController.GetMetricsAsync();
+                var trendTask = _dashboardController.GetRevenueTrendLast7DaysAsync();
+                var pieTask = _dashboardController.GetTopCourtsRevenueAsync();
+                var activityTask = _dashboardController.GetRecentActivityAsync(10);
+                var inventoryTask = _inventoryController.GetInventoryKpisAsync();
 
                 await System.Threading.Tasks.Task.WhenAll(metricsTask, trendTask, pieTask, activityTask, inventoryTask);
 
@@ -221,7 +231,7 @@ namespace DemoPick
             }
             catch (Exception ex)
             {
-                DemoPick.Services.DatabaseHelper.TryLog("Dashboard Load Error", ex, "UCTongQuan.LoadRealDataAsync");
+                DemoPick.Data.DatabaseHelper.TryLog("Dashboard Load Error", ex, "UCTongQuan.LoadRealDataAsync");
             }
         }
 
@@ -325,3 +335,5 @@ namespace DemoPick
         }
     }
 }
+
+

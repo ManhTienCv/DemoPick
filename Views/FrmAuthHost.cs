@@ -4,6 +4,8 @@ using System.Drawing.Drawing2D;
 using System.Reflection;
 using System.Windows.Forms;
 using DemoPick.Services;
+using DemoPick.Data;
+using DemoPick.Helpers;
 
 namespace DemoPick
 {
@@ -255,3 +257,5 @@ namespace DemoPick
         }
     }
 }
+
+

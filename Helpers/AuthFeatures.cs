@@ -1,7 +1,9 @@
+using DemoPick.Helpers;
+using DemoPick.Data;
 using System;
 using System.Configuration;
 
-namespace DemoPick.Services
+namespace DemoPick.Helpers
 {
     /// <summary>
     /// Feature flags / policy toggles for authentication.
@@ -41,3 +43,5 @@ namespace DemoPick.Services
         }
     }
 }
+
+

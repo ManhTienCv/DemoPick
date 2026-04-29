@@ -1,3 +1,5 @@
+using DemoPick.Helpers;
+using DemoPick.Data;
 using System;
 using System.ComponentModel;
 using System.Drawing;
@@ -95,3 +97,4 @@ namespace DemoPick
         }
     }
 }
+

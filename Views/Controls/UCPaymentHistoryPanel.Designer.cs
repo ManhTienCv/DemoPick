@@ -1,3 +1,5 @@
+using DemoPick.Helpers;
+using DemoPick.Data;
 namespace DemoPick
 {
     partial class UCPaymentHistoryPanel
@@ -213,3 +215,4 @@ namespace DemoPick
         private Sunny.UI.UIButton btnOpen;
     }
 }
+

@@ -1,3 +1,5 @@
+using DemoPick.Helpers;
+using DemoPick.Data;
 using System;
 using System.Data.SqlClient;
 
@@ -46,3 +48,4 @@ WHERE MemberID = @MemberID
         }
     }
 }
+

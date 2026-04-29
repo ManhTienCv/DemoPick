@@ -1,6 +1,8 @@
+using DemoPick.Helpers;
+using DemoPick.Data;
 using DemoPick.Models;
 
-namespace DemoPick.Services
+namespace DemoPick.Helpers
 {
     internal static class AppSession
     {
@@ -25,3 +27,5 @@ namespace DemoPick.Services
         }
     }
 }
+
+

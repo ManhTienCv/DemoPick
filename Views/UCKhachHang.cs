@@ -1,15 +1,24 @@
+// ==========================================================
+// File: UCKhachHang.cs
+// Role: View (MVC)
+// Description: UserControl quản lý giao diện danh sách khách hàng.
+// Gọi tới CustomerController để lấy dữ liệu.
+// ==========================================================
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using DemoPick.Controllers;
 using DemoPick.Services;
+using DemoPick.Data;
+using DemoPick.Helpers;
 
 namespace DemoPick
 {
     public partial class UCKhachHang : UserControl
     {
-        private CustomerService _customerService;
+        private CustomerController _customerController;
         private System.Collections.Generic.List<DemoPick.Models.CustomerModel> _allCustomersCache;
         private ImageList _rowHeightImageList;
 
@@ -21,7 +30,7 @@ namespace DemoPick
             {
                 return;
             }
-            _customerService = new CustomerService();
+            _customerController = new CustomerController();
             _allCustomersCache = new System.Collections.Generic.List<DemoPick.Models.CustomerModel>();
             EnsureCustomerListRowHeight();
             InitializeCustomerListColumns();
@@ -322,10 +331,10 @@ namespace DemoPick
             {
                 // Run the expensive queries in parallel to reduce screen-load latency.
                 var customersTask = LoadCustomersAsync();
-                var tierTask = _customerService.GetTierCountsAsync();
-                var revenueTask = _customerService.GetRevenueSummaryAsync();
-                var courtTask = _customerService.GetTodayOccupancyPctAsync();
-                var membershipTask = _customerService.GetMembershipSummaryAsync();
+                var tierTask = _customerController.GetTierCountsAsync();
+                var revenueTask = _customerController.GetRevenueSummaryAsync();
+                var courtTask = _customerController.GetTodayOccupancyPctAsync();
+                var membershipTask = _customerController.GetMembershipSummaryAsync();
 
                 await Task.WhenAll(customersTask, tierTask, revenueTask, courtTask, membershipTask);
 
@@ -348,7 +357,7 @@ namespace DemoPick
 
         private Task<System.Collections.Generic.List<DemoPick.Models.CustomerModel>> LoadCustomersAsync()
         {
-            return _customerService.GetAllCustomersAsync();
+            return _customerController.GetAllCustomersAsync();
         }
 
         private void BindCustomers(System.Collections.Generic.List<DemoPick.Models.CustomerModel> customers)
@@ -406,3 +415,5 @@ namespace DemoPick
         }
     }
 }
+
+

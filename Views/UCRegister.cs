@@ -2,6 +2,8 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 using DemoPick.Services;
+using DemoPick.Data;
+using DemoPick.Helpers;
 using Sunny.UI;
 
 namespace DemoPick
@@ -102,7 +104,7 @@ namespace DemoPick
                 UIMessageBox.ShowSuccess("Đăng ký thành công! Bạn có thể đăng nhập ngay.");
                 if (!string.IsNullOrWhiteSpace(loginErr))
                 {
-                    DemoPick.Services.DatabaseHelper.TryLog("Auth AutoLogin After Register Failed", new InvalidOperationException(loginErr), "UCRegister.btnRegister_Click");
+                    DemoPick.Data.DatabaseHelper.TryLog("Auth AutoLogin After Register Failed", new InvalidOperationException(loginErr), "UCRegister.btnRegister_Click");
                 }
 
                 RequestLogin?.Invoke(this, EventArgs.Empty);
@@ -129,3 +131,5 @@ namespace DemoPick
         }
     }
 }
+
+

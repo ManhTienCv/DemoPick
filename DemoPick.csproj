@@ -141,10 +141,6 @@
       <DependentUpon>FrmDatSanCoDinh.cs</DependentUpon>
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Views\FrmDatSanCoDinh.Suggestions.cs">
-      <DependentUpon>FrmDatSanCoDinh.cs</DependentUpon>
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Include="Views\FrmDatSanCoDinh.WindowChrome.cs">
       <DependentUpon>FrmDatSanCoDinh.cs</DependentUpon>
       <SubType>Form</SubType>
@@ -215,8 +211,8 @@
       <DependentUpon>UCBanHang.cs</DependentUpon>
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Services\PriceCalculator.cs" />
-    <Compile Include="Services\NativeMethods.cs" />
+    <Compile Include="Helpers\PriceCalculator.cs" />
+    <Compile Include="Helpers\NativeMethods.cs" />
     <Compile Include="Views\UCBanHang.Designer.cs">
       <DependentUpon>UCBanHang.cs</DependentUpon>
     </Compile>
@@ -318,47 +314,55 @@
     <Compile Include="Views\UCTongQuan.Designer.cs">
       <DependentUpon>UCTongQuan.cs</DependentUpon>
     </Compile>
-    <Compile Include="Models\AppModels.cs" />
+    <Compile Include="Models\BookingModels.cs" />
+    <Compile Include="Models\CustomerModels.cs" />
+    <Compile Include="Models\DashboardModels.cs" />
+    <Compile Include="Models\InventoryModels.cs" />
+    <Compile Include="Models\ReportModels.cs" />
     <Compile Include="Models\AuthUser.cs" />
     <Compile Include="Models\CartLine.cs" />
-    <Compile Include="Services\Db.cs" />
-    <Compile Include="Services\DatabaseHelper.cs" />
-    <Compile Include="Services\DbDiagnostics.cs" />
-    <Compile Include="Services\DesignModeUtil.cs" />
-    <Compile Include="Services\AppConstants.cs" />
-    <Compile Include="Services\UiTheme.cs" />
-    <Compile Include="Services\SqlQueries.cs" />
+    <Compile Include="Data\Db.cs" />
+    <Compile Include="Data\DatabaseHelper.cs" />
+    <Compile Include="Data\DbDiagnostics.cs" />
+    <Compile Include="Helpers\DesignModeUtil.cs" />
+    <Compile Include="Helpers\AppConstants.cs" />
+    <Compile Include="Helpers\UiTheme.cs" />
+    <Compile Include="Data\SqlQueries.cs" />
     <Compile Include="Services\AuthService.cs" />
-    <Compile Include="Services\AuthPasswordCrypto.cs" />
-    <Compile Include="Services\AuthLoginAttemptTracker.cs" />
-    <Compile Include="Services\AuthFeatures.cs" />
-    <Compile Include="Services\AppSession.cs" />
-    <Compile Include="Services\MembershipTierHelper.cs" />
-    <Compile Include="Services\SchemaInstaller.cs" />
-    <Compile Include="Services\SqlScriptRunner.cs" />
-    <Compile Include="Services\MigrationsRunner.cs" />
+    <Compile Include="Helpers\AuthPasswordCrypto.cs" />
+    <Compile Include="Helpers\AuthLoginAttemptTracker.cs" />
+    <Compile Include="Helpers\AuthFeatures.cs" />
+    <Compile Include="Helpers\AppSession.cs" />
+    <Compile Include="Helpers\MembershipTierHelper.cs" />
+    <Compile Include="Data\SchemaInstaller.cs" />
+    <Compile Include="Data\SqlScriptRunner.cs" />
+    <Compile Include="Data\MigrationsRunner.cs" />
     <Compile Include="Services\CustomerService.cs" />
-    <Compile Include="Services\DatabaseMaintenanceService.cs" />
+    <Compile Include="Data\DatabaseMaintenanceService.cs" />
     <Compile Include="Services\InventoryService.cs" />
-    <Compile Include="Services\InventoryTransactionFormatter.cs" />
+    <Compile Include="Helpers\InventoryTransactionFormatter.cs" />
     <Compile Include="Services\BookingCourtCommandService.cs" />
     <Compile Include="Services\BookingCourtQueryService.cs" />
     <Compile Include="Services\BookingMemberService.cs" />
     <Compile Include="Services\BookingMemberCleanupService.cs" />
     <Compile Include="Services\BookingQueryService.cs" />
     <Compile Include="Services\BookingWriteService.cs" />
-    <Compile Include="Services\PhoneNumberValidator.cs" />
+    <Compile Include="Helpers\PhoneNumberValidator.cs" />
     <Compile Include="Services\PosService.cs" />
     <Compile Include="Services\PosBookingPaymentStateService.cs" />
-    <Compile Include="Services\PosInventoryValidator.cs" />
-    <Compile Include="Services\PosInvoiceWriter.cs" />
-    <Compile Include="Services\PosMemberResolver.cs" />
-    <Compile Include="Services\PosCheckoutLogFormatter.cs" />
-    <Compile Include="Services\PosGuestInfoParser.cs" />
+    <Compile Include="Helpers\PosInventoryValidator.cs" />
+    <Compile Include="Helpers\PosInvoiceWriter.cs" />
+    <Compile Include="Helpers\PosMemberResolver.cs" />
+    <Compile Include="Helpers\PosCheckoutLogFormatter.cs" />
+    <Compile Include="Helpers\PosGuestInfoParser.cs" />
     <Compile Include="Services\InvoiceService.cs" />
     <Compile Include="Services\ReportService.cs" />
     <Compile Include="Services\DashboardService.cs" />
     <Compile Include="Controllers\BookingController.cs" />
+    <Compile Include="Controllers\CustomerController.cs" />
+    <Compile Include="Controllers\DashboardController.cs" />
+    <Compile Include="Controllers\InventoryController.cs" />
+    <Compile Include="Controllers\ReportController.cs" />
     <Compile Include="Controllers\ThanhToanController.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

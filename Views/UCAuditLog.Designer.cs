@@ -1,3 +1,5 @@
+using DemoPick.Helpers;
+using DemoPick.Data;
 namespace DemoPick
 {
     partial class UCAuditLog
@@ -70,3 +72,4 @@ namespace DemoPick
         }
     }
 }
+

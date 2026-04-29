@@ -1,10 +1,12 @@
+using DemoPick.Helpers;
+using DemoPick.Data;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Reflection;
 using System.Windows.Forms;
 
-namespace DemoPick.Services
+namespace DemoPick.Helpers
 {
     internal static class DesignModeUtil
     {
@@ -72,3 +74,5 @@ namespace DemoPick.Services
         }
     }
 }
+
+

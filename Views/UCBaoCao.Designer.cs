@@ -1,3 +1,5 @@
+using DemoPick.Helpers;
+using DemoPick.Data;
 using System.Windows.Forms;
 using Sunny.UI;
 using System.Windows.Forms.DataVisualization.Charting;
@@ -432,3 +434,4 @@ namespace DemoPick
 
     }
 }
+

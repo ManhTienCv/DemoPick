@@ -1,3 +1,5 @@
+using DemoPick.Helpers;
+using DemoPick.Data;
 namespace DemoPick.Models
 {
     internal sealed class AuthUser
@@ -8,3 +10,4 @@ namespace DemoPick.Models
         public string Role { get; set; }
     }
 }
+

@@ -1,3 +1,5 @@
+using DemoPick.Helpers;
+using DemoPick.Data;
 using System;
 using System.Windows.Forms;
 
@@ -18,7 +20,7 @@ namespace DemoPick.Views
         {
             InitializeComponent();
 
-            if (DemoPick.Services.DesignModeUtil.IsDesignMode(this))
+            if (DemoPick.Helpers.DesignModeUtil.IsDesignMode(this))
             {
                 return;
             }
@@ -173,3 +175,4 @@ namespace DemoPick.Views
         }
     }
 }
+

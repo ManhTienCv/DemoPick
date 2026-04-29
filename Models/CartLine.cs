@@ -1,3 +1,5 @@
+using DemoPick.Helpers;
+using DemoPick.Data;
 namespace DemoPick.Models
 {
     public sealed class CartLine
@@ -20,3 +22,4 @@ namespace DemoPick.Models
         }
     }
 }
+

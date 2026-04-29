@@ -1,8 +1,10 @@
+using DemoPick.Helpers;
+using DemoPick.Data;
 using System;
 using System.Configuration;
 using System.Data.SqlClient;
 
-namespace DemoPick.Services
+namespace DemoPick.Data
 {
     internal static class Db
     {
@@ -95,3 +97,5 @@ namespace DemoPick.Services
         }
     }
 }
+
+

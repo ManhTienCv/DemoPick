@@ -3,6 +3,8 @@ using System.Drawing;
 using System.Windows.Forms;
 using Sunny.UI;
 using DemoPick.Services;
+using DemoPick.Data;
+using DemoPick.Helpers;
 
 namespace DemoPick
 {
@@ -96,3 +98,5 @@ namespace DemoPick
         }
     }
 }
+
+

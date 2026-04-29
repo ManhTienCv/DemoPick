@@ -1,3 +1,5 @@
+using DemoPick.Helpers;
+using DemoPick.Data;
 using System;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -25,7 +27,7 @@ namespace DemoPick
                 try { courts = _controller.GetCourts() ?? new System.Collections.Generic.List<DemoPick.Models.CourtModel>(); }
                 catch (Exception ex)
                 {
-                    DemoPick.Services.DatabaseHelper.TryLogThrottled(
+                    DemoPick.Data.DatabaseHelper.TryLogThrottled(
                         throttleKey: "UCDatLich.ReloadCourts",
                         eventDesc: "Timeline Load Courts Error",
                         ex: ex,
@@ -37,7 +39,7 @@ namespace DemoPick
                 try { bookings = _controller.GetBookingsByDate(date) ?? new System.Collections.Generic.List<DemoPick.Models.BookingModel>(); }
                 catch (Exception ex)
                 {
-                    DemoPick.Services.DatabaseHelper.TryLogThrottled(
+                    DemoPick.Data.DatabaseHelper.TryLogThrottled(
                         throttleKey: "UCDatLich.ReloadBookings",
                         eventDesc: "Timeline Load Bookings Error",
                         ex: ex,
@@ -98,3 +100,4 @@ namespace DemoPick
         }
     }
 }
+

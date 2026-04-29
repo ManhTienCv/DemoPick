@@ -1,8 +1,10 @@
+using DemoPick.Helpers;
+using DemoPick.Data;
 using System;
 using System.Data;
 using System.Data.SqlClient;
 
-namespace DemoPick.Services
+namespace DemoPick.Helpers
 {
     internal static class PosInvoiceWriter
     {
@@ -49,3 +51,5 @@ namespace DemoPick.Services
         }
     }
 }
+
+

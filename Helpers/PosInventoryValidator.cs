@@ -1,3 +1,5 @@
+using DemoPick.Helpers;
+using DemoPick.Data;
 using DemoPick.Models;
 using System;
 using System.Collections.Generic;
@@ -6,7 +8,7 @@ using System.Data.SqlClient;
 using System.Globalization;
 using System.Text;
 
-namespace DemoPick.Services
+namespace DemoPick.Helpers
 {
     internal static class PosInventoryValidator
     {
@@ -129,3 +131,5 @@ namespace DemoPick.Services
         }
     }
 }
+
+

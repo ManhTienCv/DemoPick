@@ -1,8 +1,10 @@
+using DemoPick.Helpers;
+using DemoPick.Data;
 using System;
 using System.Collections.Generic;
 using DemoPick.Models;
 
-namespace DemoPick.Services
+namespace DemoPick.Helpers
 {
     public class TimeSlotCharge
     {
@@ -172,3 +174,5 @@ namespace DemoPick.Services
         }
     }
 }
+
+

@@ -5,6 +5,8 @@ using System.Windows.Forms;
 using Panel = System.Windows.Forms.Panel;
 using System.Collections.Generic;
 using DemoPick.Services;
+using DemoPick.Data;
+using DemoPick.Helpers;
 
 namespace DemoPick
 {
@@ -345,7 +347,7 @@ namespace DemoPick
             }
             catch (Exception ex)
             {
-                try { DemoPick.Services.DatabaseHelper.TryLog("SwitchModule Refresh Error", ex, "FrmChinh.RefreshModuleData"); } catch { }
+                try { DemoPick.Data.DatabaseHelper.TryLog("SwitchModule Refresh Error", ex, "FrmChinh.RefreshModuleData"); } catch { }
             }
         }
 
@@ -596,3 +598,5 @@ namespace DemoPick
         }
     }
 }
+
+

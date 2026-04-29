@@ -1,9 +1,11 @@
+using DemoPick.Helpers;
+using DemoPick.Data;
 using System;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 
-namespace DemoPick.Services
+namespace DemoPick.Data
 {
     internal static class DbDiagnostics
     {
@@ -210,3 +212,5 @@ namespace DemoPick.Services
         }
     }
 }
+
+

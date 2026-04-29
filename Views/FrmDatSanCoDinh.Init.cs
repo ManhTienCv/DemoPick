@@ -1,3 +1,5 @@
+using DemoPick.Helpers;
+using DemoPick.Data;
 using System;
 using System.Drawing;
 using System.Windows.Forms;
@@ -54,7 +56,7 @@ namespace DemoPick
                 cbDuration.SelectedItem = "90 phút";
             }
 
-            QueueConflictHintRefresh();
+            RefreshConflictHintUi();
         }
 
         private void RbMode_CheckedChanged(object sender, EventArgs e)
@@ -63,8 +65,11 @@ namespace DemoPick
             var rb = sender as Sunny.UI.UIRadioButton;
             if (rb != null && !rb.Checked) return;
 
+            SuspendLayout();
             ApplyModeLayout();
-            QueueConflictHintRefresh();
+            RefreshConflictHintUi();
+            ResumeLayout(true);
         }
     }
 }
+

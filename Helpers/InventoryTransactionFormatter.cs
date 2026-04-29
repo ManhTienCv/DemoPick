@@ -1,7 +1,9 @@
+using DemoPick.Helpers;
+using DemoPick.Data;
 using System;
 using System.Collections.Generic;
 
-namespace DemoPick.Services
+namespace DemoPick.Helpers
 {
     internal static class InventoryTransactionFormatter
     {
@@ -277,3 +279,5 @@ namespace DemoPick.Services
         }
     }
 }
+
+

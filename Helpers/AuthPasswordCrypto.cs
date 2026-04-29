@@ -1,8 +1,10 @@
+using DemoPick.Helpers;
+using DemoPick.Data;
 using System;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace DemoPick.Services
+namespace DemoPick.Helpers
 {
     internal static class AuthPasswordCrypto
     {
@@ -72,3 +74,5 @@ namespace DemoPick.Services
         }
     }
 }
+
+

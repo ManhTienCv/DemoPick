@@ -3,6 +3,8 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using DemoPick.Services;
+using DemoPick.Data;
+using DemoPick.Helpers;
 using Sunny.UI;
 
 namespace DemoPick
@@ -160,3 +162,5 @@ namespace DemoPick
         }
     }
 }
+
+

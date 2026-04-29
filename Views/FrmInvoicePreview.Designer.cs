@@ -1,3 +1,5 @@
+using DemoPick.Helpers;
+using DemoPick.Data;
 namespace DemoPick
 {
     partial class FrmInvoicePreview
@@ -126,3 +128,4 @@ namespace DemoPick
         private Sunny.UI.UIButton btnClose;
     }
 }
+

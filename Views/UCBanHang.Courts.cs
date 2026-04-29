@@ -2,6 +2,8 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 using DemoPick.Services;
+using DemoPick.Data;
+using DemoPick.Helpers;
 using Panel = System.Windows.Forms.Panel;
 
 namespace DemoPick
@@ -86,3 +88,5 @@ namespace DemoPick
         }
     }
 }
+
+

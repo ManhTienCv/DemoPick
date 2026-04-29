@@ -1,6 +1,8 @@
+using DemoPick.Helpers;
+using DemoPick.Data;
 using System.Text;
 
-namespace DemoPick.Services
+namespace DemoPick.Helpers
 {
     internal static class PhoneNumberValidator
     {
@@ -24,3 +26,4 @@ namespace DemoPick.Services
         }
     }
 }
+

@@ -1,3 +1,5 @@
+using DemoPick.Helpers;
+using DemoPick.Data;
 using System;
 using System.Drawing;
 using System.Windows.Forms;
@@ -145,7 +147,7 @@ namespace DemoPick
                         }
                         catch (Exception ex)
                         {
-                            try { DemoPick.Services.DatabaseHelper.TryLog("CancelBooking Error", ex, "UCDatLich"); } catch { }
+                            try { DemoPick.Data.DatabaseHelper.TryLog("CancelBooking Error", ex, "UCDatLich"); } catch { }
                             MessageBox.Show(ex.Message, "Không thể xóa booking", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         }
                     };
@@ -167,7 +169,7 @@ namespace DemoPick
         {
             try
             {
-                bool ok = DemoPick.Services.AppSession.IsInRole(DemoPick.Services.AppConstants.Roles.Admin);
+                bool ok = DemoPick.Helpers.AppSession.IsInRole(DemoPick.Helpers.AppConstants.Roles.Admin);
                 if (!ok)
                 {
                     MessageBox.Show("Chỉ Admin mới có quyền xóa sân.", "Không có quyền", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -177,7 +179,7 @@ namespace DemoPick
             }
             catch (Exception ex)
             {
-                DemoPick.Services.DatabaseHelper.TryLogThrottled(
+                DemoPick.Data.DatabaseHelper.TryLogThrottled(
                     throttleKey: "UCDatLich.CanManageCourts",
                     eventDesc: "Role Check Error",
                     ex: ex,
@@ -212,7 +214,7 @@ namespace DemoPick
             try
             {
                 // Only Staff/Admin can reschedule.
-                bool ok = DemoPick.Services.AppSession.IsInRole(DemoPick.Services.AppConstants.Roles.Admin) || DemoPick.Services.AppSession.IsInRole(DemoPick.Services.AppConstants.Roles.Staff);
+                bool ok = DemoPick.Helpers.AppSession.IsInRole(DemoPick.Helpers.AppConstants.Roles.Admin) || DemoPick.Helpers.AppSession.IsInRole(DemoPick.Helpers.AppConstants.Roles.Staff);
                 if (!ok)
                 {
                     MessageBox.Show("Tài khoản của bạn không có quyền đổi ca.", "Không có quyền", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -222,7 +224,7 @@ namespace DemoPick
             }
             catch (Exception ex)
             {
-                DemoPick.Services.DatabaseHelper.TryLogThrottled(
+                DemoPick.Data.DatabaseHelper.TryLogThrottled(
                     throttleKey: "UCDatLich.CanReschedule",
                     eventDesc: "Role Check Error",
                     ex: ex,
@@ -244,12 +246,12 @@ namespace DemoPick
             }
 
             var b = _selectedBooking;
-            if (string.Equals(b.Status, DemoPick.Services.AppConstants.BookingStatus.Paid, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(b.Status, DemoPick.Helpers.AppConstants.BookingStatus.Paid, StringComparison.OrdinalIgnoreCase))
             {
                 MessageBox.Show("Booking đã thanh toán, không thể đổi ca.", "Không thể đổi", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
-            if (string.Equals(b.Status, DemoPick.Services.AppConstants.BookingStatus.Cancelled, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(b.Status, DemoPick.Helpers.AppConstants.BookingStatus.Cancelled, StringComparison.OrdinalIgnoreCase))
             {
                 MessageBox.Show("Booking đã bị hủy.", "Không thể đổi", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
@@ -270,7 +272,7 @@ namespace DemoPick
             }
             catch (Exception ex)
             {
-                try { DemoPick.Services.DatabaseHelper.TryLog("DoiCa Error", ex, "UCDatLich.OpenRescheduleForSelected"); } catch { }
+                try { DemoPick.Data.DatabaseHelper.TryLog("DoiCa Error", ex, "UCDatLich.OpenRescheduleForSelected"); } catch { }
                 MessageBox.Show("Không thể đổi ca: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -291,12 +293,12 @@ namespace DemoPick
                     if (!CanReschedule()) return;
 
                     var b = hit.Booking;
-                    if (string.Equals(b.Status, DemoPick.Services.AppConstants.BookingStatus.Paid, StringComparison.OrdinalIgnoreCase))
+                    if (string.Equals(b.Status, DemoPick.Helpers.AppConstants.BookingStatus.Paid, StringComparison.OrdinalIgnoreCase))
                     {
                         MessageBox.Show("Booking đã thanh toán, không thể đổi ca.", "Không thể đổi", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         return;
                     }
-                    if (string.Equals(b.Status, DemoPick.Services.AppConstants.BookingStatus.Cancelled, StringComparison.OrdinalIgnoreCase))
+                    if (string.Equals(b.Status, DemoPick.Helpers.AppConstants.BookingStatus.Cancelled, StringComparison.OrdinalIgnoreCase))
                     {
                         MessageBox.Show("Booking đã bị hủy.", "Không thể đổi", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         return;
@@ -325,7 +327,7 @@ namespace DemoPick
             }
             catch (Exception ex)
             {
-                try { DemoPick.Services.DatabaseHelper.TryLog("DoiCa Error", ex, "UCDatLich.PnlCanvas_MouseDoubleClick"); } catch { }
+                try { DemoPick.Data.DatabaseHelper.TryLog("DoiCa Error", ex, "UCDatLich.PnlCanvas_MouseDoubleClick"); } catch { }
                 MessageBox.Show("Không thể đổi ca: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -393,7 +395,7 @@ namespace DemoPick
             }
             catch (Exception ex)
             {
-                try { DemoPick.Services.DatabaseHelper.TryLog("DeactivateCourt Error", ex, "UCDatLich"); } catch { }
+                try { DemoPick.Data.DatabaseHelper.TryLog("DeactivateCourt Error", ex, "UCDatLich"); } catch { }
                 MessageBox.Show(ex.Message, "Không thể xóa sân", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
@@ -421,3 +423,5 @@ namespace DemoPick
         }
     }
 }
+
+

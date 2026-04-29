@@ -1,3 +1,9 @@
+// ==========================================================
+// File: UCBaoCao.cs
+// Role: View (MVC)
+// Description: UserControl giao diện báo cáo doanh thu, KPIs.
+// Kết nối với ReportController để lấy dữ liệu thống kê.
+// ==========================================================
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -6,14 +12,17 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
+using DemoPick.Controllers;
 using DemoPick.Models;
 using DemoPick.Services;
+using DemoPick.Data;
+using DemoPick.Helpers;
 
 namespace DemoPick
 {
     public partial class UCBaoCao : UserControl
     {
-        private ReportService _reportService;
+        private ReportController _reportController;
         private Font _topCourtsViewAllNormalFont;
         private Font _topCourtsViewAllUnderlineFont;
 
@@ -32,7 +41,7 @@ namespace DemoPick
                 return;
             }
 
-            _reportService = new ReportService();
+            _reportController = new ReportController();
 
             SetupTopCourtsTable();
             SetupChartStyle();
@@ -222,11 +231,11 @@ namespace DemoPick
 
             try
             {
-                var topTask = _reportService.GetTopCourtsAsync(fromStart, toExclusive);
-                var kpiTask = _reportService.GetKpisAsync(fromStart, toExclusive, days);
-                var heatmapTask = _reportService.GetBookingHourHeatmapAsync(fromStart, toExclusive);
-                var opsTask = _reportService.GetBookingOpsAsync(fromStart, toExclusive);
-                var pieTask = _reportService.GetTopCourtsRevenueAsync(fromStart, toExclusive);
+                var topTask = _reportController.GetTopCourtsAsync(fromStart, toExclusive);
+                var kpiTask = _reportController.GetKpisAsync(fromStart, toExclusive, days);
+                var heatmapTask = _reportController.GetBookingHourHeatmapAsync(fromStart, toExclusive);
+                var opsTask = _reportController.GetBookingOpsAsync(fromStart, toExclusive);
+                var pieTask = _reportController.GetTopCourtsRevenueAsync(fromStart, toExclusive);
 
                 await Task.WhenAll(topTask, kpiTask, heatmapTask, opsTask, pieTask);
 
@@ -448,3 +457,5 @@ namespace DemoPick
         }
     }
 }
+
+

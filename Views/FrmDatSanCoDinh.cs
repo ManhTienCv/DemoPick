@@ -1,8 +1,15 @@
+// ==========================================================
+// File: FrmDatSanCoDinh.cs
+// Role: View (MVC)
+// Description: Form xử lý nghiệp vụ đặt sân và bảo trì sân.
+// ==========================================================
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using DemoPick.Services;
+using DemoPick.Data;
+using DemoPick.Helpers;
 
 namespace DemoPick
 {
@@ -23,10 +30,6 @@ namespace DemoPick
         private DateTimePicker _dtStartClock;
         private Label _lblConflict;
         private Timer _conflictDebounceTimer;
-        private Label _lblSuggestions;
-        private FlowLayoutPanel _pnlSuggestions;
-        private readonly List<LinkLabel> _suggestionLinks = new List<LinkLabel>();
-        private bool _smartSuggestionLayoutApplied;
 
         public FrmDatSanCoDinh()
             : this(BookingMode.Fixed, null, null, null)
@@ -59,7 +62,6 @@ namespace DemoPick
 
             BuildStartTimePicker();
             BuildRealtimeConflictHint();
-            BuildSmartSuggestionUi();
             BuildConflictDebounceTimer();
 
             // Set radio theo mode trước khi apply layout
@@ -177,48 +179,7 @@ namespace DemoPick
             _lblConflict.BringToFront();
         }
 
-        private void BuildSmartSuggestionUi()
-        {
-            _lblSuggestions = new Label();
-            _lblSuggestions.AutoSize = true;
-            _lblSuggestions.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            _lblSuggestions.ForeColor = Color.FromArgb(15, 118, 110);
-            _lblSuggestions.BackColor = BackColor;
-            _lblSuggestions.Location = new Point(_dtStartClock.Left, _dtStartClock.Bottom + 30);
-            _lblSuggestions.Text = "Goi y khung gio:";
-            _lblSuggestions.Visible = false;
 
-            _pnlSuggestions = new FlowLayoutPanel();
-            _pnlSuggestions.Location = new Point(_dtStartClock.Left, _lblSuggestions.Bottom + 4);
-            _pnlSuggestions.Size = new Size(300, 78);
-            _pnlSuggestions.BackColor = BackColor;
-            _pnlSuggestions.FlowDirection = FlowDirection.TopDown;
-            _pnlSuggestions.WrapContents = false;
-            _pnlSuggestions.AutoScroll = true;
-            _pnlSuggestions.Visible = false;
-
-            for (int i = 0; i < 3; i++)
-            {
-                var link = new LinkLabel();
-                link.AutoSize = false;
-                link.Width = 286;
-                link.Height = 22;
-                link.Font = new Font("Segoe UI", 9F, FontStyle.Underline);
-                link.LinkColor = Color.FromArgb(22, 101, 52);
-                link.ActiveLinkColor = Color.FromArgb(21, 128, 61);
-                link.VisitedLinkColor = Color.FromArgb(22, 101, 52);
-                link.BackColor = BackColor;
-                link.Visible = false;
-                link.Click += SuggestionLink_Click;
-                _suggestionLinks.Add(link);
-                _pnlSuggestions.Controls.Add(link);
-            }
-
-            Controls.Add(_lblSuggestions);
-            Controls.Add(_pnlSuggestions);
-            _lblSuggestions.BringToFront();
-            _pnlSuggestions.BringToFront();
-        }
 
         private void BuildConflictDebounceTimer()
         {
@@ -256,111 +217,122 @@ namespace DemoPick
         private void ApplyModeLayout()
         {
             bool quickMode = rbDatNhanh != null && rbDatNhanh.Checked;
-            bool fixedMode = rbKhachThue != null && rbKhachThue.Checked;
             bool maintenanceMode = rbBaoTri != null && rbBaoTri.Checked;
 
             if (quickMode)
             {
-                Text = "Đặt Sân Nhanh";
-                lblTitle.Text = "Đặt Sân Nhanh";
+                ApplyQuickModeLayout();
             }
             else if (maintenanceMode)
             {
-                Text = "Bảo Trì & Khóa Sân";
-                lblTitle.Text = "Bảo Trì & Khóa Sân";
+                ApplyMaintenanceModeLayout();
             }
             else
             {
-                Text = "Đặt Sân Cố Định";
-                lblTitle.Text = "Đặt Sân Cố Định";
-            }
-
-            if (quickMode)
-            {
-                lblDateRange.Text = "Ngày chơi:";
-
-                lblRepeat.Visible = false;
-                chkMon.Visible = false;
-                chkTue.Visible = false;
-                chkWed.Visible = false;
-                chkThu.Visible = false;
-                chkFri.Visible = false;
-                chkSat.Visible = false;
-                chkSun.Visible = false;
-                lblTo.Visible = false;
-
-                if (ucDateRange != null)
-                {
-                    ucDateRange.Mode = UCDateRangeFilter.DateFilterMode.SingleDate;
-                    ucDateRange.ShowApplyButton = false;
-                }
-
-                btnConfirm.FillColor = Color.FromArgb(46, 204, 113);
-                btnConfirm.FillHoverColor = Color.FromArgb(56, 214, 123);
-                btnConfirm.Text = "Xác nhận đặt sân";
-            }
-            else if (maintenanceMode)
-            {
-                lblDateRange.Text = "Chu kỳ (Từ - Đến):";
-
-                lblRepeat.Visible = true;
-                chkMon.Visible = true;
-                chkTue.Visible = true;
-                chkWed.Visible = true;
-                chkThu.Visible = true;
-                chkFri.Visible = true;
-                chkSat.Visible = true;
-                chkSun.Visible = true;
-
-                if (ucDateRange != null)
-                {
-                    ucDateRange.Mode = UCDateRangeFilter.DateFilterMode.Range;
-                    ucDateRange.ShowApplyButton = false;
-                }
-
-                txtName.Enabled = false;
-                txtPhone.Enabled = false;
-                txtName.Text = "Ban Quản Lý (Bảo Trì)";
-                txtPhone.Text = "N/A";
-
-                btnConfirm.FillColor = Color.FromArgb(231, 76, 60);
-                btnConfirm.FillHoverColor = Color.FromArgb(241, 86, 70);
-                btnConfirm.Text = "Xác nhận Khóa Sân";
-            }
-            else // Fixed
-            {
-                lblDateRange.Text = "Chu kỳ (Từ - Đến):";
-
-                lblRepeat.Visible = true;
-                chkMon.Visible = true;
-                chkTue.Visible = true;
-                chkWed.Visible = true;
-                chkThu.Visible = true;
-                chkFri.Visible = true;
-                chkSat.Visible = true;
-                chkSun.Visible = true;
-
-                if (ucDateRange != null)
-                {
-                    ucDateRange.Mode = UCDateRangeFilter.DateFilterMode.Range;
-                    ucDateRange.ShowApplyButton = false;
-                }
-
-                txtName.Enabled = true;
-                txtPhone.Enabled = true;
-                if (txtName.Text == "Ban Quản Lý (Bảo Trì)")
-                {
-                    txtName.Text = "";
-                    txtPhone.Text = "";
-                }
-
-                btnConfirm.FillColor = Color.FromArgb(119, 219, 44);
-                btnConfirm.FillHoverColor = Color.FromArgb(56, 214, 123);
-                btnConfirm.Text = "Tạo Lịch Cố Định";
+                ApplyFixedModeLayout();
             }
 
             UpdatePhoneValidationUi();
-            ApplySmartSuggestionLayout(showSuggestions: false);
+        }
+
+        private void ApplyQuickModeLayout()
+        {
+            Text = "Đặt Sân Nhanh";
+            lblTitle.Text = "Đặt Sân Nhanh";
+            lblDateRange.Text = "Ngày chơi:";
+
+            lblRepeat.Visible = false;
+            chkMon.Visible = false;
+            chkTue.Visible = false;
+            chkWed.Visible = false;
+            chkThu.Visible = false;
+            chkFri.Visible = false;
+            chkSat.Visible = false;
+            chkSun.Visible = false;
+            lblTo.Visible = false;
+
+            if (ucDateRange != null)
+            {
+                ucDateRange.Mode = UCDateRangeFilter.DateFilterMode.SingleDate;
+                ucDateRange.ShowApplyButton = false;
+            }
+
+            txtName.Enabled = true;
+            txtPhone.Enabled = true;
+            if (txtName.Text == "Ban Quản Lý (Bảo Trì)")
+            {
+                txtName.Text = "";
+                txtPhone.Text = "";
+            }
+
+            btnConfirm.FillColor = Color.FromArgb(46, 204, 113);
+            btnConfirm.FillHoverColor = Color.FromArgb(56, 214, 123);
+            btnConfirm.Text = "Xác nhận đặt sân";
+        }
+
+        private void ApplyMaintenanceModeLayout()
+        {
+            Text = "Bảo Trì & Khóa Sân";
+            lblTitle.Text = "Bảo Trì & Khóa Sân";
+            lblDateRange.Text = "Chu kỳ (Từ - Đến):";
+
+            lblRepeat.Visible = true;
+            chkMon.Visible = true;
+            chkTue.Visible = true;
+            chkWed.Visible = true;
+            chkThu.Visible = true;
+            chkFri.Visible = true;
+            chkSat.Visible = true;
+            chkSun.Visible = true;
+
+            if (ucDateRange != null)
+            {
+                ucDateRange.Mode = UCDateRangeFilter.DateFilterMode.Range;
+                ucDateRange.ShowApplyButton = false;
+            }
+
+            txtName.Enabled = false;
+            txtPhone.Enabled = false;
+            txtName.Text = "Ban Quản Lý (Bảo Trì)";
+            txtPhone.Text = "N/A";
+
+            btnConfirm.FillColor = Color.FromArgb(231, 76, 60);
+            btnConfirm.FillHoverColor = Color.FromArgb(241, 86, 70);
+            btnConfirm.Text = "Xác nhận Khóa Sân";
+        }
+
+        private void ApplyFixedModeLayout()
+        {
+            Text = "Đặt Sân Cố Định";
+            lblTitle.Text = "Đặt Sân Cố Định";
+            lblDateRange.Text = "Chu kỳ (Từ - Đến):";
+
+            lblRepeat.Visible = true;
+            chkMon.Visible = true;
+            chkTue.Visible = true;
+            chkWed.Visible = true;
+            chkThu.Visible = true;
+            chkFri.Visible = true;
+            chkSat.Visible = true;
+            chkSun.Visible = true;
+
+            if (ucDateRange != null)
+            {
+                ucDateRange.Mode = UCDateRangeFilter.DateFilterMode.Range;
+                ucDateRange.ShowApplyButton = false;
+            }
+
+            txtName.Enabled = true;
+            txtPhone.Enabled = true;
+            if (txtName.Text == "Ban Quản Lý (Bảo Trì)")
+            {
+                txtName.Text = "";
+                txtPhone.Text = "";
+            }
+
+            btnConfirm.FillColor = Color.FromArgb(119, 219, 44);
+            btnConfirm.FillHoverColor = Color.FromArgb(56, 214, 123);
+            btnConfirm.Text = "Tạo Lịch Cố Định";
         }
 
         internal TimeSpan GetSelectedStartTimeOfDay()
@@ -443,7 +415,6 @@ namespace DemoPick
             if (courtId <= 0)
             {
                 _lblConflict.Text = string.Empty;
-                RefreshSmartSuggestionUi(0, DateTime.Today, DateTime.Today, DateTime.Today);
                 return;
             }
 
@@ -464,8 +435,6 @@ namespace DemoPick
                 _lblConflict.ForeColor = Color.FromArgb(22, 163, 74);
                 _lblConflict.Text = "Khung gio dang chon dang trong.";
             }
-
-            RefreshSmartSuggestionUi(courtId, date, start, end);
         }
 
         internal static int ParseDurationMinutesCore(string durationText)
@@ -504,3 +473,5 @@ namespace DemoPick
         }
     }
 }
+
+

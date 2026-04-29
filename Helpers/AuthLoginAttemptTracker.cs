@@ -1,6 +1,8 @@
+using DemoPick.Helpers;
+using DemoPick.Data;
 using System.Data.SqlClient;
 
-namespace DemoPick.Services
+namespace DemoPick.Helpers
 {
     internal static class AuthLoginAttemptTracker
     {
@@ -22,3 +24,5 @@ namespace DemoPick.Services
         }
     }
 }
+
+

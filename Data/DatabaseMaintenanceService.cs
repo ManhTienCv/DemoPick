@@ -1,10 +1,12 @@
+using DemoPick.Helpers;
+using DemoPick.Data;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Text;
 
-namespace DemoPick.Services
+namespace DemoPick.Data
 {
     public class DatabaseMaintenanceService
     {
@@ -153,3 +155,5 @@ namespace DemoPick.Services
         }
     }
 }
+
+

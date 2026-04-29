@@ -3,6 +3,8 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using DemoPick.Services;
+using DemoPick.Data;
+using DemoPick.Helpers;
 
 namespace DemoPick
 {
@@ -49,11 +51,11 @@ namespace DemoPick
             _courtFormat = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center, Trimming = StringTrimming.EllipsisCharacter, FormatFlags = StringFormatFlags.NoWrap };
 
             _titleFont = new Font("Segoe UI", 9F, FontStyle.Bold);
-            _titleBrush = new SolidBrush(DemoPick.Services.UiTheme.TextPrimary);
+            _titleBrush = new SolidBrush(DemoPick.Helpers.UiTheme.TextPrimary);
             _timeFont = new Font("Segoe UI", 8.5F, FontStyle.Regular);
-            _timeBrush = new SolidBrush(DemoPick.Services.UiTheme.TextSecondary);
+            _timeBrush = new SolidBrush(DemoPick.Helpers.UiTheme.TextSecondary);
             _noteFont = new Font("Segoe UI", 8.25F, FontStyle.Italic);
-            _noteBrush = new SolidBrush(DemoPick.Services.UiTheme.TextSecondary);
+            _noteBrush = new SolidBrush(DemoPick.Helpers.UiTheme.TextSecondary);
         }
 
         private void DisposeGdiObjects()
@@ -267,3 +269,5 @@ namespace DemoPick
         }
     }
 }
+
+

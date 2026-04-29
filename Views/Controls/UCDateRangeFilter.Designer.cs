@@ -1,3 +1,5 @@
+using DemoPick.Helpers;
+using DemoPick.Data;
 namespace DemoPick
 {
     partial class UCDateRangeFilter
@@ -178,3 +180,4 @@ namespace DemoPick
         private CuoreUI.Controls.cuiCalendarDatePicker dtTo;
     }
 }
+

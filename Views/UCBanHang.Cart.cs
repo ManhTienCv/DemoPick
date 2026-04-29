@@ -1,3 +1,5 @@
+using DemoPick.Helpers;
+using DemoPick.Data;
 using System;
 using System.Windows.Forms;
 using DemoPick.Models;
@@ -114,7 +116,7 @@ namespace DemoPick
                 }
                 else
                 {
-                    Services.DatabaseHelper.TryLog("POS Save Pending Error", ex, "UCBanHang.SavePendingOrderFromCart");
+                    DemoPick.Data.DatabaseHelper.TryLog("POS Save Pending Error", ex, "UCBanHang.SavePendingOrderFromCart");
                 }
                 return false;
             }
@@ -167,3 +169,6 @@ namespace DemoPick
         }
     }
 }
+
+
+

@@ -1,3 +1,5 @@
+using DemoPick.Helpers;
+using DemoPick.Data;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -135,7 +137,7 @@ namespace DemoPick
 
             Controls.Add(_summaryLabel);
             _summaryLabel.BringToFront();
-            DemoPick.Services.UiTheme.NormalizeTextBackgrounds(this);
+            DemoPick.Helpers.UiTheme.NormalizeTextBackgrounds(this);
 
             // Push controls down to make room for the summary label
             txtSearch.Location = new Point(0, 58);
@@ -192,3 +194,4 @@ namespace DemoPick
         }
     }
 }
+

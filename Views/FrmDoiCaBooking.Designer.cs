@@ -1,3 +1,5 @@
+using DemoPick.Helpers;
+using DemoPick.Data;
 namespace DemoPick.Views
 {
     partial class FrmDoiCaBooking
@@ -414,3 +416,4 @@ namespace DemoPick.Views
         }
     }
 }
+

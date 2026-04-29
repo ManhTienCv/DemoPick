@@ -1,3 +1,5 @@
+using DemoPick.Helpers;
+using DemoPick.Data;
 using System.Drawing;
 using System.Windows.Forms;
 using Panel = System.Windows.Forms.Panel;
@@ -520,3 +522,4 @@ namespace DemoPick
         }
     }
 }
+

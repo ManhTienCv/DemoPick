@@ -1,6 +1,8 @@
+using DemoPick.Helpers;
+using DemoPick.Data;
 using System;
 
-namespace DemoPick.Services
+namespace DemoPick.Helpers
 {
     internal static class MembershipTierHelper
     {
@@ -55,3 +57,5 @@ namespace DemoPick.Services
         }
     }
 }
+
+

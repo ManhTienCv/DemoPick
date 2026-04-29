@@ -1,17 +1,26 @@
+// ==========================================================
+// File: UCKhoHang.cs
+// Role: View (MVC)
+// Description: UserControl quản lý kho hàng và giao dịch kho.
+// Lấy dữ liệu qua InventoryController.
+// ==========================================================
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
+using DemoPick.Controllers;
 using DemoPick.Models;
 using DemoPick.Services;
+using DemoPick.Data;
+using DemoPick.Helpers;
 
 namespace DemoPick
 {
     public partial class UCKhoHang : UserControl
     {
-        private InventoryService _inventoryService;
+        private InventoryController _inventoryController;
         private bool _listColumnsInitialized;
 
         public UCKhoHang()
@@ -23,7 +32,7 @@ namespace DemoPick
                 return;
             }
 
-            _inventoryService = new InventoryService();
+            _inventoryController = new InventoryController();
 
             EnsureListColumns();
 
@@ -140,14 +149,14 @@ namespace DemoPick
         {
             try
             {
-                var itemsTask = _inventoryService.GetInventoryItemsAsync();
-                var txsTask = _inventoryService.GetRecentTransactionsAsync();
-                var kpiTask = _inventoryService.GetInventoryKpisAsync();
+                var itemsTask = _inventoryController.GetInventoryItemsAsync();
+                var txsTask = _inventoryController.GetRecentTransactionsAsync();
+                var kpiTask = _inventoryController.GetInventoryKpisAsync();
 
                 await Task.WhenAll(itemsTask, txsTask, kpiTask);
 
                 var items = itemsTask.Result ?? new List<InventoryItemModel>();
-                var insight = _inventoryService.BuildSmartInsights(items);
+                var insight = _inventoryController.BuildSmartInsights(items);
 
                 BindInventoryItems(items);
                 BindTransactions(txsTask.Result);
@@ -320,3 +329,5 @@ namespace DemoPick
         }
     }
 }
+
+

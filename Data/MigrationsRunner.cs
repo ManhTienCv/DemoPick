@@ -1,3 +1,5 @@
+using DemoPick.Helpers;
+using DemoPick.Data;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -7,7 +9,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Reflection;
 
-namespace DemoPick.Services
+namespace DemoPick.Data
 {
     internal static class MigrationsRunner
     {
@@ -155,3 +157,5 @@ namespace DemoPick.Services
         }
     }
 }
+
+

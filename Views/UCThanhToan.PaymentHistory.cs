@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using DemoPick.Services;
+using DemoPick.Data;
+using DemoPick.Helpers;
 using Sunny.UI;
 
 namespace DemoPick
@@ -145,3 +147,5 @@ namespace DemoPick
         }
     }
 }
+
+

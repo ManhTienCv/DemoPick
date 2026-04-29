@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using DemoPick.Models;
 using DemoPick.Services;
+using DemoPick.Data;
+using DemoPick.Helpers;
 
 namespace DemoPick.Controllers
 {
@@ -194,3 +196,5 @@ namespace DemoPick.Controllers
         }
     }
 }
+
+

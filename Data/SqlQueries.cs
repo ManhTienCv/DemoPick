@@ -1,4 +1,6 @@
-namespace DemoPick.Services
+using DemoPick.Helpers;
+using DemoPick.Data;
+namespace DemoPick.Data
 {
     internal static class SqlQueries
     {
@@ -766,3 +768,5 @@ END
         }
     }
 }
+
+

@@ -1,3 +1,8 @@
+// ==========================================================
+// File: UCBanHang.cs
+// Role: View (MVC)
+// Description: Giao diện POS bán hàng (nước uống, dịch vụ).
+// ==========================================================
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -5,6 +10,8 @@ using System.Windows.Forms;
 using Panel = System.Windows.Forms.Panel;
 using Sunny.UI;
 using DemoPick.Services;
+using DemoPick.Data;
+using DemoPick.Helpers;
 
 namespace DemoPick
 {
@@ -19,7 +26,7 @@ namespace DemoPick
         {
             InitializeComponent();
 
-            if (DemoPick.Services.DesignModeUtil.IsDesignMode(this))
+            if (DemoPick.Helpers.DesignModeUtil.IsDesignMode(this))
             {
                 return;
             }
@@ -313,3 +320,5 @@ namespace DemoPick
 
     }
 }
+
+

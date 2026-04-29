@@ -1,10 +1,13 @@
+using DemoPick.Services;
+using DemoPick.Helpers;
+using DemoPick.Data;
 using System;
 using System.Data.SqlClient;
 #if DEBUG
 using System.Windows.Forms;
 #endif
 
-namespace DemoPick.Services
+namespace DemoPick.Data
 {
     internal static class SchemaInstaller
     {
@@ -123,3 +126,6 @@ END
         }
     }
 }
+
+
+

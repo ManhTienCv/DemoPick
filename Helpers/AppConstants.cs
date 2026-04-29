@@ -1,4 +1,6 @@
-namespace DemoPick.Services
+using DemoPick.Helpers;
+using DemoPick.Data;
+namespace DemoPick.Helpers
 {
     internal static class AppConstants
     {
@@ -44,3 +46,5 @@ namespace DemoPick.Services
         }
     }
 }
+
+

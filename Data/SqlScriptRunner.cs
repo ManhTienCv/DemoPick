@@ -1,3 +1,5 @@
+using DemoPick.Helpers;
+using DemoPick.Data;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -7,7 +9,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace DemoPick.Services
+namespace DemoPick.Data
 {
     internal static class SqlScriptRunner
     {
@@ -176,3 +178,5 @@ namespace DemoPick.Services
         }
     }
 }
+
+

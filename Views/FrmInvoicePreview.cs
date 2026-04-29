@@ -3,6 +3,8 @@ using System.Data;
 using System.IO;
 using System.Windows.Forms;
 using DemoPick.Services;
+using DemoPick.Data;
+using DemoPick.Helpers;
 using Microsoft.Reporting.WinForms;
 using Sunny.UI;
 
@@ -182,3 +184,5 @@ namespace DemoPick
         }
     }
 }
+
+

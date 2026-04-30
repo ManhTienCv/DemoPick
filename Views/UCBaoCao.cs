@@ -123,11 +123,11 @@ namespace DemoPick
                 }
 
                 lstTopCourts.Columns.Clear();
-                lstTopCourts.Columns.Add("San", 280);
-                lstTopCourts.Columns.Add("Loai", 140);
-                lstTopCourts.Columns.Add("Gio cao diem", 150);
-                lstTopCourts.Columns.Add("Do kin lich", 140);
-                lstTopCourts.Columns.Add("Ty le huy", 120);
+                lstTopCourts.Columns.Add("Sân", 280);
+                lstTopCourts.Columns.Add("Loại", 140);
+                lstTopCourts.Columns.Add("Giờ cao điểm", 150);
+                lstTopCourts.Columns.Add("Độ kín lịch", 140);
+                lstTopCourts.Columns.Add("Tỷ lệ hủy", 120);
                 lstTopCourts.Columns.Add("Doanh thu", 180);
             }
             catch
@@ -201,7 +201,7 @@ namespace DemoPick
         {
             if (DateFilter != null && !DateFilter.ValidateRange(out var err))
             {
-                MessageBox.Show(err ?? "Khoang thoi gian khong hop le.", "Khoang thoi gian khong hop le", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(err ?? "Khoảng thời gian không hợp lệ.", "Khoảng thời gian không hợp lệ", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -259,7 +259,7 @@ namespace DemoPick
 
         private void BindTopCourts(IReadOnlyCollection<TopCourtModel> topCourts)
         {
-            lblTopCourtsTitle.Text = "Top san theo khung gio";
+            lblTopCourtsTitle.Text = "Top sân theo khung giờ";
 
             if (lstTopCourts == null)
             {
@@ -276,7 +276,7 @@ namespace DemoPick
                     court.PeakSlot ?? "-",
                     court.Occupancy ?? "0%",
                     court.CancelRate ?? "0.0%",
-                    court.Revenue ?? "0d"
+                    court.Revenue ?? "0đ"
                 });
 
                 if (!string.IsNullOrWhiteSpace(court.CancelRate))
@@ -298,7 +298,7 @@ namespace DemoPick
             decimal prevRev = kpi?.PrevRev ?? 0m;
 
             lblC1Title.Text = "Tổng doanh thu";
-            lblC1Value.Text = currRev == 0m ? "0d" : currRev.ToString("N0", CultureInfo.CurrentCulture) + "d";
+            lblC1Value.Text = currRev == 0m ? "0đ" : currRev.ToString("N0", CultureInfo.CurrentCulture) + "đ";
             ApplyBadgePercent(lblC1Badge, currRev, prevRev);
         }
 
@@ -328,7 +328,7 @@ namespace DemoPick
 
         private void BindHeatmap(IReadOnlyCollection<ReportHeatmapPointModel> heatmap)
         {
-            lblTrendTitle.Text = "Heatmap gio dat san";
+            lblTrendTitle.Text = "Mật độ đặt sân theo giờ";
 
             if (chartTrend == null || chartTrend.Series.Count == 0)
             {
@@ -351,7 +351,7 @@ namespace DemoPick
 
         private void BindOutcomePie(ReportBookingOpsModel ops, IReadOnlyCollection<NamedRevenueModel> pie)
         {
-            lblPieTitle.Text = "Ty le huy / doi ca";
+            lblPieTitle.Text = "Tỷ lệ hủy / đổi ca";
 
             if (chartPie == null || chartPie.Series.Count == 0)
             {
@@ -367,14 +367,14 @@ namespace DemoPick
 
             if (active == 0 && cancelled == 0 && shifted == 0)
             {
-                var emptyIndex = series.Points.AddXY("Chua co du lieu", 1);
+                var emptyIndex = series.Points.AddXY("Chưa có dữ liệu", 1);
                 series.Points[emptyIndex].Color = Color.LightGray;
                 return;
             }
 
-            AddPiePoint(series, "Giu lich", active, Color.FromArgb(34, 197, 94));
-            AddPiePoint(series, "Huy", cancelled, Color.FromArgb(239, 68, 68));
-            AddPiePoint(series, "Doi ca", shifted, Color.FromArgb(245, 158, 11));
+            AddPiePoint(series, "Giữ lịch", active, Color.FromArgb(34, 197, 94));
+            AddPiePoint(series, "Hủy", cancelled, Color.FromArgb(239, 68, 68));
+            AddPiePoint(series, "Đổi ca", shifted, Color.FromArgb(245, 158, 11));
         }
 
         private static void AddPiePoint(Series series, string label, int value, Color color)

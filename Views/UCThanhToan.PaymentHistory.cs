@@ -77,7 +77,7 @@ namespace DemoPick
 
                     rows.Add(new UCPaymentHistoryPanel.HistoryRow
                     {
-                        InvoiceCode = h.InvoiceID.ToString(),
+                        InvoiceCode = "HD" + h.InvoiceID.ToString(),
                         TimeText = h.CreatedAt.ToString("dd/MM HH:mm"),
                         CustomerText = string.IsNullOrWhiteSpace(h.CustomerName) ? "Khách lẻ" : h.CustomerName,
                         TotalText = (h.FinalAmount <= 0 ? 0m : h.FinalAmount).ToString("N0") + "đ",
@@ -103,14 +103,22 @@ namespace DemoPick
                 return string.Empty;
             }
 
+            string FormatK(decimal val)
+            {
+                if (val == 0) return "0";
+                if (val >= 1000000) return (val / 1000000m).ToString("0.#") + "M";
+                if (val >= 1000) return (val / 1000m).ToString("0.#") + "k";
+                return val.ToString("N0");
+            }
+
             return string.Format(
-                "Ca {0:HH:mm}-{1:HH:mm} | {2} HĐ | {3:N0}đ | TM {4:N0}đ | CK {5:N0}đ | Sân {6} | POS {7}",
+                "Ca {0:HH:mm}-{1:HH:mm} | {2} HĐ | Tổng {3}\nTM {4} | CK {5} | Sân {6} | POS {7}",
                 shift.ShiftStart,
                 shift.ShiftEnd,
                 shift.InvoiceCount,
-                shift.TotalAmount,
-                shift.CashAmount,
-                shift.BankAmount,
+                FormatK(shift.TotalAmount),
+                FormatK(shift.CashAmount),
+                FormatK(shift.BankAmount),
                 shift.BookingLinkedInvoices,
                 shift.PosOnlyInvoices);
         }

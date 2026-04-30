@@ -308,10 +308,23 @@ SELECT CASE WHEN @total = 0 THEN 0 ELSE CAST((@booked * 100.0 / @total) AS INT) 
         }
 
         internal static class Inventory
+
         {
             internal const string InsertProduct = @"
-INSERT INTO Products (SKU, Name, Category, Price, StockQuantity, MinThreshold)
-VALUES (@SKU, @Name, @Category, @Price, @StockQuantity, @MinThreshold)";
+IF EXISTS (SELECT 1 FROM Products WHERE Name = @Name)
+BEGIN
+    UPDATE Products 
+    SET StockQuantity = StockQuantity + @StockQuantity,
+        Price = @Price,
+        Category = @Category,
+        MinThreshold = @MinThreshold
+    WHERE Name = @Name
+END
+ELSE
+BEGIN
+    INSERT INTO Products (SKU, Name, Category, Price, StockQuantity, MinThreshold)
+    VALUES (@SKU, @Name, @Category, @Price, @StockQuantity, @MinThreshold)
+END";
 
             internal const string ProductCategories = @"
 SELECT DISTINCT Category
@@ -319,7 +332,9 @@ FROM Products
 WHERE Category IS NOT NULL
     AND LTRIM(RTRIM(Category)) <> ''
     AND Category <> N'Dịch vụ đi kèm'
+    AND Category <> N'Dịch vụ'
     AND SKU NOT LIKE N'SVC-%'
+    AND SKU NOT LIKE N'DV[_]%'
 ORDER BY Category";
 
             internal const string ProductsCatalog = @"
@@ -332,18 +347,23 @@ ORDER BY ProductID DESC";
             internal const string ProductsForDeletion = @"
 SELECT ProductID, SKU, Name, Category, Price, StockQuantity
 FROM Products
+WHERE Category <> N'Dịch vụ đi kèm'
+  AND Category <> N'Dịch vụ'
+  AND SKU NOT LIKE N'SVC-%'
+  AND SKU NOT LIKE N'DV[_]%'
 ORDER BY ProductID DESC";
 
             internal const string InventoryKpis = @"
 SELECT 
     ISNULL(SUM(Price * StockQuantity), 0) as TotalVal,
-    (SELECT COUNT(*) FROM Products WHERE StockQuantity <= MinThreshold AND Category != N'Dịch vụ đi kèm') as CriticalItems,
+    (SELECT COUNT(*) FROM Products WHERE StockQuantity <= MinThreshold AND Category != N'Dịch vụ đi kèm' AND Category != N'Dịch vụ' AND SKU NOT LIKE N'SVC-%' AND SKU NOT LIKE N'DV[_]%') as CriticalItems,
     (SELECT ISNULL(SUM(Quantity), 0) FROM InvoiceDetails) as Sales,
     (SELECT COUNT(*) FROM Invoices) as InvoicesCount
 FROM Products
 WHERE Category != N'Dịch vụ đi kèm'
+    AND Category != N'Dịch vụ'
     AND SKU NOT LIKE N'SVC-%'
-    AND SKU NOT LIKE N'DV_%'";
+    AND SKU NOT LIKE N'DV[_]%'";
 
             internal const string InventoryItems = @"
 ;WITH Sales14 AS (
@@ -368,9 +388,7 @@ SELECT
 FROM dbo.Products p
 LEFT JOIN Sales14 s ON s.ProductID = p.ProductID
 WHERE p.Category != N'Dịch vụ đi kèm'
-  AND p.Category != N'Dịch vụ'
   AND p.SKU NOT LIKE N'SVC-%'
-  AND p.SKU NOT LIKE N'DV[_]%'
 ORDER BY
     CASE
         WHEN p.StockQuantity <= 0 THEN 0

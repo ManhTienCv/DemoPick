@@ -29,6 +29,11 @@ namespace DemoPick
         private Brush _timeBrush;
         private Font _noteFont;
         private Brush _noteBrush;
+        private Font _payStateFont;
+        private Brush _payStatePaidBrush;
+        private Brush _payStateTransferBrush;
+        private Brush _payStateDepositBrush;
+        private Brush _payStateDefaultBrush;
 
         private void EnsureCachedGdiObjects()
         {
@@ -56,6 +61,11 @@ namespace DemoPick
             _timeBrush = new SolidBrush(DemoPick.Helpers.UiTheme.TextSecondary);
             _noteFont = new Font("Segoe UI", 8.25F, FontStyle.Italic);
             _noteBrush = new SolidBrush(DemoPick.Helpers.UiTheme.TextSecondary);
+            _payStateFont = new Font("Segoe UI", 7.5F, FontStyle.Bold);
+            _payStatePaidBrush = new SolidBrush(Color.FromArgb(22, 163, 74));
+            _payStateTransferBrush = new SolidBrush(Color.FromArgb(37, 99, 235));
+            _payStateDepositBrush = new SolidBrush(Color.FromArgb(234, 88, 12));
+            _payStateDefaultBrush = new SolidBrush(Color.FromArgb(107, 114, 128));
         }
 
         private void DisposeGdiObjects()
@@ -76,6 +86,11 @@ namespace DemoPick
             _timeBrush?.Dispose();
             _noteFont?.Dispose();
             _noteBrush?.Dispose();
+            _payStateFont?.Dispose();
+            _payStatePaidBrush?.Dispose();
+            _payStateTransferBrush?.Dispose();
+            _payStateDepositBrush?.Dispose();
+            _payStateDefaultBrush?.Dispose();
         }
 
         private void RenderTimelineGrid(object sender, PaintEventArgs e)
@@ -159,12 +174,12 @@ namespace DemoPick
                 bool pendingSoon = IsPendingSoon(b);
                 bool showNote = !string.Equals(b.Status, AppConstants.BookingStatus.Paid, StringComparison.OrdinalIgnoreCase);
                 
-                RectangleF rect = DrawBooking(g, courtColWidth, timeRowHeight, hourWidth, rowHeight, cIdx, startHour, durHours, b.GuestName, bookingColor, b.StartTime, b.EndTime, selected, pendingSoon, b.Note, showNote);
+                RectangleF rect = DrawBooking(g, courtColWidth, timeRowHeight, hourWidth, rowHeight, cIdx, startHour, durHours, b.GuestName, bookingColor, b.StartTime, b.EndTime, selected, pendingSoon, b.Note, showNote, b.PaymentState, b.Status);
                 _bookingHits.Add(new BookingHitInfo { Rect = rect, Booking = b });
             }
         }
 
-        private RectangleF DrawBooking(Graphics g, float offsetX, float offsetY, float hourWidth, float rowHeight, int courtIndex, float startHour, float durationHours, string title, Color color, DateTime startTime, DateTime endTime, bool selected, bool pendingSoon, string note, bool showNote)
+        private RectangleF DrawBooking(Graphics g, float offsetX, float offsetY, float hourWidth, float rowHeight, int courtIndex, float startHour, float durationHours, string title, Color color, DateTime startTime, DateTime endTime, bool selected, bool pendingSoon, string note, bool showNote, string paymentState, string bookingStatus)
         {
             float gridStartHour = GridStartHour;
             float x = offsetX + ((startHour - gridStartHour) * hourWidth);
@@ -230,7 +245,43 @@ namespace DemoPick
                 }
             }
 
+            // Draw payment state badge (right-aligned inside the booking block)
+            if (!string.Equals(bookingStatus, AppConstants.BookingStatus.Cancelled, StringComparison.OrdinalIgnoreCase))
+            {
+                string payLabel = GetPaymentStateLabel(paymentState, bookingStatus);
+                Brush payBrush = GetPaymentStateBrush(paymentState, bookingStatus);
+                SizeF paySize = g.MeasureString(payLabel, _payStateFont);
+                float payX = x + w - paySize.Width - 8;
+                float payY = y + 6;
+                if (payX > x + 10 && paySize.Width < w - 20)
+                {
+                    g.DrawString(payLabel, _payStateFont, payBrush, payX, payY);
+                }
+            }
+
             return rect;
+        }
+
+        private static string GetPaymentStateLabel(string paymentState, string bookingStatus)
+        {
+            if (string.Equals(bookingStatus, AppConstants.BookingStatus.Paid, StringComparison.OrdinalIgnoreCase))
+                return "Đã thanh toán";
+            if (string.Equals(paymentState, AppConstants.BookingPaymentState.BankTransferred, StringComparison.OrdinalIgnoreCase))
+                return "Đã CK";
+            if (string.Equals(paymentState, AppConstants.BookingPaymentState.Deposit50, StringComparison.OrdinalIgnoreCase))
+                return "Cọc 50%";
+            return "Thu tại sân";
+        }
+
+        private Brush GetPaymentStateBrush(string paymentState, string bookingStatus)
+        {
+            if (string.Equals(bookingStatus, AppConstants.BookingStatus.Paid, StringComparison.OrdinalIgnoreCase))
+                return _payStatePaidBrush;
+            if (string.Equals(paymentState, AppConstants.BookingPaymentState.BankTransferred, StringComparison.OrdinalIgnoreCase))
+                return _payStateTransferBrush;
+            if (string.Equals(paymentState, AppConstants.BookingPaymentState.Deposit50, StringComparison.OrdinalIgnoreCase))
+                return _payStateDepositBrush;
+            return _payStateDefaultBrush;
         }
 
         private bool IsPendingSoon(DemoPick.Models.BookingModel booking)

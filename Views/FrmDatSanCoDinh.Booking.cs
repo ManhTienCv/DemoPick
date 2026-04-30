@@ -85,7 +85,7 @@ namespace DemoPick
 
             try
             {
-                _controller.SubmitBooking(courtId, memberId, guestName, note, start, end, status);
+                _controller.SubmitBooking(courtId, memberId, guestName, note, start, end, status, ResolvePaymentState());
 
                 MessageBox.Show(
                     $"Đặt sân thành công!\n- {start:dd/MM/yyyy HH:mm} đến {end:HH:mm}",
@@ -203,7 +203,7 @@ namespace DemoPick
                         continue;
                     }
 
-                    _controller.SubmitBooking(courtId, memberId, guestName, note, start, end, status);
+                    _controller.SubmitBooking(courtId, memberId, guestName, note, start, end, status, ResolvePaymentState());
                     created++;
                 }
                 catch (Exception ex)

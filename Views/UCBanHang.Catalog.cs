@@ -189,16 +189,18 @@ namespace DemoPick
                         }
                     };
 
-                    PictureBox pic = new PictureBox { Size = new Size(130, 100), Location = new Point(10, 10), BackColor = Color.FromArgb(243, 244, 246) };
-                    pic.Enabled = false;
-                    Label nameLbl = new Label { Text = nameTxt, Font = _posProductNameFont, ForeColor = Color.FromArgb(26, 35, 50), Location = new Point(10, 120), AutoSize = true };
-                    nameLbl.Enabled = false;
-                    Label priceLbl = new Label { Text = priceTxt, Font = _posProductPriceFont, ForeColor = Color.FromArgb(76, 175, 80), Location = new Point(10, 145), AutoSize = true };
-                    priceLbl.Enabled = false;
+                    PictureBox pic = new PictureBox { Size = new Size(130, 100), Location = new Point(10, 10), BackColor = Color.FromArgb(243, 244, 246), Cursor = Cursors.Hand };
+                    Label nameLbl = new Label { Text = nameTxt, Font = _posProductNameFont, ForeColor = Color.FromArgb(26, 35, 50), Location = new Point(10, 120), AutoSize = true, Cursor = Cursors.Hand };
+                    Label priceLbl = new Label { Text = priceTxt, Font = _posProductPriceFont, ForeColor = Color.FromArgb(76, 175, 80), Location = new Point(10, 145), AutoSize = true, Cursor = Cursors.Hand };
 
                     pnlProd.Controls.AddRange(new Control[] { pic, nameLbl, priceLbl });
                     UiTheme.NormalizeTextBackgrounds(pnlProd);
-                    pnlProd.Click += (s, e) => AddToCart(prodId, nameTxt, priceVal, catNorm);
+                    
+                    EventHandler onClick = (s, e) => AddToCart(prodId, nameTxt, priceVal, catNorm);
+                    pnlProd.Click += onClick;
+                    pic.Click += onClick;
+                    nameLbl.Click += onClick;
+                    priceLbl.Click += onClick;
 
                     flpProducts.Controls.Add(pnlProd);
                 }
@@ -250,5 +252,3 @@ namespace DemoPick
         }
     }
 }
-
-

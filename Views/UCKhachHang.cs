@@ -104,7 +104,6 @@ namespace DemoPick
             lstKhachHang.Columns.Add("Khách hàng", 350, HorizontalAlignment.Left);
             lstKhachHang.Columns.Add("SĐT", 140, HorizontalAlignment.Left);
             lstKhachHang.Columns.Add("Phân loại", 120, HorizontalAlignment.Left);
-            lstKhachHang.Columns.Add("Hạng", 100, HorizontalAlignment.Center);
             lstKhachHang.Columns.Add("Giờ tích lũy", 180, HorizontalAlignment.Left);
             lstKhachHang.Columns.Add("Chi tiêu", 160, HorizontalAlignment.Right);
             lstKhachHang.EndUpdate();
@@ -137,7 +136,6 @@ namespace DemoPick
                         $"   {customerIdentity}", 
                         c.Phone, 
                         c.CustomerType, 
-                        c.Tier,
                         c.TotalHours.ToString("0.##") + "h", 
                         c.TotalSpent 
                     });
@@ -149,7 +147,7 @@ namespace DemoPick
             // Show Empty Notification if blank
             if (lstKhachHang.Items.Count == 0 && _allCustomersCache.Count == 0)
             {
-                lstKhachHang.Items.Add(new ListViewItem(new[] { "   ⚠ Chưa có Hội viên", "-", "-", "-", "-", "0đ" }));
+                lstKhachHang.Items.Add(new ListViewItem(new[] { "   ⚠ Chưa có Hội viên", "-", "-", "-", "0đ" }));
             }
         }
 
@@ -219,59 +217,7 @@ namespace DemoPick
                     }
                 }
             }
-            else if (e.ColumnIndex == 3) // Hạng (Tier)
-            {
-                Color badgeBgColor;
-                Color badgeFgColor;
-                string tierText = MembershipTierHelper.NormalizeTier(c.Tier);
-                
-                if (tierText == "Gold")
-                {
-                    badgeBgColor = Color.FromArgb(254, 243, 199); // Light yellow/amber
-                    badgeFgColor = Color.FromArgb(217, 119, 6);   // Dark amber
-                }
-                else if (tierText == "Silver")
-                {
-                    badgeBgColor = Color.FromArgb(243, 244, 246); // Light gray
-                    badgeFgColor = Color.FromArgb(75, 85, 99);    // Dark gray
-                }
-                else
-                {
-                    badgeBgColor = Color.FromArgb(224, 231, 255); // Light indigo
-                    badgeFgColor = Color.FromArgb(67, 56, 202);   // Dark indigo
-                }
-
-                int pillHeight = Math.Max(18, Math.Min(22, e.Bounds.Height - 8));
-                int pillWidth = Math.Min(86, Math.Max(72, e.Bounds.Width - 12));
-                int pillY = e.Bounds.Y + (e.Bounds.Height - pillHeight) / 2;
-
-                Rectangle rect = new Rectangle(e.Bounds.X + (e.Bounds.Width - pillWidth) / 2, pillY, pillWidth, pillHeight);
-                
-                using (GraphicsPath p = new GraphicsPath())
-                {
-                    int r = Math.Min(12, rect.Height / 2);
-                    p.AddArc(rect.X, rect.Y, r, r, 180, 90);
-                    p.AddArc(rect.Right - r, rect.Y, r, r, 270, 90);
-                    p.AddArc(rect.Right - r, rect.Bottom - r, r, r, 0, 90);
-                    p.AddArc(rect.X, rect.Bottom - r, r, r, 90, 90);
-                    p.CloseFigure();
-                    
-                    using (Brush bgBrush = new SolidBrush(badgeBgColor))
-                    {
-                        e.Graphics.FillPath(bgBrush, p);
-                    }
-                }
-                
-                using (Brush fgBrush = new SolidBrush(badgeFgColor))
-                {
-                    using (var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center })
-                    using (var font = new Font(e.Item.Font.FontFamily, 9F, FontStyle.Bold))
-                    {
-                        e.Graphics.DrawString(tierText, font, fgBrush, rect, sf);
-                    }
-                }
-            }
-            else if (e.ColumnIndex == 4) // Giờ tích lũy (Progress Bar)
+            else if (e.ColumnIndex == 3) // Giờ tích lũy (Progress Bar)
             {
                 using (var boldFont = new Font(e.Item.Font, FontStyle.Bold))
                 {

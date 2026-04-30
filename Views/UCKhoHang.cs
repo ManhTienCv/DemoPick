@@ -88,10 +88,10 @@ namespace DemoPick
                 return string.Empty;
             }
 
-            if (string.Equals(s, "Out of Stock", StringComparison.OrdinalIgnoreCase)) return "Het hang";
-            if (string.Equals(s, "Critical Low", StringComparison.OrdinalIgnoreCase)) return "Can nhap gap";
-            if (string.Equals(s, "Warning", StringComparison.OrdinalIgnoreCase)) return "Sap het";
-            if (string.Equals(s, "Healthy", StringComparison.OrdinalIgnoreCase)) return "On dinh";
+            if (string.Equals(s, "Out of Stock", StringComparison.OrdinalIgnoreCase)) return "Hết hàng";
+            if (string.Equals(s, "Critical Low", StringComparison.OrdinalIgnoreCase)) return "Cần nhập gấp";
+            if (string.Equals(s, "Warning", StringComparison.OrdinalIgnoreCase)) return "Sắp hết";
+            if (string.Equals(s, "Healthy", StringComparison.OrdinalIgnoreCase)) return "Ổn";
             return s;
         }
 
@@ -261,7 +261,7 @@ namespace DemoPick
 
         private void BindForecast(InventorySmartInsightsModel insight)
         {
-            lblBotRightTitle.Text = "Du bao can nhap 7 ngay";
+            lblBotRightTitle.Text = "Dự báo tồn kho 7 ngày tới";
 
             if (chartDuBao.Series.Count == 0)
             {
@@ -279,14 +279,22 @@ namespace DemoPick
             series.Points.Clear();
             series.ChartType = SeriesChartType.SplineArea;
             series.BorderWidth = 3;
-            series.Color = Color.FromArgb(76, 175, 80);
-            series.BackSecondaryColor = Color.FromArgb(180, 220, 180);
+            series.Color = Color.FromArgb(239, 68, 68);
+            series.BackSecondaryColor = Color.FromArgb(254, 226, 226);
+            series.BackGradientStyle = GradientStyle.TopBottom;
+            series.MarkerStyle = MarkerStyle.Circle;
+            series.MarkerSize = 8;
+            series.MarkerColor = Color.White;
+            series.MarkerBorderColor = Color.FromArgb(239, 68, 68);
+            series.MarkerBorderWidth = 2;
+            series.ToolTip = "Dự kiến #VAL mặt hàng cạn kho vào #AXISLABEL";
 
             if (insight?.ForecastPoints == null || insight.ForecastPoints.Count == 0)
             {
                 for (int day = 1; day <= 7; day++)
                 {
-                    series.Points.AddXY("Ngay " + day, 0);
+                    string label = day == 1 ? "Hôm nay" : (day == 2 ? "Ngày mai" : "Ngày " + day);
+                    series.Points.AddXY(label, 0);
                 }
 
                 return;

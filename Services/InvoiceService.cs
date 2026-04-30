@@ -52,21 +52,23 @@ SELECT
     ISNULL(SUM(i.FinalAmount), 0) AS TotalAmount,
     ISNULL(SUM(CASE WHEN ISNULL(i.PaymentMethod, N'') = N'Cash' THEN i.FinalAmount ELSE 0 END), 0) AS CashAmount,
     ISNULL(SUM(CASE WHEN ISNULL(i.PaymentMethod, N'') IN (N'Bank', N'Banking', N'Transfer') THEN i.FinalAmount ELSE 0 END), 0) AS BankAmount,
-    SUM(CASE WHEN EXISTS (
-        SELECT 1
-        FROM dbo.InvoiceDetails d
-        WHERE d.InvoiceID = i.InvoiceID
-          AND d.BookingID IS NOT NULL
-    ) THEN 1 ELSE 0 END) AS BookingLinkedInvoices,
-    SUM(CASE WHEN EXISTS (
-        SELECT 1
-        FROM dbo.InvoiceDetails d
-        WHERE d.InvoiceID = i.InvoiceID
-          AND d.BookingID IS NOT NULL
-    ) THEN 0 ELSE 1 END) AS PosOnlyInvoices
-FROM dbo.Invoices i
-WHERE i.CreatedAt >= @From
-  AND i.CreatedAt < @To";
+    SUM(i.HasBooking) AS BookingLinkedInvoices,
+    SUM(CASE WHEN i.HasBooking = 1 THEN 0 ELSE 1 END) AS PosOnlyInvoices
+FROM (
+    SELECT 
+        inv.FinalAmount, 
+        inv.PaymentMethod,
+        CASE WHEN EXISTS (
+            SELECT 1
+            FROM dbo.InvoiceDetails d
+            WHERE d.InvoiceID = inv.InvoiceID
+              AND d.BookingID IS NOT NULL
+        ) THEN 1 ELSE 0 END AS HasBooking
+    FROM dbo.Invoices inv
+    WHERE inv.CreatedAt >= @From
+      AND inv.CreatedAt < @To
+) i";
+
 
         public sealed class InvoiceHeader
         {

@@ -219,18 +219,23 @@ namespace DemoPick.Services
                     int? daysRemaining = avgDailySales > 0m
                         ? Math.Max(0, (int)Math.Floor(stock / avgDailySales))
                         : (int?)null;
-                    string status = GetInventoryStatus(stock, min, daysRemaining);
                     int suggestedReorder = Math.Max(0, targetStock - stock);
+                    string cat = row["Category"]?.ToString() ?? string.Empty;
+                    bool isService = string.Equals(cat, "Dịch vụ", StringComparison.OrdinalIgnoreCase);
+
+                    string status = isService ? "Healthy" : GetInventoryStatus(stock, min, daysRemaining);
+                    string recommendation = isService ? "" : BuildRecommendation(stock, min, avgDailySales, daysRemaining, suggestedReorder);
+                    string stockStr = isService ? $"{stock} / {min}" : stock.ToString("N0");
 
                     list.Add(new InventoryItemModel
                     {
                         ProductId = row["ProductID"] == DBNull.Value ? 0 : Convert.ToInt32(row["ProductID"]),
                         Sku = row["SKU"]?.ToString() ?? string.Empty,
                         Name = row["Name"]?.ToString() ?? string.Empty,
-                        Category = row["Category"]?.ToString() ?? string.Empty,
-                        Stock = stock.ToString("N0"),
+                        Category = cat,
+                        Stock = stockStr,
                         Status = status,
-                        Price = (row["Price"] == DBNull.Value ? 0m : Convert.ToDecimal(row["Price"])).ToString("N0") + "d",
+                        Price = (row["Price"] == DBNull.Value ? 0m : Convert.ToDecimal(row["Price"])).ToString("N0") + "đ",
                         CurrentStock = stock,
                         MinThreshold = min,
                         SoldLast14Days = soldLast14Days,
@@ -238,7 +243,7 @@ namespace DemoPick.Services
                         SuggestedReorderQuantity = suggestedReorder,
                         TargetStockQuantity = targetStock,
                         DaysRemaining = daysRemaining,
-                        Recommendation = BuildRecommendation(stock, min, avgDailySales, daysRemaining, suggestedReorder)
+                        Recommendation = recommendation
                     });
                 }
             });
@@ -281,9 +286,10 @@ namespace DemoPick.Services
                     }
                 }
 
+                string label = day == 1 ? "Hôm nay" : (day == 2 ? "Ngày mai" : "Ngày " + day);
                 insight.ForecastPoints.Add(new InventoryForecastPointModel
                 {
-                    Label = "Ngay " + day,
+                    Label = label,
                     RiskItems = riskItems
                 });
             }

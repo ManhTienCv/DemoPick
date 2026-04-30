@@ -119,10 +119,10 @@ namespace DemoPick
             cbTime.SelectedIndex = 22;
             cbDuration.SelectedIndex = 1;
 
+            cbPayState.SelectedIndex = 0; // default: Thu tại sân
+
             if (ucDateRange != null)
             {
-                ucDateRange.Mode = UCDateRangeFilter.DateFilterMode.Range;
-                ucDateRange.ShowApplyButton = false;
                 ucDateRange.FromDate = DateTime.Now;
                 ucDateRange.ToDate = DateTime.Now.AddMonths(1);
             }
@@ -268,6 +268,10 @@ namespace DemoPick
             btnConfirm.FillColor = Color.FromArgb(46, 204, 113);
             btnConfirm.FillHoverColor = Color.FromArgb(56, 214, 123);
             btnConfirm.Text = "Xác nhận đặt sân";
+
+            lblPayState.Visible = true;
+            cbPayState.Visible = true;
+            cbPayState.Enabled = true;
         }
 
         private void ApplyMaintenanceModeLayout()
@@ -299,6 +303,9 @@ namespace DemoPick
             btnConfirm.FillColor = Color.FromArgb(231, 76, 60);
             btnConfirm.FillHoverColor = Color.FromArgb(241, 86, 70);
             btnConfirm.Text = "Xác nhận Khóa Sân";
+
+            lblPayState.Visible = false;
+            cbPayState.Visible = false;
         }
 
         private void ApplyFixedModeLayout()
@@ -333,6 +340,10 @@ namespace DemoPick
             btnConfirm.FillColor = Color.FromArgb(119, 219, 44);
             btnConfirm.FillHoverColor = Color.FromArgb(56, 214, 123);
             btnConfirm.Text = "Tạo Lịch Cố Định";
+
+            lblPayState.Visible = true;
+            cbPayState.Visible = true;
+            cbPayState.Enabled = true;
         }
 
         internal TimeSpan GetSelectedStartTimeOfDay()
@@ -470,6 +481,19 @@ namespace DemoPick
             txtPhone.RectColor = PhoneNumberValidator.IsValidTenDigits(raw)
                 ? Color.LightGray
                 : Color.FromArgb(231, 76, 60);
+        }
+
+        internal string ResolvePaymentState()
+        {
+            if (cbPayState == null) return AppConstants.BookingPaymentState.PayAtVenue;
+            string selected = (cbPayState.SelectedItem ?? "").ToString().Trim();
+
+            if (selected.IndexOf("chuyển khoản", StringComparison.OrdinalIgnoreCase) >= 0)
+                return AppConstants.BookingPaymentState.BankTransferred;
+            if (selected.IndexOf("50%", StringComparison.OrdinalIgnoreCase) >= 0)
+                return AppConstants.BookingPaymentState.Deposit50;
+
+            return AppConstants.BookingPaymentState.PayAtVenue;
         }
     }
 }

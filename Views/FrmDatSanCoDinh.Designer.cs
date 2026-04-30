@@ -47,6 +47,9 @@ namespace DemoPick
         private UICheckBox chkSat;
         private UICheckBox chkSun;
         
+        private Label lblPayState;
+        private UIComboBox cbPayState;
+
         private UIButton btnCancel;
         private UIButton btnConfirm;
 
@@ -92,6 +95,8 @@ namespace DemoPick
             this.btnCancel = new Sunny.UI.UIButton();
             this.btnConfirm = new Sunny.UI.UIButton();
             this.ucDateRange = new DemoPick.UCDateRangeFilter();
+            this.lblPayState = new System.Windows.Forms.Label();
+            this.cbPayState = new Sunny.UI.UIComboBox();
             this.pnlHeader.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -383,7 +388,7 @@ namespace DemoPick
             // 
             this.lblDateRange.AutoSize = true;
             this.lblDateRange.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.lblDateRange.Location = new System.Drawing.Point(30, 395);
+            this.lblDateRange.Location = new System.Drawing.Point(30, 440);
             this.lblDateRange.Name = "lblDateRange";
             this.lblDateRange.Size = new System.Drawing.Size(148, 23);
             this.lblDateRange.TabIndex = 19;
@@ -500,7 +505,7 @@ namespace DemoPick
             this.btnCancel.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold);
             this.btnCancel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(60)))), ((int)(((byte)(70)))));
             this.btnCancel.ForeHoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(60)))), ((int)(((byte)(70)))));
-            this.btnCancel.Location = new System.Drawing.Point(30, 480);
+            this.btnCancel.Location = new System.Drawing.Point(30, 530);
             this.btnCancel.MinimumSize = new System.Drawing.Size(1, 1);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Radius = 8;
@@ -516,7 +521,7 @@ namespace DemoPick
             this.btnConfirm.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(119)))), ((int)(((byte)(219)))), ((int)(((byte)(44)))));
             this.btnConfirm.FillHoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(56)))), ((int)(((byte)(214)))), ((int)(((byte)(123)))));
             this.btnConfirm.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold);
-            this.btnConfirm.Location = new System.Drawing.Point(250, 480);
+            this.btnConfirm.Location = new System.Drawing.Point(250, 530);
             this.btnConfirm.MinimumSize = new System.Drawing.Size(1, 1);
             this.btnConfirm.Name = "btnConfirm";
             this.btnConfirm.Radius = 8;
@@ -526,9 +531,42 @@ namespace DemoPick
             this.btnConfirm.Text = "Tạo Lịch Cố Định";
             this.btnConfirm.TipsFont = new System.Drawing.Font("Microsoft Sans Serif", 9F);
             // 
+            // lblPayState
+            // 
+            this.lblPayState.AutoSize = true;
+            this.lblPayState.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.lblPayState.Location = new System.Drawing.Point(30, 350);
+            this.lblPayState.Name = "lblPayState";
+            this.lblPayState.Size = new System.Drawing.Size(160, 23);
+            this.lblPayState.TabIndex = 30;
+            this.lblPayState.Text = "Tình trạng thanh toán:";
+            // 
+            // cbPayState
+            // 
+            this.cbPayState.DataSource = null;
+            this.cbPayState.DropDownStyle = Sunny.UI.UIDropDownStyle.DropDownList;
+            this.cbPayState.FillColor = System.Drawing.Color.White;
+            this.cbPayState.Font = new System.Drawing.Font("Segoe UI", 11F);
+            this.cbPayState.ItemHoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(155)))), ((int)(((byte)(200)))), ((int)(((byte)(255)))));
+            this.cbPayState.Items.AddRange(new object[] {
+            "Thu tại sân",
+            "Đã chuyển khoản",
+            "Đặt cọc 50%"});
+            this.cbPayState.ItemSelectForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(235)))), ((int)(((byte)(243)))), ((int)(((byte)(255)))));
+            this.cbPayState.Location = new System.Drawing.Point(30, 375);
+            this.cbPayState.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.cbPayState.MinimumSize = new System.Drawing.Size(63, 0);
+            this.cbPayState.Name = "cbPayState";
+            this.cbPayState.Padding = new System.Windows.Forms.Padding(0, 0, 30, 2);
+            this.cbPayState.Size = new System.Drawing.Size(300, 36);
+            this.cbPayState.SymbolSize = 24;
+            this.cbPayState.TabIndex = 29;
+            this.cbPayState.TextAlignment = System.Drawing.ContentAlignment.MiddleLeft;
+            this.cbPayState.Watermark = "";
+            // 
             // ucDateRange
             // 
-            this.ucDateRange.Location = new System.Drawing.Point(30, 420);
+            this.ucDateRange.Location = new System.Drawing.Point(30, 468);
             this.ucDateRange.Mode = DemoPick.UCDateRangeFilter.DateFilterMode.SingleDate;
             this.ucDateRange.Name = "ucDateRange";
             this.ucDateRange.ShowApplyButton = false;
@@ -538,7 +576,9 @@ namespace DemoPick
             // FrmDatSanCoDinh
             // 
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(250)))), ((int)(((byte)(250)))));
-            this.ClientSize = new System.Drawing.Size(760, 540);
+            this.ClientSize = new System.Drawing.Size(760, 600);
+            this.Controls.Add(this.cbPayState);
+            this.Controls.Add(this.lblPayState);
             this.Controls.Add(this.ucDateRange);
             this.Controls.Add(this.btnConfirm);
             this.Controls.Add(this.btnCancel);

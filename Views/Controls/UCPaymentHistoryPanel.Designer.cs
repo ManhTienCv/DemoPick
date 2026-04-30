@@ -143,21 +143,21 @@ namespace DemoPick
             this.colInvoiceId.HeaderText = "Mã";
             this.colInvoiceId.Name = "colInvoiceId";
             this.colInvoiceId.ReadOnly = true;
-            this.colInvoiceId.Width = 40;
+            this.colInvoiceId.Width = 45;
             // 
             // colTime
             // 
             this.colTime.HeaderText = "Giờ";
             this.colTime.Name = "colTime";
             this.colTime.ReadOnly = true;
-            this.colTime.Width = 60;
+            this.colTime.Width = 72;
             // 
             // colCustomer
             // 
             this.colCustomer.HeaderText = "Khách";
             this.colCustomer.Name = "colCustomer";
             this.colCustomer.ReadOnly = true;
-            this.colCustomer.Width = 82;
+            this.colCustomer.Width = 75;
             // 
             // colTotal
             // 

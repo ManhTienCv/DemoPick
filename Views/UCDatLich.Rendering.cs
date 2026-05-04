@@ -121,29 +121,28 @@ namespace DemoPick
             g.DrawLine(_headerBorderPen, courtColWidth, 0, courtColWidth, height);
 
             // Draw Time Headers
-            for (int i = 0; i < hoursToDraw; i++)
+            for (int i = 0; i <= hoursToDraw; i++)
             {
                 int h = GridStartHour + i;
                 float x = courtColWidth + (i * hourWidth);
 
-                if (_currentDate.Date < DateTime.Now.Date ||
-                   (_currentDate.Date == DateTime.Now.Date && h < DateTime.Now.Hour))
+                if (i < hoursToDraw)
                 {
-                    g.FillRectangle(_pastHourBrush, x, timeRowHeight, hourWidth, height - timeRowHeight);
+                    if (_currentDate.Date < DateTime.Now.Date ||
+                       (_currentDate.Date == DateTime.Now.Date && h < DateTime.Now.Hour))
+                    {
+                        g.FillRectangle(_pastHourBrush, x, timeRowHeight, hourWidth, height - timeRowHeight);
+                    }
                 }
 
-                g.DrawLine(_gridPen, x, timeRowHeight, x, height);
-                string timeStr = string.Format("{0:D2}:00", h);
-                g.DrawString(timeStr, _axisFont, _axisBrush, new RectangleF(x, 0, hourWidth, timeRowHeight), _headerFormat);
-            }
+                g.DrawLine(_gridPen, x, 0, x, height);
 
-            try
-            {
-                string endLabel = "24:00";
-                SizeF sEnd = g.MeasureString(endLabel, _axisFont);
-                g.DrawString(endLabel, _axisFont, _axisBrush, width - sEnd.Width - 6, (timeRowHeight / 2f) - (sEnd.Height / 2f));
+                if (i < hoursToDraw)
+                {
+                    string timeStr = string.Format("{0:D2}:00", h);
+                    g.DrawString(timeStr, _axisFont, _axisBrush, new RectangleF(x, 0, hourWidth, timeRowHeight), _headerFormat);
+                }
             }
-            catch { }
 
             // Draw Court Rows
             var courts = _cachedCourts ?? new System.Collections.Generic.List<DemoPick.Models.CourtModel>();
